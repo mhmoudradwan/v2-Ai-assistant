@@ -65,7 +65,7 @@ const LandingNavbar = () => {
                     </ul>
                 </div>
                 <div className="navbar-actions ">
-                    <div className="register-btn">
+                    <div className="register-btn" style={{maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                     Hi, {displayName}
                     </div>
                     
