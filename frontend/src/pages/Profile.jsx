@@ -143,7 +143,7 @@ function Profile() {
               </div>
               <div className="profile-info-content">
                 <p className="profile-info-label">Phone Number</p>
-                <p className="profile-info-value">{userData.phone}</p>
+                <p className="profile-info-value">{userData.phone || "—"}</p>
               </div>
             </div>
 
@@ -173,7 +173,7 @@ function Profile() {
               </div>
               <div className="profile-info-content">
                 <p className="profile-info-label">Account Created</p>
-                <p className="profile-info-value">{userData.accountCreated}</p>
+                <p className="profile-info-value">{userData.accountCreated || "—"}</p>
               </div>
             </div>
           </div>

@@ -17,7 +17,7 @@ const LandingNavbar = () => {
   <>
 <nav className="navbar navbar-expand-lg bg-body">
             <div className="container-fluid navbar-inner">
-                <Link className="navbar-brand" to="/">
+                <Link className="navbar-brand" to="/landing">
                     <img src={logo} alt="logo" />
                     <span className="navbar-brand-text">Baseera</span>
                 </Link>
