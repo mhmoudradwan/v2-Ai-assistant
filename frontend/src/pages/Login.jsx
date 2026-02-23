@@ -40,7 +40,25 @@ function Login(){
             if (response.success) {
 
                 // ✅ Save token
-                localStorage.setItem("authToken", response.data);
+                const token = response.data;
+                localStorage.setItem("authToken", token);
+
+                // ✅ Decode JWT and save username + user data
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    const username = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]
+                        || payload.unique_name
+                        || email.split("@")[0];
+                    localStorage.setItem("baseeraUserName", username);
+                    localStorage.setItem("baseeraUserData", JSON.stringify({
+                        username,
+                        email,
+                        fullName: username,
+                    }));
+                } catch (err) {
+                    console.error("Failed to decode JWT token:", err);
+                    localStorage.setItem("baseeraUserName", email.split("@")[0]);
+                }
 
                 // ✅ Send token to Chrome Extension
                 if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {

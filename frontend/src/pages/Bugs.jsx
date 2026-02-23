@@ -74,7 +74,7 @@ function Bugs() {
                   <path d="M10.6665 11.3334H14.6665V7.33337" stroke="#00D492" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M14.6668 11.3333L9.00016 5.66663L5.66683 8.99996L1.3335 4.66663" stroke="#00D492" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span className="risk-change">12%</span>
+                <span className="risk-change">{totalVulns > 0 ? "12%" : "—"}</span>
               </div>
             </div>
           </div>
@@ -125,7 +125,7 @@ function Bugs() {
                 <path d="M11 3.5L6.75 7.75L4.25 5.25L1 8.5" stroke="#FF6467" strokeLinecap="round" strokeLinejoin="round"/>
               </g>
             </svg>
-            <h4>+2 this week</h4>
+            <h4>{totalCritical > 0 ? "+2 this week" : "No data"}</h4>
           </div>
         </div>
 
@@ -153,7 +153,7 @@ function Bugs() {
                 <path d="M6 11C8.76142 11 11 8.76142 11 6C11 3.23858 8.76142 1 6 1C3.23858 1 1 3.23858 1 6C1 8.76142 3.23858 11 6 11Z" stroke="#FF8904" strokeLinecap="round" strokeLinejoin="round"/>
               </g>
             </svg>
-            <h4>Avg. 3 days old</h4>
+            <h4>{totalHigh > 0 ? "Avg. 3 days old" : "No data"}</h4>
           </div>
         </div>
 
@@ -183,7 +183,7 @@ function Bugs() {
                 <path d="M4.5 5.5C5.60457 5.5 6.5 4.60457 6.5 3.5C6.5 2.39543 5.60457 1.5 4.5 1.5C3.39543 1.5 2.5 2.39543 2.5 3.5C2.5 4.60457 3.39543 5.5 4.5 5.5Z" stroke="#00D3F2" strokeLinecap="round" strokeLinejoin="round"/>
               </g>
             </svg>
-            <h4>3 teams assigned</h4>
+            <h4>{totalMedium > 0 ? "3 teams assigned" : "No data"}</h4>
           </div>
         </div>
 
@@ -210,7 +210,7 @@ function Bugs() {
                 <path d="M11 8.5L6.75 4.25L4.25 6.75L1 3.5" stroke="#00D492" strokeLinecap="round" strokeLinejoin="round"/>
               </g>
             </svg>
-            <h4>-15% vs last week</h4>
+            <h4>{scans.filter(s => s.status === 'Completed').length > 0 ? "-15% vs last week" : "No data"}</h4>
           </div>
         </div>
       </div>
@@ -266,6 +266,13 @@ function Bugs() {
       {/* OVERVIEW TAB CONTENT */}
       {activeTab === 'overview' && (
         <div className="Vulnerability">
+          {scans.length === 0 && !loading && (
+            <div style={{textAlign: 'center', padding: '40px', color: '#64748b', width: '100%'}}>
+              No scans yet. Install the Baseera extension and scan your first website to see vulnerability data here.
+            </div>
+          )}
+          {(scans.length > 0 || loading) && (
+          <>
           <div className="Container-right">
             <div className="container-headline">
               <div className="heading">
@@ -547,6 +554,8 @@ function Bugs() {
               </div>
             </div>
           </div>
+          </>
+          )}
         </div>
       )}
 
