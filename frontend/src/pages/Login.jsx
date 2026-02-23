@@ -38,11 +38,33 @@ function Login(){
             const response = await authApi.login({ email, password });
 
             if (response.success) {
+
+                // ✅ Save token
                 localStorage.setItem("authToken", response.data);
+
+                // ✅ Send token to Chrome Extension
+                if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
+                    try {
+                        const extensionId = "cfcnlbhngnjogcaofelchahdfejjcdei";
+
+                        chrome.runtime.sendMessage(extensionId, {
+                            type: "AUTH_TOKEN",
+                            token: response.data,
+                            userName: email.split("@")[0]
+                        });
+
+                        console.log("Token sent to extension");
+                    } catch (e) {
+                        console.log("Extension not available");
+                    }
+                }
+
                 navigate("/landing");
+
             } else {
                 setError(response.message || "Login failed");
             }
+
         } catch (error) {
             console.error("Login error:", error);
             setError(error.response?.data?.message || "Invalid email or password");
@@ -66,6 +88,7 @@ function Login(){
                             Sign in to your account to continue
                         </p>
                     </div>
+
                     {error && (
                         <div style={{
                             color: "#ffffff",
@@ -89,14 +112,14 @@ function Login(){
                     </h5>
 
                     <i className="fa-solid fa-envelope"></i>
-                    <input 
-                        className="login-form-input" 
-                        type="email" 
+                    <input
+                        className="login-form-input"
+                        type="email"
                         placeholder=" Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         disabled={loading}
-                        required 
+                        required
                     />
 
                     <h5 className="login-form-title">
@@ -104,14 +127,14 @@ function Login(){
                     </h5>
 
                     <i className="fa-solid fa-lock"></i>
-                    <input 
-                        className="login-form-input" 
+                    <input
+                        className="login-form-input"
                         type={showPassword ? "text" : "password"}
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         disabled={loading}
-                        required 
+                        required
                     />
 
                     <i
@@ -126,6 +149,7 @@ function Login(){
                             }
                         }}
                     ></i>
+
                     <button type="submit" disabled={loading}>
                         {loading ? "Logging in..." : "Login"}
                     </button>
@@ -147,7 +171,7 @@ function Login(){
                 </div>
                 </div>
             </section>
-        </>            
+        </>
     );
 }
 
