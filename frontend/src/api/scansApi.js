@@ -35,5 +35,10 @@ export const scansApi = {
   deleteScan: async (scanId) => {
     const response = await apiClient.delete(`/scans/${scanId}`);
     return response.data;
+  },
+
+  // POST /api/scans/extension
+  submitExtensionScan: async (scanData) => {
+    return apiClient.post('/scans/extension', scanData);
   }
 };

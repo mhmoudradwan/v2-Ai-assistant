@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "../index.css";
 import "../contact.css";
 import Navbar from "../components/Navbar";
+import LandingNavbar from "../components/LandingNavbar";
 import Fotter from "../components/Fotter";
 import icon2 from "../assets/Mission.png";
 
@@ -35,7 +36,7 @@ function Contact() {
 
   return (
     <>
-       <Navbar/>
+       <LandingNavbar/>
       {/* Hero Section */}
       <section className="contact-hero">
         <div className="contact-hero-content">

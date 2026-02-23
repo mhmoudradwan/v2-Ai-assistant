@@ -15,7 +15,7 @@ import icon9 from "../assets/yes.png";
 import icon16 from "../assets/logo.png";
 import icon17 from "../assets/telephone.png";
 import icon18 from "../assets/location.png";
-import icon19 from "../assets/email.png";
+import icon19 from "../assets/Email.png";
 
 
 function Fotter() {

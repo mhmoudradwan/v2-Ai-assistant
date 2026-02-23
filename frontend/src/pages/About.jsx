@@ -17,6 +17,7 @@ import icon7 from "../assets/lock.png";
 import icon8 from "../assets/support.png";
 import icon9 from "../assets/yes.png";  
 import Navbar from "../components/Navbar";
+import LandingNavbar from "../components/LandingNavbar";
 import Fotter from "../components/Fotter";
 
 
@@ -24,7 +25,7 @@ import Fotter from "../components/Fotter";
 function About() {
     return (
     <>
-       <Navbar/>
+       <LandingNavbar/>
         <section className="about-section">
             <div className="about-icon">
                 <img src={icon1} alt="about icon" width={30} height={30} />

@@ -29,6 +29,10 @@ function Register(){
         const username = (formData.get("username") || "").toString().trim();
         const email = (formData.get("email") || "").toString().trim();
         const password = (formData.get("password") || "").toString().trim();
+        const phoneNumber = (formData.get("phoneNumber") || "").toString().trim() || null;
+        const gender = (formData.get("gender") || "").toString().trim() || null;
+        const dateOfBirth = (formData.get("dateOfBirth") || "").toString().trim() || null;
+        const country = (formData.get("country") || "").toString().trim() || null;
 
         setError("");
         setSuccess("");
@@ -58,7 +62,11 @@ function Register(){
                 username,
                 firstName,
                 lastName,
-                password
+                password,
+                phoneNumber,
+                gender,
+                dateOfBirth,
+                country
             });
 
             if (response.success) {
@@ -122,6 +130,34 @@ function Register(){
                     </h5>
                         <i className="fa-solid fa-lock"></i>
                     <input className="register-form-input" name="password" type="password" placeholder=" ********" disabled={loading} required />
+                    
+                    <h5 className="register-form-title">
+                        Phone Number <span style={{fontWeight: 'normal', fontSize: '12px'}}>(Optional)</span>
+                    </h5>
+                        <i className="fa-solid fa-phone"></i>
+                    <input className="register-form-input" name="phoneNumber" type="tel" placeholder="+1 (555) 000-0000" disabled={loading} />
+                    
+                    <h5 className="register-form-title">
+                        Gender <span style={{fontWeight: 'normal', fontSize: '12px'}}>(Optional)</span>
+                    </h5>
+                    <select className="register-form-input" name="gender" disabled={loading} style={{background: 'transparent', color: 'inherit'}}>
+                        <option value="">Select gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    
+                    <h5 className="register-form-title">
+                        Date of Birth <span style={{fontWeight: 'normal', fontSize: '12px'}}>(Optional)</span>
+                    </h5>
+                    <input className="register-form-input" name="dateOfBirth" type="date" disabled={loading} />
+                    
+                    <h5 className="register-form-title">
+                        Country <span style={{fontWeight: 'normal', fontSize: '12px'}}>(Optional)</span>
+                    </h5>
+                        <i className="fa-solid fa-globe"></i>
+                    <input className="register-form-input" name="country" type="text" placeholder="Your country" disabled={loading} />
+                    
                             <div className="btn">  
                                 <button type="submit" disabled={loading}>
                                     {loading ? "Creating Account..." : "Create Account"}

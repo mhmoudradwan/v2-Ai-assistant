@@ -19,7 +19,8 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
-    public async Task<string> RegisterAsync(string email, string username, string firstName, string lastName, string password)
+    public async Task<string> RegisterAsync(string email, string username, string firstName, string lastName, string password,
+        string? phoneNumber = null, string? gender = null, DateTime? dateOfBirth = null, string? country = null, string? bio = null)
     {
         if (await _userRepository.EmailExistsAsync(email))
             throw new InvalidOperationException("Email already exists");
@@ -31,6 +32,11 @@ public class AuthService : IAuthService
             FirstName = firstName,
             LastName = lastName,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+            PhoneNumber = phoneNumber,
+            Gender = gender,
+            DateOfBirth = dateOfBirth,
+            Country = country,
+            Bio = bio,
             CreatedAt = DateTime.UtcNow
         };
 

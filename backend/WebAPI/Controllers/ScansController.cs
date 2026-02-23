@@ -127,6 +127,23 @@ public class ScansController : ControllerBase
         });
     }
 
+    /// <summary>
+    /// Submit scan results from the Chrome Extension
+    /// </summary>
+    [HttpPost("extension")]
+    public async Task<ActionResult<ResponseDto<ScanDto>>> CreateExtensionScan([FromBody] ExtensionScanDto extensionScanDto)
+    {
+        var userId = GetCurrentUserId();
+        var scan = await _scansService.CreateExtensionScanAsync(extensionScanDto, userId);
+
+        return CreatedAtAction(nameof(GetScanById), new { id = scan.Id }, new ResponseDto<ScanDto>
+        {
+            Success = true,
+            Message = "Extension scan submitted successfully",
+            Data = scan
+        });
+    }
+
     private int GetCurrentUserId()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

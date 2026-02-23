@@ -10,10 +10,12 @@ namespace Application.Services;
 public class ScansService : IScansService
 {
     private readonly IScanRepository _scanRepository;
+    private readonly IVulnerabilityRepository _vulnerabilityRepository;
 
-    public ScansService(IScanRepository scanRepository)
+    public ScansService(IScanRepository scanRepository, IVulnerabilityRepository vulnerabilityRepository)
     {
         _scanRepository = scanRepository;
+        _vulnerabilityRepository = vulnerabilityRepository;
     }
 
     public async Task<ScanDto> CreateScanAsync(CreateScanDto createScanDto, int userId)
@@ -27,6 +29,60 @@ public class ScansService : IScansService
         };
 
         await _scanRepository.AddAsync(scan);
+
+        return new ScanDto
+        {
+            Id = scan.Id,
+            TargetURL = scan.TargetURL,
+            Status = scan.Status,
+            TotalVulns = scan.TotalVulns,
+            CriticalCount = scan.CriticalCount,
+            HighCount = scan.HighCount,
+            MediumCount = scan.MediumCount,
+            LowCount = scan.LowCount,
+            CreatedAt = scan.CreatedAt,
+            CompletedAt = scan.CompletedAt
+        };
+    }
+
+    public async Task<ScanDto> CreateExtensionScanAsync(ExtensionScanDto extensionScanDto, int userId)
+    {
+        var vulns = extensionScanDto.Vulnerabilities ?? new List<ExtensionVulnerabilityDto>();
+        var criticalCount = vulns.Count(v => v.Severity.Equals("Critical", StringComparison.OrdinalIgnoreCase));
+        var highCount = vulns.Count(v => v.Severity.Equals("High", StringComparison.OrdinalIgnoreCase));
+        var mediumCount = vulns.Count(v => v.Severity.Equals("Medium", StringComparison.OrdinalIgnoreCase));
+        var lowCount = vulns.Count(v => v.Severity.Equals("Low", StringComparison.OrdinalIgnoreCase));
+
+        var scan = new Scan
+        {
+            UserId = userId,
+            TargetURL = extensionScanDto.TargetURL,
+            Status = "Completed",
+            TotalVulns = vulns.Count,
+            CriticalCount = criticalCount,
+            HighCount = highCount,
+            MediumCount = mediumCount,
+            LowCount = lowCount,
+            CreatedAt = DateTime.UtcNow,
+            CompletedAt = DateTime.UtcNow
+        };
+
+        await _scanRepository.AddAsync(scan);
+
+        foreach (var v in vulns)
+        {
+            var vuln = new Vulnerability
+            {
+                ScanId = scan.Id,
+                Type = v.Type,
+                Severity = v.Severity,
+                Description = v.Description,
+                Location = v.Location,
+                Recommendation = v.Recommendation,
+                DetectedAt = DateTime.UtcNow
+            };
+            await _vulnerabilityRepository.AddAsync(vuln);
+        }
 
         return new ScanDto
         {

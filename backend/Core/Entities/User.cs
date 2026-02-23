@@ -12,6 +12,11 @@ public class User
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? Gender { get; set; }
+    public DateTime? DateOfBirth { get; set; }
+    public string? Country { get; set; }
+    public string? Bio { get; set; }
     
     // Navigation Properties
     public ICollection<Scan> Scans { get; set; } = new List<Scan>();

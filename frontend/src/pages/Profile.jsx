@@ -1,21 +1,61 @@
 import React, { useState, useEffect } from "react";
 import LandingNavbar from "../components/LandingNavbar";
-import "../Profile.css";
+import "../profile.css";
 import { Link, useNavigate } from "react-router-dom";
 import icon1 from "../assets/Profile.jpg";
-import icon2 from "../assets/Icon(1).png";
+import { authApi } from "../api/authApi";
+
 function Profile() {
   const navigate = useNavigate();
   const [avatarImage, setAvatarImage] = useState(localStorage.getItem("userAvatar") || icon1);
-  
-  // Update avatar when localStorage changes
+  const [userData, setUserData] = useState({
+    name: "User",
+    username: "@user",
+    email: "",
+    phone: "",
+    role: "User",
+    accountCreated: "",
+    avatar: localStorage.getItem("userAvatar") || icon1,
+  });
+
   useEffect(() => {
     const storedAvatar = localStorage.getItem("userAvatar");
-    if (storedAvatar) {
-      setAvatarImage(storedAvatar);
-    }
+    if (storedAvatar) setAvatarImage(storedAvatar);
+    
+    // Fetch profile from API
+    authApi.getProfile()
+      .then(res => {
+        if (res.success && res.data) {
+          const d = res.data;
+          setUserData({
+            name: `${d.firstName} ${d.lastName}`.trim() || "User",
+            username: "@" + d.username,
+            email: d.email,
+            phone: d.phoneNumber || "",
+            role: d.role,
+            accountCreated: d.createdAt ? new Date(d.createdAt).toLocaleDateString() : "",
+            avatar: localStorage.getItem("userAvatar") || icon1,
+          });
+        }
+      })
+      .catch(() => {
+        // Fallback to localStorage if API fails
+        const storedUserData = localStorage.getItem("baseeraUserData");
+        if (storedUserData) {
+          try {
+            const parsed = JSON.parse(storedUserData);
+            setUserData(prev => ({
+              ...prev,
+              name: `${parsed.fullName || ''} ${parsed.lastName || ''}`.trim() || prev.name,
+              username: "@" + (parsed.username || "user"),
+              email: parsed.email || prev.email,
+              phone: parsed.phone || prev.phone,
+            }));
+          } catch {}
+        }
+      });
   }, []);
-  
+
   // Handle image upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -23,46 +63,12 @@ function Profile() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarImage(reader.result);
-        // Optionally save to localStorage
         localStorage.setItem("userAvatar", reader.result);
+        setUserData(prev => ({ ...prev, avatar: reader.result }));
       };
       reader.readAsDataURL(file);
     }
   };
-  
-  // Get user data from localStorage
-  const storedUserData = localStorage.getItem("baseeraUserData");
-  const loggedInUser = localStorage.getItem("isLoggedIn");
-
-  let userData = {
-    name: "Mark Johnson",
-    username: "@Markjohnson",
-    email: "Mark.johnson@baseera.security",
-    phone: "+1 (555) 123-4567",
-    role: "User",
-    accountCreated: "January 15, 2024",
-    isAdmin: true,
-    avatar: localStorage.getItem("userAvatar") || avatarImage,
-  };
-
-  // Override with actual user data if available
-  if (storedUserData) {
-    try {
-      const parsed = JSON.parse(storedUserData);
-      const loggedInfo = loggedInUser ? JSON.parse(loggedInUser) : {};
-      
-      userData = {
-        ...userData,
-        name: parsed.fullName + " " + (parsed.lastName || "") || userData.name,
-        username: "@" + parsed.username || userData.username,
-        email: parsed.email || userData.email,
-        phone: parsed.phone || userData.phone,
-        accountCreated: new Date(parsed.registeredDate).toLocaleDateString() || userData.accountCreated,
-      };
-    } catch (error) {
-      console.log("Error parsing user data", error);
-    }
-  }
 
   return (
     <>
@@ -81,7 +87,7 @@ function Profile() {
           <div className="profile-avatar-section">
             <div className="profile-avatar-wrapper">
               <img 
-                src={userData.avatar} 
+                src={avatarImage} 
                 alt={userData.name}
                 className="profile-avatar"
               />
