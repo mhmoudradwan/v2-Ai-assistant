@@ -74,6 +74,34 @@ public class UsersController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Delete current user's account
+    /// </summary>
+    [HttpDelete("profile")]
+    public async Task<ActionResult<ResponseDto<object>>> DeleteProfile()
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            await _userService.DeleteAccountAsync(userId);
+
+            return Ok(new ResponseDto<object>
+            {
+                Success = true,
+                Message = "Account deleted successfully"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to delete account for user");
+            return BadRequest(new ResponseDto<object>
+            {
+                Success = false,
+                Message = "Failed to delete account. Please try again."
+            });
+        }
+    }
+
     private int GetCurrentUserId()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

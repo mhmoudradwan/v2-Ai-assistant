@@ -165,6 +165,44 @@ line-height: 24px; /* 150% */
     margin-top:464px;
 }
 
+.register-form .fa-phone {
+    position: absolute;
+    margin-top: 560px;
+}
+
+.register-form .fa-globe {
+    position: absolute;
+    margin-top: 848px;
+}
+
+.register-form select {
+    display: flex;
+    width: 376px;
+    height: 48px;
+    padding: 14px 16px 14px 48px;
+    align-items: center;
+    border-radius: 14px;
+    border: 0.8px solid #314158;
+    background: rgba(15, 23, 43, 0.50);
+    outline: #00D492;
+    color: #fff;
+    font-family: Arimo;
+    font-size: 16px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.register-form select option {
+    background: #1D293D;
+    color: #fff;
+}
+
+.register-form input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
 
 /* Responsive Design */
 @media (max-width: 768px) {

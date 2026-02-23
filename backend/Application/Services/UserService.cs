@@ -69,4 +69,9 @@ public class UserService : IUserService
             CreatedAt = user.CreatedAt
         };
     }
+
+    public async Task DeleteAccountAsync(int userId)
+    {
+        await _userRepository.DeleteAsync(userId);
+    }
 }

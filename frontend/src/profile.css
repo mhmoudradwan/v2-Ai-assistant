@@ -89,7 +89,6 @@ line-height: 24px; /* 150% */
   box-shadow: 0 4px 12px rgba(0, 188, 125, 0.4);
 }
 
-<<<<<<< HEAD:src/profile.css
 .avatar-upload-btn {
   position: absolute;
   bottom: 5px;
@@ -117,8 +116,7 @@ line-height: 24px; /* 150% */
   height: 16px;
 }
 
-=======
->>>>>>> afdcada6ee9aded9ac9425848dd634ffa56b1505:Baseera/src/profile.css
+
 /* ====== USER INFO ====== */
 .profile-user-info {
   text-align: center;
