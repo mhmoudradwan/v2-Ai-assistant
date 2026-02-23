@@ -1,10 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Profile from "./Profile";
 import "../delete.css";
+import { authApi } from "../api/authApi";
 
 function Delete() {
   const navigate = useNavigate();
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  const handleDeleteForever = async () => {
+    setDeleting(true);
+    setDeleteError("");
+    try {
+      await authApi.deleteAccount();
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("baseeraUserName");
+      localStorage.removeItem("baseeraUserData");
+      localStorage.removeItem("userAvatar");
+      navigate("/login");
+    } catch (err) {
+      setDeleteError(err?.response?.data?.message || "Failed to delete account. Please try again.");
+      setDeleting(false);
+    }
+  };
 
   return (
     <>
@@ -53,11 +72,16 @@ function Delete() {
             data, including scan history and settings, will be lost forever.
           </p>
 
+          {deleteError && (
+            <p style={{color: "#FF6467", fontSize: "14px", textAlign: "center", margin: "0 0 12px"}}>{deleteError}</p>
+          )}
+
           <div className="delete-actions">
             <button
               className="delete-btn delete-btn-danger"
               type="button"
-              onClick={() => navigate("/")}
+              onClick={handleDeleteForever}
+              disabled={deleting}
             >
               <svg
                 width="16"
@@ -98,7 +122,7 @@ function Delete() {
                   strokeLinecap="round"
                 />
               </svg>
-              Delete Forever
+              {deleting ? "Deleting..." : "Delete Forever"}
             </button>
             <Link className="delete-btn delete-btn-secondary" to="/profile">
               Cancel
