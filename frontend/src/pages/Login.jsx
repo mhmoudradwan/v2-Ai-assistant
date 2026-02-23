@@ -43,20 +43,21 @@ function Login(){
                 const token = response.data;
                 localStorage.setItem("authToken", token);
 
-                // ✅ Decode JWT and save username + user data
+                // ✅ Fetch actual profile to get the real username
                 try {
-                    const payload = JSON.parse(atob(token.split('.')[1]));
-                    const username = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]
-                        || payload.unique_name
-                        || email.split("@")[0];
-                    localStorage.setItem("baseeraUserName", username);
-                    localStorage.setItem("baseeraUserData", JSON.stringify({
-                        username,
-                        email,
-                        fullName: username,
-                    }));
+                    const profileRes = await authApi.getProfile();
+                    if (profileRes.success && profileRes.data) {
+                        const username = profileRes.data.username || email.split("@")[0];
+                        localStorage.setItem("baseeraUserName", username);
+                        localStorage.setItem("baseeraUserData", JSON.stringify({
+                            username: username,
+                            email: profileRes.data.email,
+                            fullName: `${profileRes.data.firstName || ''} ${profileRes.data.lastName || ''}`.trim() || username,
+                        }));
+                    }
                 } catch (err) {
-                    console.error("Failed to decode JWT token:", err);
+                    console.error("Failed to fetch profile:", err);
+                    // Fallback: use email prefix
                     localStorage.setItem("baseeraUserName", email.split("@")[0]);
                 }
 
