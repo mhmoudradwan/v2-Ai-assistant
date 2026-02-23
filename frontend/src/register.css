@@ -1,0 +1,269 @@
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.register-box {
+  width: 475px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+    /* padding: 67px;   */
+    gap: 12px;
+  border-radius: 24px;
+  border: 0.8px solid #314158;
+  background: rgba(29, 41, 61, 0.50);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  margin-top: 46px;
+}
+.logo-icon{
+    display: flex;
+    justify-content: space-between;
+    gap: 3px;
+    margin-top: 18px;
+}
+.register-info{
+    display: flex;
+    flex-direction: column;
+    
+}
+.logo-title{
+    color: #FFF;
+font-family: Inter;
+font-size: 23.04px;
+font-style: normal;
+font-weight: 700;
+line-height: normal;
+}
+.create{
+    text-align: center;
+font-family: Arimo;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 24px; /* 150% */
+background: linear-gradient(90deg, #00D492 0%, #00D3F2 100%);
+background-clip: text;
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+}
+.register-description{
+    color: #90A1B9;
+text-align: center;
+font-family: Arimo;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 24px; /* 150% */
+}
+.register-form{
+    display: flex;
+/* width: 641px; */
+padding: 29px 0;
+flex-direction: column;
+align-items: flex-start;
+margin-top: -41px;
+/* gap: 37px; */
+}
+.register-form-title{
+    color: #FFF;
+font-family: Arimo;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 24px; /* 150% */
+margin-top: 20px;
+}
+.register-form-input{
+    display: flex;
+width: 376px;
+height: 48px;
+padding: 14px 16px 14px 48px;
+align-items: center;
+border-radius: 14px;
+border: 0.8px solid #314158;
+background: rgba(15, 23, 43, 0.50);
+  outline: #00D492;
+  color: #fff;
+}
+input::placeholder{
+    color: #62748E;
+font-family: Arimo;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+}
+.btn{
+    display: flex;
+    margin-top: 20px;
+}
+.register-form button {
+width: 340.4px;
+height:44px;
+background: linear-gradient(90deg, #096 0%, #0092B8 100%);
+border-radius: 14px;
+border: none;
+color: #fff;
+font-family: Arimo; 
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 24px; /* 150% */
+}
+.login-2{
+display: flex;
+justify-content: center;
+margin-top: -29px;
+}
+.login-p{
+color: #90A1B9;
+text-align: center;
+font-family: Arimo;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 24px; /* 150% */
+}
+ .login-2 a {
+color: #00D492;
+font-family: Arimo;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 24px; /* 150% */
+  text-decoration: none;
+}
+.register-form .fa-solid  {
+  color: #90A1B9;
+  margin-left: 27px;
+}
+.register-form .fa-user-secret {
+    position: absolute;
+    margin-top: 82px;
+}
+.register-form .first-name-icon {
+    position: absolute;
+    margin-top: 67px;
+}
+.register-form .last-name-icon {
+    position: absolute;
+    margin-top: 166px;
+}
+.register-form .fa-at {
+    position: absolute;
+    margin-top: 269px;
+}
+.register-form .fa-envelope {
+    position: absolute;
+    margin-top: 368px;
+}
+.register-form .fa-lock {
+    position: absolute;
+    margin-top:464px;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .register-box {
+        width: 90%;
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .register-form-input {
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .register-form button {
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .create {
+        font-size: 14px;
+    }
+
+    .register-description {
+        font-size: 14px;
+    }
+
+    .register-form .first-name-icon {
+        margin-top: 67px;
+    }
+
+    .register-form .last-name-icon {
+        margin-top: 166px;
+    }
+
+    .register-form .fa-at {
+        margin-top: 269px;
+    }
+
+    .register-form .fa-envelope {
+        margin-top: 368px;
+    }
+
+    .register-form .fa-lock {
+        margin-top: 464px;
+    }
+}
+
+@media (max-width: 480px) {
+    .register-box {
+        width: 95%;
+        padding: 15px;
+        gap: 8px;
+        margin: 10px auto;
+    }
+
+    .logo-title {
+        font-size: 18px;
+    }
+
+    .create {
+        font-size: 12px;
+    }
+
+    .register-description {
+        font-size: 12px;
+        padding: 0 10px;
+    }
+
+    .register-form-title {
+        font-size: 14px;
+    }
+
+    .register-form-input {
+        width: 100%;
+        max-width: 280px;
+        height: 44px;
+        font-size: 14px;
+        padding: 12px 14px 12px 40px;
+    }
+
+    .register-form button {
+        width: 100%;
+        max-width: 280px;
+        height: 40px;
+        font-size: 14px;
+    }
+
+    .login-2 {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .login-p, .login-2 a {
+        font-size: 14px;
+    }
+
+    .register-form .fa-solid {
+        margin-left: 20px;
+    }
+}

@@ -1,0 +1,245 @@
+.login-icon{
+width: 67px;
+  height: 67px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  margin: -22px auto 27px;
+  position: relative;
+  background: linear-gradient(135deg, #00BC7D 0%, #00B8DB 100%);
+  box-shadow: 0 10px 15px -3px rgba(0, 188, 125, 0.30), 0 4px 6px -4px rgba(0, 188, 125, 0.30);
+}
+
+.login-section {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+    padding: 45px;  
+  margin-top: 20px;
+  border-radius: 24px;
+  border: 0.8px solid #314158;
+  background: rgba(29, 41, 61, 0.50);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.welcome{
+  color: #FFF;
+text-align: center;
+font-family: Arimo;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 24px; /* 150% */}
+.login-description{
+    color: #90A1B9;
+text-align: center;
+font-family: Arimo;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 24px; /* 150% */
+}
+.login-form-title{
+ color: #ffffff;
+font-family: Arimo;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 24px; /* 150% */
+margin-bottom: -15px;
+}
+.login-form-input{
+    display: flex;
+width: 376px;
+height: 48px;
+padding: 14px 16px 14px 48px;
+align-items: center;
+border-radius: 14px;
+border: 0.8px solid #314158;
+background: rgba(15, 23, 43, 0.50);
+  outline: none;
+    color: #fff;
+}
+.login-form-input::placeholder {
+  color: #90A1B9;
+  font-family: Arimo;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px; /* 150% */
+
+}
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+.login-form .fa-envelope  {
+  position: absolute;
+margin-left: 27px;
+  margin-top: 46px;
+  color: #90A1B9;
+}
+
+.login-form .fa-lock {
+  position: absolute;
+margin-left: 27px;
+  margin-top: 141px;
+  color: #90A1B9;
+}
+.login-form .fa-eye {
+  position: absolute;
+  margin-left: 341px;
+  margin-top: 143px;
+  color: #90A1B9;
+  cursor: pointer;
+}
+
+.login-form button {
+  display: flex;
+height: 48px;
+padding: 9.797px 178.4px 14.203px 164px;
+align-items: center;
+flex-shrink: 0;
+border-radius: 14px;
+background: linear-gradient(90deg, #00BC7D 0%, #00B8DB 100%);
+color: #fff;
+font-family: Arimo; 
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 24px; /* 150% */
+border: none;
+cursor: pointer;
+margin-top: 24px;
+}
+.forget{
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: -81px;}
+.forget a ,  .register a {
+color: #00D492;
+font-family: Arimo;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 24px; /* 150% */
+  text-decoration: none;
+}
+.register{
+display: flex;
+justify-content: center;
+margin-top: 70px;
+}
+.register-p{
+color: #90A1B9;
+text-align: center;
+font-family: Arimo;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 24px; /* 150% */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .login-box {
+        width: 90%;
+        max-width: 400px;
+        padding: 30px 25px;
+    }
+
+    .login-form-input {
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .login-form button {
+        width: 100%;
+        max-width: 320px;
+        padding: 12px 20px;
+        justify-content: center;
+    }
+
+    .login-form .fa-eye {
+        margin-left: 285px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-box {
+        width: 95%;
+        padding: 25px 20px;
+    }
+
+    .login-icon {
+        width: 55px;
+        height: 55px;
+        margin: -15px auto 20px;
+    }
+
+    .welcome, .login-description {
+        font-size: 14px;
+    }
+
+    .login-form-title {
+        font-size: 14px;
+    }
+
+    .login-form-input {
+        width: 100%;
+        max-width: 280px;
+        height: 44px;
+        font-size: 14px;
+        padding: 12px 14px 12px 40px;
+    }
+
+    .login-form-input::placeholder {
+        font-size: 14px;
+    }
+
+    .login-form button {
+        width: 100%;
+        max-width: 280px;
+        height: 44px;
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+
+    .login-form .fa-envelope {
+        margin-left: 20px;
+        margin-top: 46px;
+    }
+
+    .login-form .fa-lock {
+        margin-left: 20px;
+        margin-top: 141px;
+    }
+
+    .login-form .fa-eye {
+        margin-left: 245px;
+        margin-top: 143px;
+    }
+
+    .forget a, .register a {
+        font-size: 14px;
+    }
+
+    .register-p {
+        font-size: 14px;
+    }
+
+    .register {
+        margin-top: 50px;
+    }
+}
