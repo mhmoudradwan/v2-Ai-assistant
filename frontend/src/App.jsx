@@ -30,16 +30,40 @@ function AppContent() {
     
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
+        <Route path="/about" element={
+            <ProtectedRoute>
+              <About />
+            </ProtectedRoute>
+          } />
+        <Route path="/contact" element={
+            <ProtectedRoute>
+              <Contact />
+            </ProtectedRoute>
+          } />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forget" element={<Forget />} />
-        <Route path="/bugs" element={<Bugs />} />
+        <Route path="/bugs" element={
+            <ProtectedRoute>
+              <Bugs />
+            </ProtectedRoute>
+          } />
         
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/edit-profile" element={<EditProfile />} />
-        <Route path="/delete" element={<Delete />} />
+        <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } />
+        <Route path="/edit-profile" element={
+            <ProtectedRoute>
+              <EditProfile />
+            </ProtectedRoute>
+          } />
+        <Route path="/delete" element={
+            <ProtectedRoute>
+              <Delete />
+            </ProtectedRoute>
+          } />
         <Route
           path="/landing"
           element={

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import LandingNavbar from "../components/LandingNavbar";
 import "../index.css";
@@ -6,9 +6,43 @@ import "../bugs.css";
 import icon1 from "../assets/lock.png";
 import icon2 from "../assets/circle-score.png";
 import icon3 from "../assets/calander.png";
+import apiClient from "../api/axios.config";
 
 function Bugs() {
   const [activeTab, setActiveTab] = useState('overview');
+  const [scans, setScans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [severityFilter, setSeverityFilter] = useState('all');
+
+  // Derived stats from scans
+  const totalCritical = scans.reduce((sum, s) => sum + (s.criticalCount || 0), 0);
+  const totalHigh = scans.reduce((sum, s) => sum + (s.highCount || 0), 0);
+  const totalMedium = scans.reduce((sum, s) => sum + (s.mediumCount || 0), 0);
+  const totalLow = scans.reduce((sum, s) => sum + (s.lowCount || 0), 0);
+  const totalVulns = scans.reduce((sum, s) => sum + (s.totalVulns || 0), 0);
+
+  // Filtered scans for display
+  const filteredScans = scans.filter(s => {
+    const matchesSearch = !searchQuery || s.targetURL?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSeverity = severityFilter === 'all' ||
+      (severityFilter === 'critical' && s.criticalCount > 0) ||
+      (severityFilter === 'high' && s.highCount > 0) ||
+      (severityFilter === 'medium' && s.mediumCount > 0) ||
+      (severityFilter === 'low' && s.lowCount > 0);
+    return matchesSearch && matchesSeverity;
+  });
+
+  useEffect(() => {
+    apiClient.get('/scans')
+      .then(res => {
+        if (res.success && res.data) {
+          setScans(Array.isArray(res.data) ? res.data : []);
+        }
+      })
+      .catch(() => setScans([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <>
@@ -33,7 +67,7 @@ function Bugs() {
             <span className="risk-title">Risk Score</span>
 
             <div className="risk-row">
-              <h3 className="risk-number">78</h3>
+              <h3 className="risk-number">{totalVulns > 0 ? Math.min(100, totalCritical * 25 + totalHigh * 15 + totalMedium * 8 + totalLow * 3) : 0}</h3>
 
               <div className="row-icon">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -79,7 +113,7 @@ function Bugs() {
             <h4>High Priority</h4>
           </div>
           <div className="num">
-            <h1>1</h1>
+            <h1>{totalCritical}</h1>
           </div>
           <div className="info">
             <h4>Critical Threats</h4>
@@ -107,7 +141,7 @@ function Bugs() {
             <h4>Urgent</h4>
           </div>
           <div className="num">
-            <h1>2</h1>
+            <h1>{totalHigh}</h1>
           </div>
           <div className="info">
             <h4>High Severity</h4>
@@ -135,7 +169,7 @@ function Bugs() {
             <h4>In Progress</h4>
           </div>
           <div className="num">
-            <h1>4</h1>
+            <h1>{totalMedium}</h1>
           </div>
           <div className="info">
             <h4>Active Issues</h4>
@@ -164,7 +198,7 @@ function Bugs() {
             <h4>Completed</h4>
           </div>
           <div className="num">
-            <h1>1</h1>
+            <h1>{scans.filter(s => s.status === 'Completed').length}</h1>
           </div>
           <div className="info">
             <h4>Resolved This Week</h4>
@@ -527,232 +561,68 @@ function Bugs() {
       </svg>
       <input 
         type="text" 
-        placeholder="Search vulnerabilities by ID, title, or asset..." 
+        placeholder="Search scans by URL..." 
         className="vulnerability-search"
+        value={searchQuery}
+        onChange={e => setSearchQuery(e.target.value)}
       />
+      <select
+        value={severityFilter}
+        onChange={e => setSeverityFilter(e.target.value)}
+        style={{marginLeft: '12px', background: '#0d1b35', color: '#90A1B9', border: '1px solid #1e2d4e', borderRadius: '8px', padding: '6px 12px', fontSize: '13px', cursor: 'pointer'}}
+      >
+        <option value="all">All Severity</option>
+        <option value="critical">Critical</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
     </div>
 
-    {/* Vulnerabilities List */}
+    {/* Scans from API */}
     <div className="vulnerabilities-list">
-      {/* Vulnerability 1 - Critical */}
-      <div className="vulnerability-card">
-        <div className="vulnerability-header-row">
-          <div className="vulnerability-meta">
-            <span className="vulnerability-id">VULN-001</span>
-            <span className="severity-badge severity-critical">Critical</span>
-            <span className="status-badge status-open">Open</span>
-            <span className="cvss-badge">CVSS 9.1</span>
+      {loading && (
+        <div style={{textAlign: 'center', padding: '40px', color: '#64748b'}}>Loading scans...</div>
+      )}
+      {!loading && filteredScans.length === 0 && (
+        <div style={{textAlign: 'center', padding: '40px', color: '#64748b'}}>
+          {scans.length === 0 ? 'No scans found. Use the Chrome Extension to scan pages!' : 'No scans match your search.'}
+        </div>
+      )}
+      {!loading && filteredScans.map((scan, idx) => (
+        <div key={scan.id || idx} className="vulnerability-card">
+          <div className="vulnerability-header-row">
+            <div className="vulnerability-meta">
+              <span className="vulnerability-id">SCAN-{scan.id}</span>
+              {scan.criticalCount > 0 && <span className="severity-badge severity-critical">Critical: {scan.criticalCount}</span>}
+              {scan.highCount > 0 && <span className="severity-badge severity-high">High: {scan.highCount}</span>}
+              {scan.mediumCount > 0 && <span className="severity-badge" style={{background: 'rgba(250,204,21,0.15)', color: '#facc15', border: '1px solid rgba(250,204,21,0.3)', borderRadius: '4px', padding: '2px 8px', fontSize: '11px'}}>Medium: {scan.mediumCount}</span>}
+              {scan.lowCount > 0 && <span className="severity-badge" style={{background: 'rgba(0,188,125,0.15)', color: '#00BC7D', border: '1px solid rgba(0,188,125,0.3)', borderRadius: '4px', padding: '2px 8px', fontSize: '11px'}}>Low: {scan.lowCount}</span>}
+              <span className={`status-badge ${scan.status === 'Completed' ? 'status-in-progress' : 'status-open'}`}>{scan.status}</span>
+            </div>
+          </div>
+          <h3 className="vulnerability-title" style={{wordBreak: 'break-all'}}>{scan.targetURL}</h3>
+          <div className="vulnerability-footer">
+            <div className="vulnerability-info-item">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 13C10.3137 13 13 10.3137 13 7C13 3.68629 10.3137 1 7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1 7H13" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7 1C8.5 2.5 9.5 4.5 9.5 7C9.5 9.5 8.5 11.5 7 13C5.5 11.5 4.5 9.5 4.5 7C4.5 4.5 5.5 2.5 7 1Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span>{scan.totalVulns} vulnerabilities</span>
+            </div>
+            <div className="vulnerability-info-item">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="3.5" width="8" height="8" rx="1" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M9 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M5 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 7H11" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span>{scan.createdAt ? new Date(scan.createdAt).toLocaleDateString() : ''}</span>
+            </div>
           </div>
         </div>
-        <h3 className="vulnerability-title">SQL Injection in Login Form</h3>
-        <div className="vulnerability-footer">
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 13C10.3137 13 13 10.3137 13 7C13 3.68629 10.3137 1 7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M1 7H13" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M7 1C8.5 2.5 9.5 4.5 9.5 7C9.5 9.5 8.5 11.5 7 13C5.5 11.5 4.5 9.5 4.5 7C4.5 4.5 5.5 2.5 7 1Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>auth.example.com</span>
-          </div>
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="3.5" width="8" height="8" rx="1" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M9 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M5 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3 7H11" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>2024-12-20</span>
-          </div>
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 7C8.10457 7 9 6.10457 9 5C9 3.89543 8.10457 3 7 3C5.89543 3 5 3.89543 5 5C5 6.10457 5.89543 7 7 7Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M11 11C11 9.34315 9.20914 8 7 8C4.79086 8 3 9.34315 3 11" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>Sarah Chen</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Vulnerability 2 - High */}
-      <div className="vulnerability-card">
-        <div className="vulnerability-header-row">
-          <div className="vulnerability-meta">
-            <span className="vulnerability-id">VULN-002</span>
-            <span className="severity-badge severity-high">High</span>
-            <span className="status-badge status-in-progress">In Progress</span>
-            <span className="cvss-badge">CVSS 7.4</span>
-          </div>
-        </div>
-        <h3 className="vulnerability-title">Cross-Site Scripting (XSS)</h3>
-        <div className="vulnerability-footer">
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 13C10.3137 13 13 10.3137 13 7C13 3.68629 10.3137 1 7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M1 7H13" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M7 1C8.5 2.5 9.5 4.5 9.5 7C9.5 9.5 8.5 11.5 7 13C5.5 11.5 4.5 9.5 4.5 7C4.5 4.5 5.5 2.5 7 1Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>app.example.com</span>
-          </div>
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="3.5" width="8" height="8" rx="1" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M9 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M5 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3 7H11" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>2024-12-19</span>
-          </div>
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 7C8.10457 7 9 6.10457 9 5C9 3.89543 8.10457 3 7 3C5.89543 3 5 3.89543 5 5C5 6.10457 5.89543 7 7 7Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M11 11C11 9.34315 9.20914 8 7 8C4.79086 8 3 9.34315 3 11" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>Mike Johnson</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Vulnerability 3 - Medium */}
-      <div className="vulnerability-card">
-        <div className="vulnerability-header-row">
-          <div className="vulnerability-meta">
-            <span className="vulnerability-id">VULN-003</span>
-            <span className="severity-badge severity-medium">Medium</span>
-            <span className="status-badge status-assigned">Assigned</span>
-            <span className="cvss-badge">CVSS 5.3</span>
-          </div>
-        </div>
-        <h3 className="vulnerability-title">Outdated SSL Certificate</h3>
-        <div className="vulnerability-footer">
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 13C10.3137 13 13 10.3137 13 7C13 3.68629 10.3137 1 7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M1 7H13" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M7 1C8.5 2.5 9.5 4.5 9.5 7C9.5 9.5 8.5 11.5 7 13C5.5 11.5 4.5 9.5 4.5 7C4.5 4.5 5.5 2.5 7 1Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>api.example.com</span>
-          </div>
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="3.5" width="8" height="8" rx="1" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M9 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M5 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3 7H11" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>2024-12-18</span>
-          </div>
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 7C8.10457 7 9 6.10457 9 5C9 3.89543 8.10457 3 7 3C5.89543 3 5 3.89543 5 5C5 6.10457 5.89543 7 7 7Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M11 11C11 9.34315 9.20914 8 7 8C4.79086 8 3 9.34315 3 11" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>Alex Kim</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Vulnerability 4 - Low */}
-      <div className="vulnerability-card">
-        <div className="vulnerability-header-row">
-          <div className="vulnerability-meta">
-            <span className="vulnerability-id">VULN-004</span>
-            <span className="severity-badge severity-low">Low</span>
-            <span className="status-badge status-open">Open</span>
-            <span className="cvss-badge">CVSS 3.1</span>
-          </div>
-        </div>
-        <h3 className="vulnerability-title">Missing Security Headers</h3>
-        <div className="vulnerability-footer">
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 13C10.3137 13 13 10.3137 13 7C13 3.68629 10.3137 1 7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M1 7H13" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M7 1C8.5 2.5 9.5 4.5 9.5 7C9.5 9.5 8.5 11.5 7 13C5.5 11.5 4.5 9.5 4.5 7C4.5 4.5 5.5 2.5 7 1Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>cdn.example.com</span>
-          </div>
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="3.5" width="8" height="8" rx="1" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M9 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M5 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3 7H11" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>2024-12-17</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Vulnerability 5 - Medium */}
-      <div className="vulnerability-card">
-        <div className="vulnerability-header-row">
-          <div className="vulnerability-meta">
-            <span className="vulnerability-id">VULN-005</span>
-            <span className="severity-badge severity-medium">Medium</span>
-            <span className="status-badge status-fixed">Fixed</span>
-            <span className="cvss-badge">CVSS 5.8</span>
-          </div>
-        </div>
-        <h3 className="vulnerability-title">Weak Password Policy</h3>
-        <div className="vulnerability-footer">
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 13C10.3137 13 13 10.3137 13 7C13 3.68629 10.3137 1 7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M1 7H13" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M7 1C8.5 2.5 9.5 4.5 9.5 7C9.5 9.5 8.5 11.5 7 13C5.5 11.5 4.5 9.5 4.5 7C4.5 4.5 5.5 2.5 7 1Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>auth.example.com</span>
-          </div>
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="3.5" width="8" height="8" rx="1" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M9 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M5 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3 7H11" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>2024-12-16</span>
-          </div>
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 7C8.10457 7 9 6.10457 9 5C9 3.89543 8.10457 3 7 3C5.89543 3 5 3.89543 5 5C5 6.10457 5.89543 7 7 7Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M11 11C11 9.34315 9.20914 8 7 8C4.79086 8 3 9.34315 3 11" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>Sarah Chen</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Vulnerability 6 - High */}
-      <div className="vulnerability-card">
-        <div className="vulnerability-header-row">
-          <div className="vulnerability-meta">
-            <span className="vulnerability-id">VULN-006</span>
-            <span className="severity-badge severity-high">High</span>
-            <span className="status-badge status-open">Open</span>
-            <span className="cvss-badge">CVSS 8.2</span>
-          </div>
-        </div>
-        <h3 className="vulnerability-title">CSRF Token Missing</h3>
-        <div className="vulnerability-footer">
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 13C10.3137 13 13 10.3137 13 7C13 3.68629 10.3137 1 7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M1 7H13" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M7 1C8.5 2.5 9.5 4.5 9.5 7C9.5 9.5 8.5 11.5 7 13C5.5 11.5 4.5 9.5 4.5 7C4.5 4.5 5.5 2.5 7 1Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>app.example.com</span>
-          </div>
-          <div className="vulnerability-info-item">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="3.5" width="8" height="8" rx="1" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M9 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M5 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3 7H11" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>2024-12-15</span>
-          </div>
-        </div>
-      </div>
+      ))}
     </div>
   </section>
 )}

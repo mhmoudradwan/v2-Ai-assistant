@@ -28,7 +28,12 @@ public class AuthController : ControllerBase
                 registerDto.Username,
                 registerDto.FirstName,
                 registerDto.LastName,
-                registerDto.Password
+                registerDto.Password,
+                registerDto.PhoneNumber,
+                registerDto.Gender,
+                registerDto.DateOfBirth,
+                registerDto.Country,
+                registerDto.Bio
             );
 
             return Ok(new ResponseDto<string>

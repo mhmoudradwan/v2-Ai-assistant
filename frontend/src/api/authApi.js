@@ -8,7 +8,12 @@ export const authApi = {
       username: userData.username,
       firstName: userData.firstName,
       lastName: userData.lastName,
-      password: userData.password
+      password: userData.password,
+      phoneNumber: userData.phoneNumber || null,
+      gender: userData.gender || null,
+      dateOfBirth: userData.dateOfBirth || null,
+      country: userData.country || null,
+      bio: userData.bio || null
     }); // { success: true, data: token }
   },
 
@@ -23,5 +28,15 @@ export const authApi = {
   // POST /api/auth/validate-token
   validateToken: async (token) => {
     return apiClient.post('/auth/validate-token', token);
+  },
+
+  // GET /api/users/profile
+  getProfile: async () => {
+    return apiClient.get('/users/profile');
+  },
+
+  // PUT /api/users/profile
+  updateProfile: async (data) => {
+    return apiClient.put('/users/profile', data);
   }
 };

@@ -1,0 +1,72 @@
+using Core.Interfaces;
+using Core.Exceptions;
+using Application.DTOs.User;
+using Application.Interfaces;
+
+namespace Application.Services;
+
+public class UserService : IUserService
+{
+    private readonly IUserRepository _userRepository;
+
+    public UserService(IUserRepository userRepository)
+    {
+        _userRepository = userRepository;
+    }
+
+    public async Task<UserProfileDto?> GetProfileAsync(int userId)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null) return null;
+
+        return new UserProfileDto
+        {
+            Id = user.Id,
+            Email = user.Email,
+            Username = user.Username,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Role = user.Role,
+            PhoneNumber = user.PhoneNumber,
+            Gender = user.Gender,
+            DateOfBirth = user.DateOfBirth,
+            Country = user.Country,
+            Bio = user.Bio,
+            CreatedAt = user.CreatedAt
+        };
+    }
+
+    public async Task<UserProfileDto> UpdateProfileAsync(int userId, UpdateProfileDto dto)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null)
+            throw new NotFoundException("User not found");
+
+        if (!string.IsNullOrWhiteSpace(dto.FirstName)) user.FirstName = dto.FirstName;
+        if (!string.IsNullOrWhiteSpace(dto.LastName)) user.LastName = dto.LastName;
+        if (dto.PhoneNumber != null) user.PhoneNumber = dto.PhoneNumber;
+        if (dto.Gender != null) user.Gender = dto.Gender;
+        if (dto.DateOfBirth.HasValue) user.DateOfBirth = dto.DateOfBirth;
+        if (dto.Country != null) user.Country = dto.Country;
+        if (dto.Bio != null) user.Bio = dto.Bio;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _userRepository.UpdateAsync(user);
+
+        return new UserProfileDto
+        {
+            Id = user.Id,
+            Email = user.Email,
+            Username = user.Username,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Role = user.Role,
+            PhoneNumber = user.PhoneNumber,
+            Gender = user.Gender,
+            DateOfBirth = user.DateOfBirth,
+            Country = user.Country,
+            Bio = user.Bio,
+            CreatedAt = user.CreatedAt
+        };
+    }
+}

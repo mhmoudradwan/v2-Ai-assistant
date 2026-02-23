@@ -3,49 +3,72 @@ import { useNavigate } from "react-router-dom";
 import LandingNavbar from "../components/LandingNavbar";
 import "../EditProfile.css";
 import icon1 from "../assets/user.png";
+import { authApi } from "../api/authApi";
 
 function EditProfile() {
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
-    fullName: "Mark Johnson",
-    username: "Markjohnson",
-    gender: "male",
-    dateOfBirth: "1990-05-15",
-    email: "Mark.johnson@baseera.security",
-    phone: "+1 (555) 123-4567",
-    country: "United States",
+    fullName: "",
+    username: "",
+    gender: "",
+    dateOfBirth: "",
+    email: "",
+    phone: "",
+    country: "",
     password: "",
     confirmPassword: "",
-    bio: "Cybersecurity enthusiast and software developer.",
+    bio: "",
     avatar: localStorage.getItem("userAvatar") || icon1,
   });
 
-  const [avatarPreview, setAvatarPreview] = useState(localStorage.getItem("userAvatar") || formData.avatar);
+  const [avatarPreview, setAvatarPreview] = useState(localStorage.getItem("userAvatar") || icon1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [saveSuccess, setSaveSuccess] = useState("");
 
-  // Load user data from localStorage on mount
+  // Load user data from API on mount
   useEffect(() => {
-    const storedUserData = localStorage.getItem("baseeraUserData");
-    if (storedUserData) {
-      try {
-        const parsed = JSON.parse(storedUserData);
-        setFormData(prev => ({
-          ...prev,
-          fullName: `${parsed.fullName || ''} ${parsed.lastName || ''}`.trim() || prev.fullName,
-          username: parsed.username || prev.username,
-          email: parsed.email || prev.email,
-          phone: parsed.phone || prev.phone,
-          country: parsed.country || prev.country,
-          bio: parsed.bio || prev.bio,
-          gender: parsed.gender || prev.gender,
-          dateOfBirth: parsed.dateOfBirth || prev.dateOfBirth
-        }));
-      } catch (error) {
-        console.log("Error loading user data:", error);
-      }
-    }
+    authApi.getProfile()
+      .then(res => {
+        if (res.success && res.data) {
+          const d = res.data;
+          setFormData(prev => ({
+            ...prev,
+            fullName: `${d.firstName || ''} ${d.lastName || ''}`.trim(),
+            username: d.username || '',
+            email: d.email || '',
+            phone: d.phoneNumber || '',
+            country: d.country || '',
+            bio: d.bio || '',
+            gender: d.gender ? d.gender.toLowerCase() : '',
+            dateOfBirth: d.dateOfBirth ? (typeof d.dateOfBirth === 'string' ? d.dateOfBirth.substring(0, 10) : new Date(d.dateOfBirth).toISOString().substring(0, 10)) : ''
+          }));
+        }
+      })
+      .catch(() => {
+        // Fallback to localStorage
+        const storedUserData = localStorage.getItem("baseeraUserData");
+        if (storedUserData) {
+          try {
+            const parsed = JSON.parse(storedUserData);
+            setFormData(prev => ({
+              ...prev,
+              fullName: `${parsed.fullName || ''} ${parsed.lastName || ''}`.trim() || prev.fullName,
+              username: parsed.username || prev.username,
+              email: parsed.email || prev.email,
+              phone: parsed.phone || prev.phone,
+              country: parsed.country || prev.country,
+              bio: parsed.bio || prev.bio,
+              gender: parsed.gender || prev.gender,
+              dateOfBirth: parsed.dateOfBirth || prev.dateOfBirth
+            }));
+          } catch (error) {
+            console.log("Error loading user data:", error);
+          }
+        }
+      });
   }, []);
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -68,34 +91,55 @@ function EditProfile() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaveError("");
+    setSaveSuccess("");
     
     // Save avatar to localStorage if changed
     if (avatarPreview !== formData.avatar) {
       localStorage.setItem("userAvatar", avatarPreview);
     }
     
-    // Save form data
-    const userData = JSON.parse(localStorage.getItem("baseeraUserData") || '{}');
-    const updatedData = {
-      ...userData,
-      fullName: formData.fullName.split(' ')[0],
-      lastName: formData.fullName.split(' ').slice(1).join(' ') || '',
-      username: formData.username,
-      email: formData.email,
-      phone: formData.phone,
-      country: formData.country,
-      bio: formData.bio,
-      gender: formData.gender,
-      dateOfBirth: formData.dateOfBirth
-    };
-    
-    localStorage.setItem("baseeraUserData", JSON.stringify(updatedData));
-    
-    console.log("Profile updated successfully");
-    // Redirect to profile page
-    navigate('/profile');
+    const nameParts = formData.fullName.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    try {
+      const response = await authApi.updateProfile({
+        firstName,
+        lastName,
+        phoneNumber: formData.phone || null,
+        gender: formData.gender || null,
+        dateOfBirth: formData.dateOfBirth || null,
+        country: formData.country || null,
+        bio: formData.bio || null
+      });
+
+      if (response.success) {
+        setSaveSuccess("Profile updated successfully!");
+        setTimeout(() => navigate('/profile'), 1200);
+      } else {
+        setSaveError(response.message || "Failed to update profile");
+      }
+    } catch (err) {
+      // Fallback: save to localStorage
+      const userData = JSON.parse(localStorage.getItem("baseeraUserData") || '{}');
+      const updatedData = {
+        ...userData,
+        fullName: firstName,
+        lastName,
+        username: formData.username,
+        email: formData.email,
+        phone: formData.phone,
+        country: formData.country,
+        bio: formData.bio,
+        gender: formData.gender,
+        dateOfBirth: formData.dateOfBirth
+      };
+      localStorage.setItem("baseeraUserData", JSON.stringify(updatedData));
+      navigate('/profile');
+    }
   };
 
   return (
@@ -105,6 +149,8 @@ function EditProfile() {
       <div className="edit-profile-container">
         {/* Form */}
         <form className="edit-profile-form" onSubmit={handleSubmit}>
+          {saveError && <div style={{color: "#ffffff", padding: "8px 10px", backgroundColor: "rgba(211, 47, 47, 0.15)", borderLeft: "3px solid #d32f2f", borderRadius: "4px", fontSize: "13px", marginBottom: "16px"}}>{saveError}</div>}
+          {saveSuccess && <div style={{color: "rgb(197, 244, 201)", padding: "8px 10px", backgroundColor: "rgba(76, 175, 80, 0.15)", borderLeft: "3px solid #4caf50", borderRadius: "4px", fontSize: "13px", marginBottom: "16px"}}>{saveSuccess}</div>}
           {/* Avatar Upload */}
           <div className="avatar-upload-section">
             <div className="avatar-upload-wrapper">
