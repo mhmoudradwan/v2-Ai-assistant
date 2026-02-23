@@ -43,7 +43,7 @@ function EditProfile() {
             country: d.country || '',
             bio: d.bio || '',
             gender: d.gender ? d.gender.toLowerCase() : '',
-            dateOfBirth: d.dateOfBirth ? d.dateOfBirth.substring(0, 10) : ''
+            dateOfBirth: d.dateOfBirth ? (typeof d.dateOfBirth === 'string' ? d.dateOfBirth.substring(0, 10) : new Date(d.dateOfBirth).toISOString().substring(0, 10)) : ''
           }));
         }
       })

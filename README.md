@@ -14,14 +14,21 @@ A full-stack web security vulnerability scanner — C# .NET 8 backend API paired
   /WebAPI          – ASP.NET Core controllers, middleware, entry point
   SecurityScanner.sln
 
-/frontend          – React/Vite web application (Chrome Extension UI)
+/frontend          – React/Vite web application
   /src
-    /api           – Axios API client
-    /components    – Reusable components (Navbar, Footer, …)
-    /pages         – Page components (Home, Login, Register, Bugs, …)
+    /api           – Axios API client (authApi, scansApi)
+    /components    – Reusable components (LandingNavbar, Navbar, Footer, …)
+    /pages         – Page components (Home, Login, Register, Bugs, Profile, …)
   index.html
   package.json
   vite.config.js
+  /extension       – Chrome Extension (Manifest V3)
+    manifest.json
+    /popup         – Extension popup UI
+    /background    – Service worker
+    /content       – Content script
+    /scanners      – 20 passive vulnerability scanners
+    /icons         – Extension icons
 
 /database
   /scripts
@@ -211,3 +218,77 @@ SQL Server is not running or the connection string is wrong. Check:
 
 ### JWT / Authentication errors
 The JWT secret key is set in `appsettings.json`. Make sure both `appsettings.json` and `appsettings.Development.json` use the same key in production.
+
+---
+
+## Chrome Extension
+
+The Baseera Security Scanner Chrome Extension allows passive vulnerability scanning of any web page and syncs results with your Baseera account.
+
+### Extension Location
+
+```
+frontend/extension/
+├── manifest.json          – Manifest V3 configuration
+├── popup/
+│   ├── popup.html         – Extension UI
+│   ├── popup.css          – Styling (matches Baseera design)
+│   └── popup.js           – Scan logic and UI interactions
+├── background/
+│   └── background.js      – Service worker (handles auth token storage)
+├── content/
+│   └── content.js         – Content script (passive observer)
+├── scanners/
+│   ├── index.js           – Scanner registry
+│   ├── xss.js             – XSS detection
+│   ├── sql-injection.js   – SQL error detection
+│   ├── command-injection.js – Command error detection
+│   ├── api-keys.js        – Exposed API keys
+│   ├── insecure-forms.js  – Password forms over HTTP
+│   ├── csp.js             – Missing Content-Security-Policy
+│   ├── sensitive-files.js – Exposed sensitive paths
+│   ├── mixed-content.js   – HTTP resources on HTTPS pages
+│   ├── hsts.js            – Missing HSTS header
+│   ├── clickjacking.js    – Missing X-Frame-Options
+│   ├── cookies.js         – Insecure cookies (no HttpOnly)
+│   ├── sri.js             – Missing Subresource Integrity
+│   ├── cors.js            – Wildcard CORS policy
+│   ├── debug-pages.js     – Exposed debug endpoints
+│   ├── open-redirect.js   – Unvalidated redirects
+│   ├── csrf.js            – Forms without CSRF tokens
+│   ├── deprecated-html.js – Deprecated HTML tags
+│   └── trackers.js        – Excessive analytics trackers
+└── icons/
+    ├── icon16.png
+    ├── icon48.png
+    └── icon128.png
+```
+
+### Installing the Extension in Chrome
+
+1. Open Chrome and navigate to `chrome://extensions/`
+2. Enable **Developer mode** (toggle in the top-right corner)
+3. Click **Load unpacked**
+4. Select the `frontend/extension/` directory
+5. The Baseera Security Scanner icon will appear in your Chrome toolbar
+
+### Using the Extension
+
+1. Navigate to any website you want to scan
+2. Click the **Baseera** icon in the Chrome toolbar
+3. Click **Scan Page** to run passive vulnerability detection
+4. Review the results:
+   - **Risk Score** (0–100) indicates overall page risk
+   - Vulnerabilities are grouped by severity: Critical, High, Medium, Low
+5. If you are logged in, click **Save to Account** to store results in your Baseera account
+
+### Linking the Extension with Your Account
+
+The extension stores your JWT token in Chrome's local storage after you log in via the Baseera web app. To link:
+
+1. Open the Baseera web app (`http://localhost:5173`) and log in
+2. The extension automatically detects the auth token (stored in `localStorage`)
+3. Scan results submitted via **Save to Account** appear in your **Bugs** dashboard under the Vulnerabilities tab
+
+> **Note:** The extension performs **passive scanning only** — it reads page content and DOM without modifying anything or making requests on your behalf.
+

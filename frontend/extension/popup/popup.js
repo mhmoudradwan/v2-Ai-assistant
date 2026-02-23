@@ -1,6 +1,7 @@
 // Baseera Security Scanner - Popup Script
-
+// Configuration - update these URLs for your deployment environment
 const API_BASE_URL = 'http://localhost:5000/api';
+const APP_BASE_URL = 'http://localhost:5173';
 
 let scanResults = null;
 let currentURL = '';
@@ -25,10 +26,16 @@ async function initPopup() {
   // Bind submit button
   document.getElementById('submit-btn').addEventListener('click', submitToBackend);
 
+  // Bind open app link
+  document.getElementById('open-app-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: APP_BASE_URL });
+  });
+
   // Bind login link
   document.getElementById('login-link').addEventListener('click', (e) => {
     e.preventDefault();
-    chrome.tabs.create({ url: 'http://localhost:5173/login' });
+    chrome.tabs.create({ url: `${APP_BASE_URL}/login` });
   });
 }
 
