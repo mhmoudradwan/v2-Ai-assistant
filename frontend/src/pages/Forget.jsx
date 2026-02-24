@@ -21,6 +21,7 @@ function Forget(){
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const navigate = useNavigate();
+    const isLoggedIn = !!localStorage.getItem("authToken");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -46,14 +47,21 @@ function Forget(){
         try {
             await authApi.changePassword(newPassword);
             setSuccess("Password updated successfully!");
-            // Clear all auth data and redirect to login
-            localStorage.removeItem("authToken");
-            localStorage.removeItem("baseeraUserName");
-            localStorage.removeItem("baseeraUserData");
-            localStorage.removeItem("userAvatar");
-            setTimeout(() => {
-                navigate("/login");
-            }, 2000);
+            if (isLoggedIn) {
+                // User changed password from profile — keep session, go back to profile
+                setTimeout(() => {
+                    navigate("/profile");
+                }, 2000);
+            } else {
+                // Forgot-password flow — clear auth data and redirect to login
+                localStorage.removeItem("authToken");
+                localStorage.removeItem("baseeraUserName");
+                localStorage.removeItem("baseeraUserData");
+                localStorage.removeItem("userAvatar");
+                setTimeout(() => {
+                    navigate("/login");
+                }, 2000);
+            }
         } catch (err) {
             setError(err.response?.data?.message || "Failed to update password. Please try again.");
         }
@@ -136,8 +144,8 @@ function Forget(){
                     />
                     <button type="submit" className="btn-forget">Save New Password</button>
                       <div className="forget-pass">
-                         <Link className="link" to="/Login">
-                    Back to Login
+                         <Link className="link" to={isLoggedIn ? "/profile" : "/Login"}>
+                    {isLoggedIn ? "Back to Profile" : "Back to Login"}
                     </Link>
                        </div>
                 </form>

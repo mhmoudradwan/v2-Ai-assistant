@@ -108,56 +108,74 @@ function Register(){
                     <h5 className="register-form-title">
                         First Name
                     </h5>
-                        <i className="fa-solid fa-user first-name-icon"></i>
-                    <input className="register-form-input" name="fullName" type="text" placeholder="Mark " disabled={loading} required />
+                    <div className="register-input-wrapper">
+                        <i className="fa-solid fa-user register-input-icon"></i>
+                        <input className="register-form-input" name="fullName" type="text" placeholder="Mark " disabled={loading} required />
+                    </div>
                     <h5 className="register-form-title">
                         Last Name
                     </h5>
-                        <i className="fa-solid fa-user last-name-icon"></i>
-                    <input className="register-form-input" name="lastName" type="text" placeholder="Johnson" disabled={loading} required />
+                    <div className="register-input-wrapper">
+                        <i className="fa-solid fa-user register-input-icon"></i>
+                        <input className="register-form-input" name="lastName" type="text" placeholder="Johnson" disabled={loading} required />
+                    </div>
                     <h5 className="register-form-title">
                         Username
                     </h5>
-                        <i className="fa-solid fa-at"></i>
-                    <input className="register-form-input" name="username" type="text" placeholder=" Markjohnson" disabled={loading} required />
+                    <div className="register-input-wrapper">
+                        <i className="fa-solid fa-at register-input-icon"></i>
+                        <input className="register-form-input" name="username" type="text" placeholder=" Markjohnson" disabled={loading} required />
+                    </div>
                     <h5 className="register-form-title">
                         Email Address
                     </h5>
-                        <i className="fa-solid fa-envelope"></i>
-                    <input className="register-form-input" name="email" type="email" placeholder=" Mark.johnson@baseera.security" disabled={loading} required />
+                    <div className="register-input-wrapper">
+                        <i className="fa-solid fa-envelope register-input-icon"></i>
+                        <input className="register-form-input" name="email" type="email" placeholder=" Mark.johnson@baseera.security" disabled={loading} required />
+                    </div>
                     <h5 className="register-form-title">
                         Password
                     </h5>
-                        <i className="fa-solid fa-lock"></i>
-                    <input className="register-form-input" name="password" type="password" placeholder=" ********" disabled={loading} required />
+                    <div className="register-input-wrapper">
+                        <i className="fa-solid fa-lock register-input-icon"></i>
+                        <input className="register-form-input" name="password" type="password" placeholder=" ********" disabled={loading} required />
+                    </div>
                     
                     <h5 className="register-form-title">
                         Phone Number <span style={{fontWeight: 'normal', fontSize: '12px'}}>(Optional)</span>
                     </h5>
-                        <i className="fa-solid fa-phone"></i>
-                    <input className="register-form-input" name="phoneNumber" type="tel" placeholder="+1 (555) 000-0000" disabled={loading} />
+                    <div className="register-input-wrapper">
+                        <i className="fa-solid fa-phone register-input-icon"></i>
+                        <input className="register-form-input" name="phoneNumber" type="tel" placeholder="+1 (555) 000-0000" disabled={loading} />
+                    </div>
                     
                     <h5 className="register-form-title">
                         Gender <span style={{fontWeight: 'normal', fontSize: '12px'}}>(Optional)</span>
                     </h5>
-                    <i className="fa-solid fa-venus-mars"></i>
-                    <select className="register-form-input" name="gender" disabled={loading}>
-                        <option value="">Select gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                    </select>
+                    <div className="register-input-wrapper">
+                        <i className="fa-solid fa-venus-mars register-input-icon"></i>
+                        <select className="register-form-input" name="gender" disabled={loading}>
+                            <option value="">Select gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
                     
                     <h5 className="register-form-title">
                         Date of Birth <span style={{fontWeight: 'normal', fontSize: '12px'}}>(Optional)</span>
                     </h5>
-                    <i className="fa-solid fa-calendar"></i>
-                    <input className="register-form-input" name="dateOfBirth" type="date" disabled={loading} />
+                    <div className="register-input-wrapper">
+                        <i className="fa-solid fa-calendar register-input-icon"></i>
+                        <input className="register-form-input" name="dateOfBirth" type="date" disabled={loading} />
+                    </div>
                     
                     <h5 className="register-form-title">
                         Country <span style={{fontWeight: 'normal', fontSize: '12px'}}>(Optional)</span>
                     </h5>
-                        <i className="fa-solid fa-globe"></i>
-                    <input className="register-form-input" name="country" type="text" placeholder="Your country" disabled={loading} />
+                    <div className="register-input-wrapper">
+                        <i className="fa-solid fa-globe register-input-icon"></i>
+                        <input className="register-form-input" name="country" type="text" placeholder="Your country" disabled={loading} />
+                    </div>
                     
                             <div className="btn">  
                                 <button type="submit" disabled={loading}>

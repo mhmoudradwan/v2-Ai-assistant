@@ -144,6 +144,18 @@ font-weight: 400;
 line-height: 24px; /* 150% */
 }
 
+.profile-bio {
+  color: #ffffff;
+  font-family: Arimo;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  margin-top: 8px;
+  text-align: center;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
 /* ====== INFO GRID ====== */
 .profile-info-grid {
   display: grid;
