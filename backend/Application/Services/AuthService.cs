@@ -81,6 +81,20 @@ public class AuthService : IAuthService
         }
     }
 
+    public async Task ChangePasswordAsync(int userId, string newPassword)
+    {
+        if (string.IsNullOrEmpty(newPassword) || newPassword.Length < 6)
+            throw new ArgumentException("Password must be at least 6 characters long");
+
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null)
+            throw new UnauthorizedAccessException("User not found");
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        user.UpdatedAt = DateTime.UtcNow;
+        await _userRepository.UpdateAsync(user);
+    }
+
     private string GenerateJwtToken(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();

@@ -43,5 +43,10 @@ export const authApi = {
   // DELETE /api/users/profile
   deleteAccount: async () => {
     return apiClient.delete('/users/profile');
+  },
+
+  // PUT /api/users/change-password
+  changePassword: async (newPassword) => {
+    return apiClient.put('/users/change-password', { newPassword });
   }
 };

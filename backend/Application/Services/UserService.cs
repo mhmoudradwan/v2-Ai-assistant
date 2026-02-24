@@ -32,6 +32,7 @@ public class UserService : IUserService
             DateOfBirth = user.DateOfBirth,
             Country = user.Country,
             Bio = user.Bio,
+            ProfileImageUrl = user.ProfileImageUrl,
             CreatedAt = user.CreatedAt
         };
     }
@@ -49,6 +50,7 @@ public class UserService : IUserService
         if (dto.DateOfBirth.HasValue) user.DateOfBirth = dto.DateOfBirth;
         if (dto.Country != null) user.Country = dto.Country;
         if (dto.Bio != null) user.Bio = dto.Bio;
+        if (dto.ProfileImageUrl != null) user.ProfileImageUrl = dto.ProfileImageUrl;
         user.UpdatedAt = DateTime.UtcNow;
 
         await _userRepository.UpdateAsync(user);
@@ -66,6 +68,7 @@ public class UserService : IUserService
             DateOfBirth = user.DateOfBirth,
             Country = user.Country,
             Bio = user.Bio,
+            ProfileImageUrl = user.ProfileImageUrl,
             CreatedAt = user.CreatedAt
         };
     }

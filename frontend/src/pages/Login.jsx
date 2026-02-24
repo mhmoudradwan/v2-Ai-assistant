@@ -56,6 +56,9 @@ function Login(){
                             email: profileRes.data.email,
                             fullName: `${profileRes.data.firstName || ''} ${profileRes.data.lastName || ''}`.trim() || username,
                         }));
+                        if (profileRes.data.profileImageUrl) {
+                            localStorage.setItem("userAvatar", profileRes.data.profileImageUrl);
+                        }
                     }
                 } catch (err) {
                     console.error("Failed to fetch profile:", err);

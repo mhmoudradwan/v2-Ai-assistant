@@ -8,6 +8,7 @@ import "../forget.css";
 import "../register.css";
 import { Link, useNavigate } from 'react-router-dom'
 import Navbar from "../components/Navbar";
+import { authApi } from "../api/authApi";
 
 
 import icon7 from "../assets/lock.png";
@@ -21,39 +22,41 @@ function Forget(){
     const [success, setSuccess] = useState("");
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
         setSuccess("");
 
         // Validation
         if (!newPassword || !confirmPassword) {
-            setError("الرجاء ملء جميع الحقول");
+            setError("Please fill in all fields.");
             return;
         }
 
         if (newPassword.length < 6) {
-            setError("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+            setError("Password must be at least 6 characters long.");
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            setError("كلمات المرور غير متطابقة");
+            setError("Passwords do not match.");
             return;
         }
 
-        // Update password in localStorage
-        const storedUserData = localStorage.getItem("baseeraUserData");
-        if (storedUserData) {
-            const userData = JSON.parse(storedUserData);
-            userData.password = newPassword;
-            localStorage.setItem("baseeraUserData", JSON.stringify(userData));
+        try {
+            await authApi.changePassword(newPassword);
+            setSuccess("Password updated successfully!");
+            // Clear all auth data and redirect to login
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("baseeraUserName");
+            localStorage.removeItem("baseeraUserData");
+            localStorage.removeItem("userAvatar");
+            setTimeout(() => {
+                navigate("/login");
+            }, 2000);
+        } catch (err) {
+            setError(err.response?.data?.message || "Failed to update password. Please try again.");
         }
-
-        setSuccess("تم تحديث كلمة المرور بنجاح!");
-        setTimeout(() => {
-            navigate("/login");
-        }, 2000);
     };
     return(
         <>

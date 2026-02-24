@@ -34,6 +34,7 @@ public class SecurityScannerDbContext : DbContext
             entity.Property(e => e.Gender).HasMaxLength(20);
             entity.Property(e => e.Country).HasMaxLength(100);
             entity.Property(e => e.Bio).HasMaxLength(500);
+            entity.Property(e => e.ProfileImageUrl).HasMaxLength(2048);
 
             entity.HasIndex(e => e.Email).IsUnique();
             entity.HasIndex(e => e.Username).IsUnique();

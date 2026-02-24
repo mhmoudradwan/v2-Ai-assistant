@@ -4,6 +4,7 @@ using System.Security.Claims;
 using Application.DTOs.Common;
 using Application.DTOs.User;
 using Application.Interfaces;
+using Core.Interfaces;
 
 namespace WebAPI.Controllers;
 
@@ -13,11 +14,13 @@ namespace WebAPI.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IAuthService _authService;
     private readonly ILogger<UsersController> _logger;
 
-    public UsersController(IUserService userService, ILogger<UsersController> logger)
+    public UsersController(IUserService userService, IAuthService authService, ILogger<UsersController> logger)
     {
         _userService = userService;
+        _authService = authService;
         _logger = logger;
     }
 
@@ -98,6 +101,34 @@ public class UsersController : ControllerBase
             {
                 Success = false,
                 Message = "Failed to delete account. Please try again."
+            });
+        }
+    }
+
+    /// <summary>
+    /// Change current user's password
+    /// </summary>
+    [HttpPut("change-password")]
+    public async Task<ActionResult<ResponseDto<object>>> ChangePassword([FromBody] ChangePasswordDto dto)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            await _authService.ChangePasswordAsync(userId, dto.NewPassword);
+
+            return Ok(new ResponseDto<object>
+            {
+                Success = true,
+                Message = "Password changed successfully"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to change password for user");
+            return BadRequest(new ResponseDto<object>
+            {
+                Success = false,
+                Message = ex.Message
             });
         }
     }
