@@ -4,7 +4,6 @@ import "../contact.css";
 import Navbar from "../components/Navbar";
 import LandingNavbar from "../components/LandingNavbar";
 import Fotter from "../components/Fotter";
-import icon2 from "../assets/Mission.png";
 
 function Contact() {
   const [formData, setFormData] = useState({
@@ -178,7 +177,7 @@ function Contact() {
               </div>
               <div className="info-content">
                 <h3 className="info-title">Location</h3>
-                <p className="info-text">San Francisco, CA</p>
+                <p className="info-text">Cairo, Egypt</p>
               </div>
             </div>
 
@@ -186,35 +185,35 @@ function Contact() {
             <div className="social-card">
               <h3 className="social-title">Connect With Us</h3>
               
-              <div className="social-link">
+              <a href="https://www.facebook.com/0xBaseera" target="_blank" rel="noopener noreferrer" className="social-link" style={{textDecoration: 'none'}}>
                 <div className="social-icon">
-                  <img src={icon2} alt="icon" width={24} height={24} />
+                  <i className="fa-brands fa-facebook-f" style={{color: 'white', fontSize: '18px'}}></i>
                 </div>
                 <div className="social-content">
                   <h4 className="social-name">Facebook</h4>
-                  <p className="social-url">https://www.facebook.com/share/1G1woB6zfG/</p>
+                  <p className="social-url">facebook.com/0xBaseera</p>
                 </div>
-              </div>
+              </a>
 
-              <div className="social-link">
+              <a href="https://www.instagram.com/baseeraext/" target="_blank" rel="noopener noreferrer" className="social-link" style={{textDecoration: 'none'}}>
                 <div className="social-icon">
-                <img src={icon2} alt="icon" width={24} height={24} />
+                  <i className="fa-brands fa-instagram" style={{color: 'white', fontSize: '18px'}}></i>
                 </div>
                 <div className="social-content">
                   <h4 className="social-name">Instagram</h4>
-                  <p className="social-url">https://www.instagram.com/0xbaseera?igsh=MzI6dGdr0zU2OW1h</p>
+                  <p className="social-url">instagram.com/baseeraext</p>
                 </div>
-              </div>
+              </a>
 
-              <div className="social-link">
+              <a href="https://www.linkedin.com/in/0xbaseeraext/" target="_blank" rel="noopener noreferrer" className="social-link" style={{textDecoration: 'none'}}>
                 <div className="social-icon">
-                 <img src={icon2} alt="icon" width={24} height={24} />
+                  <i className="fa-brands fa-linkedin-in" style={{color: 'white', fontSize: '18px'}}></i>
                 </div>
                 <div className="social-content">
-                  <h4 className="social-name">Linked in</h4>
-                  <p className="social-url">http://www.linkedin.com/in/0xBaseeraEXT</p>
+                  <h4 className="social-name">LinkedIn</h4>
+                  <p className="social-url">linkedin.com/in/0xbaseeraext</p>
                 </div>
-              </div>
+              </a>
             </div>
           </div>
         </div>
@@ -223,22 +222,16 @@ function Contact() {
       {/* Map Section */}
       <section className="map-section">
         <div className="map-container">
-          <div className="map-placeholder">
-            <div className="map-icon">
-              <svg width="60" height="60" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2" />
-              </svg>
-            </div>
-            <h3 className="map-title">Map View</h3>
-            <p className="map-location">San Francisco, CA</p>
-          </div>
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26195.817002601212!2d30.988065330711343!3d30.56294802862813!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14f7d68b68933ea3%3A0x77434af2db2fa06f!2sShebeen%20El-Kom%2C%20Qism%20Shebeen%20El-Kom%2C%20Shibin%20el%20Kom%2C%20Menofia%20Governorate!5e1!3m2!1sen!2seg!4v1771943748180!5m2!1sen!2seg" 
+            width="100%" 
+            height="400" 
+            style={{border: 0, borderRadius: '20px'}} 
+            allowFullScreen="" 
+            loading="lazy" 
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Baseera Location"
+          ></iframe>
         </div>
       </section>
 

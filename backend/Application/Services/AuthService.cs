@@ -25,6 +25,24 @@ public class AuthService : IAuthService
         if (await _userRepository.EmailExistsAsync(email))
             throw new InvalidOperationException("Email already exists");
 
+        if (dateOfBirth.HasValue)
+        {
+            var today = DateTime.UtcNow.Date;
+            var dob = dateOfBirth.Value.Date;
+
+            if (dob > today)
+                throw new ArgumentException("Date of birth cannot be in the future");
+
+            var age = today.Year - dob.Year;
+            if (dob.Date > today.AddYears(-age)) age--;
+
+            if (age < 15)
+                throw new ArgumentException("You must be at least 15 years old to register");
+
+            if (age > 120)
+                throw new ArgumentException("Please enter a valid date of birth");
+        }
+
         var user = new User
         {
             Email = email,

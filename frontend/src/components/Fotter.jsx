@@ -54,7 +54,7 @@ function Fotter() {
            <h6>Contact</h6>
           <li className="info"><img src={icon19} alt="email" /><a href="" > 0xbaseera@gmail.com</a></li>
           <li className="info"><img src={icon17} alt="telephone" />+1 (555) 123-4567</li>
-            <li className="info"><img src={icon18} alt="location" />123 Security Blvd, Suite 100</li>
+            <li className="info"><img src={icon18} alt="location" />Cairo, Egypt</li>
               
         </ul>
       

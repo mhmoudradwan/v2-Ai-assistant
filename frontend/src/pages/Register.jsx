@@ -20,6 +20,11 @@ function Register(){
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
 
+    // Date of birth constraints
+    const today = new Date();
+    const maxDate = new Date(today.getFullYear() - 15, today.getMonth(), today.getDate()).toISOString().split('T')[0];
+    const minDate = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate()).toISOString().split('T')[0];
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
@@ -54,6 +59,31 @@ function Register(){
             setError("Password must be at least 6 characters");
             setLoading(false);
             return;
+        }
+
+        if (dateOfBirth) {
+            const dob = new Date(dateOfBirth);
+            const ageDiff = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
+            const dayDiff = today.getDate() - dob.getDate();
+            let age = ageDiff;
+            if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) age--;
+
+            if (dob > today) {
+                setError("Date of birth cannot be in the future");
+                setLoading(false);
+                return;
+            }
+            if (age < 15) {
+                setError("You must be at least 15 years old to register");
+                setLoading(false);
+                return;
+            }
+            if (age > 120) {
+                setError("Please enter a valid date of birth");
+                setLoading(false);
+                return;
+            }
         }
 
         try {
@@ -165,8 +195,15 @@ function Register(){
                         Date of Birth <span style={{fontWeight: 'normal', fontSize: '12px'}}>(Optional)</span>
                     </h5>
                     <div className="register-input-wrapper">
-                        <i className="fa-solid fa-calendar register-input-icon"></i>
-                        <input className="register-form-input" name="dateOfBirth" type="date" disabled={loading} />
+                        <input 
+                            className="register-form-input" 
+                            name="dateOfBirth" 
+                            type="date" 
+                            disabled={loading}
+                            style={{paddingLeft: '16px'}}
+                            max={maxDate}
+                            min={minDate}
+                        />
                     </div>
                     
                     <h5 className="register-form-title">
