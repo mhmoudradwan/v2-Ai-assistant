@@ -209,7 +209,7 @@ function Profile() {
   
             <button
               className="profile-btn profile-btn-secondary"
-              onClick={() => navigate('/forget')}
+              onClick={() => navigate('/change-password')}
             >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M12.9165 6.25004L14.8332 8.16671C14.9889 8.3194 15.1984 8.40492 15.4165 8.40492C15.6346 8.40492 15.8441 8.3194 15.9998 8.16671L17.7498 6.41671C17.9025 6.26093 17.9881 6.0515 17.9881 5.83337C17.9881 5.61525 17.9025 5.40581 17.7498 5.25004L15.8332 3.33337" stroke="white" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round"/>
