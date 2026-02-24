@@ -2,6 +2,7 @@ using Core.Interfaces;
 using Core.Exceptions;
 using Application.DTOs.User;
 using Application.Interfaces;
+using System.Text.RegularExpressions;
 
 namespace Application.Services;
 
@@ -42,6 +43,24 @@ public class UserService : IUserService
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null)
             throw new NotFoundException("User not found");
+
+        if (!string.IsNullOrWhiteSpace(dto.Username) && dto.Username != user.Username)
+        {
+            var existingByUsername = await _userRepository.GetByUsernameAsync(dto.Username);
+            if (existingByUsername != null && existingByUsername.Id != userId)
+                throw new InvalidOperationException("Username is already taken");
+            user.Username = dto.Username;
+        }
+
+        if (!string.IsNullOrWhiteSpace(dto.Email) && dto.Email != user.Email)
+        {
+            if (!Regex.IsMatch(dto.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                throw new InvalidOperationException("Invalid email format");
+            var existingByEmail = await _userRepository.GetByEmailAsync(dto.Email);
+            if (existingByEmail != null && existingByEmail.Id != userId)
+                throw new InvalidOperationException("Email is already in use");
+            user.Email = dto.Email;
+        }
 
         if (!string.IsNullOrWhiteSpace(dto.FirstName)) user.FirstName = dto.FirstName;
         if (!string.IsNullOrWhiteSpace(dto.LastName)) user.LastName = dto.LastName;

@@ -82,6 +82,8 @@ function EditProfile() {
 
     try {
       const response = await authApi.updateProfile({
+        username: formData.username,
+        email: formData.email,
         firstName,
         lastName,
         phoneNumber: formData.phone || null,
@@ -93,6 +95,18 @@ function EditProfile() {
 
       if (response.success) {
         setSaveSuccess("Profile updated successfully!");
+        // Update localStorage with new username and email
+        localStorage.setItem("baseeraUserName", formData.username);
+        try {
+          const userData = JSON.parse(localStorage.getItem("baseeraUserData") || '{}');
+          localStorage.setItem("baseeraUserData", JSON.stringify({
+            ...userData,
+            username: formData.username,
+            email: formData.email,
+          }));
+        } catch (_) {
+          localStorage.setItem("baseeraUserData", JSON.stringify({ username: formData.username, email: formData.email }));
+        }
         setTimeout(() => navigate('/profile'), 1200);
       } else {
         setSaveError(response.message || "Failed to update profile");
@@ -113,6 +127,7 @@ function EditProfile() {
         dateOfBirth: formData.dateOfBirth
       };
       localStorage.setItem("baseeraUserData", JSON.stringify(updatedData));
+      localStorage.setItem("baseeraUserName", formData.username);
       navigate('/profile');
     }
   };
