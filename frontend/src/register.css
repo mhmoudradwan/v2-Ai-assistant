@@ -7,7 +7,7 @@
 
 .register-box {
   width: 100%;
-  max-width: 475px;
+  max-width: 440px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -18,7 +18,7 @@
   background: rgba(29, 41, 61, 0.50);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   margin-top: 46px;
-  padding: 30px 40px;
+  padding: 40px 32px;
   box-sizing: border-box;
 }
 .logo-icon{
@@ -224,7 +224,7 @@ line-height: 24px; /* 150% */
 @media (max-width: 768px) {
     .register-box {
         width: 90%;
-        max-width: 475px;
+        max-width: 440px;
         margin: 20px auto;
         padding: 25px 25px;
     }
