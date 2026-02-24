@@ -124,8 +124,8 @@ function EditProfile() {
       <div className="edit-profile-container">
         {/* Form */}
         <form className="edit-profile-form" onSubmit={handleSubmit}>
-          {saveError && <div style={{color: "#ffffff", padding: "8px 10px", backgroundColor: "rgba(211, 47, 47, 0.15)", borderLeft: "3px solid #d32f2f", borderRadius: "4px", fontSize: "13px", marginBottom: "16px"}}>{saveError}</div>}
-          {saveSuccess && <div style={{color: "rgb(197, 244, 201)", padding: "8px 10px", backgroundColor: "rgba(76, 175, 80, 0.15)", borderLeft: "3px solid #4caf50", borderRadius: "4px", fontSize: "13px", marginBottom: "16px"}}>{saveSuccess}</div>}
+          {saveError && <div className="form-error-msg" style={{marginBottom: "16px"}}>{saveError}</div>}
+          {saveSuccess && <div className="form-success-msg" style={{marginBottom: "16px"}}>{saveSuccess}</div>}
 
           {/* Personal Information */}
           <div className="form-section">

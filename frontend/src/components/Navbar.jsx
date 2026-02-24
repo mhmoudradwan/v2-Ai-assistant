@@ -79,7 +79,7 @@ function Navbar() {
                 </div>
                 <div className="navbar-actions">
                     {isLoggedIn ? (
-                        <div className="register-btn" style={{maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                        <div className="register-btn navbar-username">
                             Hello, {displayName}
                         </div>
                     ) : (

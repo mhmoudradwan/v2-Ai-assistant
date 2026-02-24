@@ -102,8 +102,8 @@ function Register(){
                         </p>
                 </div>
                 </div>
-                    {error && <div style={{color: "#ffffff", padding: "8px 10px", backgroundColor: "rgba(211, 47, 47, 0.15)", borderLeft: "3px solid #d32f2f", borderRadius: "4px", textAlign: "center", fontSize: "13px", boxSizing: "border-box", marginTop: "15px", marginBottom: "0"}}>{error}</div>}
-                    {success && <div style={{color: "rgb(197, 244, 201)", padding: "8px 10px", backgroundColor: "rgba(76, 175, 80, 0.15)", borderLeft: "3px solid #4caf50", borderRadius: "4px", textAlign: "center", fontSize: "13px", boxSizing: "border-box", marginTop: "15px", marginBottom: "0"}}>{success}</div>}
+                    {error && <div className="form-error-msg">{error}</div>}
+                    {success && <div className="form-success-msg">{success}</div>}
                 <form className="register-form" onSubmit={handleSubmit}>
                     <h5 className="register-form-title">
                         First Name

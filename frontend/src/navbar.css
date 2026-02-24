@@ -114,6 +114,14 @@
   line-height: 1;
 }
 
+.navbar-username {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: default;
+}
+
 /* Responsive Design */
 @media (max-width: 992px) {
   .navbar-collapse {

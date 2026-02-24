@@ -114,18 +114,7 @@ function Login(){
                     </div>
 
                     {error && (
-                        <div style={{
-                            color: "#ffffff",
-                            textAlign: "center",
-                            padding: "8px 10px",
-                            backgroundColor: "rgba(211, 47, 47, 0.27)",
-                            borderLeft: "3px solid #d32f2f",
-                            borderRadius: "4px",
-                            fontSize: "13px",
-                            boxSizing: "border-box",
-                            marginTop: "15px",
-                            marginBottom: "0"
-                        }}>
+                        <div className="form-error-msg">
                             {error}
                         </div>
                     )}
