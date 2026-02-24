@@ -27,6 +27,15 @@ import icon18 from "../assets/location.png"
 import icon19 from "../assets/Email.png"
 import Fotter from "../components/Fotter";
 
+/* 🔹 Lightning Component */
+const CardLightning = ({ position, icon }) => {
+  return (
+    <div className={`card-lightning ${position}`}>
+      <img src={icon} alt="lightning icon" />
+    </div>
+  );
+};
+
 function Landing() {
   const navigate = useNavigate();
 
@@ -73,6 +82,113 @@ function Landing() {
           </div>
         </div>
       </section>
+
+      {/* ================= Extension Section ================= */}
+      <section className="extension-section" id="Extension">
+        <div className="extension-download-section" id="download">
+          <div className="extension-container">
+            {/* -------- Left -------- */}
+            <div className="extension-left">
+              <div className="home-badge">
+                <img src={icon2} alt="security icon" width={20} height={20} />
+                <span>New Release</span>
+              </div>
+
+              <div className="text-sec2">
+                <h2>Download Our Browser Extension</h2>
+                <p>
+                  Install the Baseera extension to scan websites instantly and
+                  detect vulnerabilities in real time. Stay protected while
+                  browsing with automatic security analysis.
+                </p>
+              </div>
+
+              <div className="small-icon">
+                <div className="feature-item">
+                  <img src={icon3} alt="check icon" />
+                  <h6>Real-time vulnerability scanning</h6>
+                </div>
+                <div className="feature-item">
+                  <img src={icon3} alt="check icon" />
+                  <h6>Instant security alerts &amp; notifications</h6>
+                </div>
+                <div className="feature-item">
+                  <img src={icon3} alt="check icon" />
+                  <h6>Comprehensive vulnerability reports</h6>
+                </div>
+              </div>
+
+              <div className="Download-Extension">
+                <button className="btn-download">
+                  <img src={icon4} alt="download" />
+                  <span>Download Extension</span>
+                </button>
+              </div>
+
+              <div className="footer-text">
+                <h6>
+                  <img src={icon5} alt="info icon" />
+                  Compatible with Chrome, Edge, and Brave
+                </h6>
+              </div>
+            </div>
+
+            {/* -------- Right / Card -------- */}
+            <div className="extension-right">
+              <div className="extension-card">
+                <div className="card-browser-header">
+                  <div className="browser-dots">
+                    <div className="browser-dot red"></div>
+                    <div className="browser-dot yellow"></div>
+                    <div className="browser-dot green"></div>
+                  </div>
+
+                  <div className="browser-url-bar">
+                    <img src={icon1} alt="shield icon" />
+                    <span>Baseera Security</span>
+                  </div>
+                </div>
+
+                <CardLightning position="top-right" icon={icon4} />
+
+                <div className="card-content">
+                  <div className="card-icon-wrapper">
+                    <div className="card-icon">
+                      <img src={icon1} alt="security icon" />
+                    </div>
+                  </div>
+
+                  <h3 className="card-title">Baseera Security</h3>
+                  <p className="card-subtitle">
+                    Real-time web vulnerability scanner
+                  </p>
+
+                  <div className="card-stats">
+                    <div className="stat-item">
+                      <span className="stat-number">247</span>
+                      <span className="stat-label">Scans</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-number">12</span>
+                      <span className="stat-label">Critical</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-number">4.9</span>
+                      <span className="stat-label">Rating</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* -------- End Right -------- */}
+          </div>
+          {/* -------- Lightning Icon -------- */}
+          <div className="extension-lightning bottom-left">
+            <img src={icon6} alt="lightning icon" />
+          </div>
+        </div>
+      </section>
+
         {/* ================= Security Solutions Section ================= */}
       <section className="security-solutions-section">
         <div className="security-solutions-container">
@@ -293,7 +409,7 @@ function Landing() {
             <p className="par-sec3">Global Coverage</p>
           </div>
         </div>
-          <div className="start-btn" > <a href="/login">Start Securing Your Web Today</a>
+          <div className="start-btn" > <a href="#Extension">Start Securing Your Web Today</a>
            
           </div>
     </section>
