@@ -170,28 +170,23 @@ line-height: 24px; /* 150% */
 @media (max-width: 768px) {
     .login-box {
         width: 90%;
-        max-width: 400px;
-        padding: 30px 25px;
+        max-width: 480px;
+        padding: 35px 30px;
     }
 
     .login-form-input {
         width: 100%;
-        max-width: 320px;
     }
 
     .login-form button {
         width: 100%;
-        max-width: 320px;
-        padding: 12px 20px;
-        justify-content: center;
     }
-
 }
 
 @media (max-width: 480px) {
     .login-box {
         width: 95%;
-        padding: 25px 20px;
+        padding: 30px 20px;
     }
 
     .login-icon {
@@ -210,7 +205,6 @@ line-height: 24px; /* 150% */
 
     .login-form-input {
         width: 100%;
-        max-width: 280px;
         height: 44px;
         font-size: 14px;
         padding: 12px 14px 12px 40px;
@@ -222,10 +216,8 @@ line-height: 24px; /* 150% */
 
     .login-form button {
         width: 100%;
-        max-width: 280px;
         height: 44px;
         font-size: 14px;
-        padding: 10px 20px;
     }
 
     .forget a, .register a {
