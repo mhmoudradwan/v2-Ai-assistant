@@ -18,7 +18,7 @@
   background: rgba(29, 41, 61, 0.50);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   margin-top: 46px;
-  padding: 30px 35px;
+  padding: 30px 40px;
   box-sizing: border-box;
 }
 .logo-icon{
@@ -91,6 +91,11 @@ background: rgba(15, 23, 43, 0.50);
   outline: none;
   color: #fff;
   box-sizing: border-box;
+  font-family: Arimo;
+  font-size: 16px;
+}
+.register-form-input:focus {
+    border-color: #00D492;
 }
 input::placeholder{
     color: #62748E;
@@ -103,6 +108,7 @@ line-height: normal;
 .btn{
     display: flex;
     margin-top: 20px;
+    width: 100%;
 }
 .register-form button {
 width: 100%;
@@ -183,7 +189,7 @@ line-height: 24px; /* 150% */
     border-radius: 14px;
     border: 0.8px solid #314158;
     background: rgba(15, 23, 43, 0.50);
-    outline: #00D492;
+    outline: none;
     color: #fff;
     font-family: Arimo;
     font-size: 16px;
