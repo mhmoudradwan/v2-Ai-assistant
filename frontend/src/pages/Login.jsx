@@ -34,6 +34,8 @@ function Login(){
             return;
         }
 
+        let username = email.split("@")[0];
+
         try {
             const response = await authApi.login({ email, password });
 
@@ -47,7 +49,7 @@ function Login(){
                 try {
                     const profileRes = await authApi.getProfile();
                     if (profileRes.success && profileRes.data) {
-                        const username = profileRes.data.username || email.split("@")[0];
+                        username = profileRes.data.username || email.split("@")[0];
                         localStorage.setItem("baseeraUserName", username);
                         localStorage.setItem("baseeraUserData", JSON.stringify({
                             username: username,
@@ -58,7 +60,7 @@ function Login(){
                 } catch (err) {
                     console.error("Failed to fetch profile:", err);
                     // Fallback: use email prefix
-                    localStorage.setItem("baseeraUserName", email.split("@")[0]);
+                    localStorage.setItem("baseeraUserName", username);
                 }
 
                 // ✅ Send token to Chrome Extension
@@ -69,7 +71,7 @@ function Login(){
                         chrome.runtime.sendMessage(extensionId, {
                             type: "AUTH_TOKEN",
                             token: response.data,
-                            userName: email.split("@")[0]
+                            userName: username
                         });
 
                         console.log("Token sent to extension");
