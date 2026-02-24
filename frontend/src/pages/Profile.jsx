@@ -14,7 +14,7 @@ function Profile() {
     username: "@user",
     email: "",
     phone: "",
-    role: "User",
+    country: "",
     accountCreated: "",
     bio: "",
     avatar: localStorage.getItem("userAvatar") || PLACEHOLDER_AVATAR,
@@ -36,7 +36,7 @@ function Profile() {
             username: "@" + d.username,
             email: d.email,
             phone: d.phoneNumber || "",
-            role: d.role,
+            country: d.country || "",
             accountCreated: d.createdAt ? new Date(d.createdAt).toLocaleDateString() : "",
             bio: d.bio || "",
             avatar: apiAvatar,
@@ -161,17 +161,18 @@ function Profile() {
               </div>
             </div>
 
-            {/* Role */}
+            {/* Country */}
             <div className="profile-info-box">
-              <div className="profile-info-icon role-icon">
+              <div className="profile-info-icon country-icon">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M16.6667 17.5V15.8333C16.6667 14.9493 16.3155 14.1014 15.6904 13.4763C15.0652 12.8512 14.2174 12.5 13.3333 12.5H6.66667C5.78261 12.5 4.93476 12.8512 4.30964 13.4763C3.68452 14.1014 3.33333 14.9493 3.33333 15.8333V17.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M9.99999 9.16667C11.8409 9.16667 13.3333 7.67428 13.3333 5.83333C13.3333 3.99238 11.8409 2.5 9.99999 2.5C8.15904 2.5 6.66666 3.99238 6.66666 5.83333C6.66666 7.67428 8.15904 9.16667 9.99999 9.16667Z" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="10" cy="10" r="7.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2.5 10H17.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M10 2.5C12.0711 4.71858 13.2145 7.30652 13.3333 10C13.2145 12.6935 12.0711 15.2814 10 17.5C7.92893 15.2814 6.78553 12.6935 6.66667 10C6.78553 7.30652 7.92893 4.71858 10 2.5Z" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
               <div className="profile-info-content">
-                <p className="profile-info-label">Role</p>
-                <p className="profile-info-value">{userData.role}</p>
+                <p className="profile-info-label">Country</p>
+                <p className="profile-info-value">{userData.country || "—"}</p>
               </div>
             </div>
 

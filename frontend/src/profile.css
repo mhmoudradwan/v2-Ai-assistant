@@ -201,7 +201,7 @@ line-height: 24px; /* 150% */
   background: linear-gradient(135deg, #9333EA 0%, #DB2777 100%);
 }
 
-.role-icon {
+.country-icon {
   background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
 }
 
@@ -227,6 +227,7 @@ line-height: 24px; /* 150% */
   font-size: 15px;
   font-weight: 500;
   margin: 0;
+  word-break: break-word;
 }
 
 /* ====== ACTION BUTTONS ====== */
@@ -251,6 +252,9 @@ line-height: 24px; /* 150% */
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-btn-primary {

@@ -6,7 +6,8 @@
 }
 
 .register-box {
-  width: 475px;
+  width: 100%;
+  max-width: 475px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -17,6 +18,8 @@
   background: rgba(29, 41, 61, 0.50);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   margin-top: 46px;
+  padding: 20px;
+  box-sizing: border-box;
 }
 .logo-icon{
     display: flex;
@@ -78,7 +81,8 @@ margin-top: 20px;
 }
 .register-form-input{
     display: flex;
-width: 376px;
+width: 100%;
+max-width: 376px;
 height: 48px;
 padding: 14px 16px 14px 48px;
 align-items: center;
@@ -87,6 +91,7 @@ border: 0.8px solid #314158;
 background: rgba(15, 23, 43, 0.50);
   outline: #00D492;
   color: #fff;
+  box-sizing: border-box;
 }
 input::placeholder{
     color: #62748E;
@@ -101,7 +106,8 @@ line-height: normal;
     margin-top: 20px;
 }
 .register-form button {
-width: 340.4px;
+width: 100%;
+max-width: 376px;
 height:44px;
 background: linear-gradient(90deg, #096 0%, #0092B8 100%);
 border-radius: 14px;
@@ -139,7 +145,8 @@ line-height: 24px; /* 150% */
 }
 .register-input-wrapper {
     position: relative;
-    width: 376px;
+    width: 100%;
+    max-width: 376px;
 }
 
 .register-input-icon {
@@ -153,9 +160,25 @@ line-height: 24px; /* 150% */
     pointer-events: none;
 }
 
+.register-input-icon-right {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #90A1B9;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.register-form-input.has-right-icon {
+    padding-right: 48px;
+}
+
 .register-form select {
     display: flex;
-    width: 376px;
+    width: 100%;
+    max-width: 376px;
     height: 48px;
     padding: 14px 16px 14px 48px;
     align-items: center;
