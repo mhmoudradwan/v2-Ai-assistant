@@ -170,6 +170,16 @@ line-height: 24px; /* 150% */
     margin-top: 560px;
 }
 
+.register-form .fa-venus-mars {
+    position: absolute;
+    margin-top: 656px;
+}
+
+.register-form .fa-calendar {
+    position: absolute;
+    margin-top: 752px;
+}
+
 .register-form .fa-globe {
     position: absolute;
     margin-top: 848px;

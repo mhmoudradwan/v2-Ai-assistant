@@ -140,16 +140,17 @@ function Register(){
                     <h5 className="register-form-title">
                         Gender <span style={{fontWeight: 'normal', fontSize: '12px'}}>(Optional)</span>
                     </h5>
-                    <select className="register-form-input" name="gender" disabled={loading} style={{background: 'transparent', color: 'inherit'}}>
+                    <i className="fa-solid fa-venus-mars"></i>
+                    <select className="register-form-input" name="gender" disabled={loading}>
                         <option value="">Select gender</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
-                        <option value="Other">Other</option>
                     </select>
                     
                     <h5 className="register-form-title">
                         Date of Birth <span style={{fontWeight: 'normal', fontSize: '12px'}}>(Optional)</span>
                     </h5>
+                    <i className="fa-solid fa-calendar"></i>
                     <input className="register-form-input" name="dateOfBirth" type="date" disabled={loading} />
                     
                     <h5 className="register-form-title">
