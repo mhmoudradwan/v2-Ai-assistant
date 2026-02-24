@@ -19,6 +19,7 @@ function Register(){
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     // Date of birth constraints
     const today = new Date();
@@ -168,7 +169,20 @@ function Register(){
                     </h5>
                     <div className="register-input-wrapper">
                         <i className="fa-solid fa-lock register-input-icon"></i>
-                        <input className="register-form-input" name="password" type="password" placeholder=" ********" disabled={loading} required />
+                        <input className="register-form-input has-right-icon" name="password" type={showPassword ? "text" : "password"} placeholder=" ********" disabled={loading} required />
+                        <i
+                            className={showPassword ? "fa-solid fa-eye-slash register-input-icon-right" : "fa-solid fa-eye register-input-icon-right"}
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            role="button"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                            tabIndex={0}
+                            onKeyDown={(event) => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                    event.preventDefault();
+                                    setShowPassword((prev) => !prev);
+                                }
+                            }}
+                        ></i>
                     </div>
                     
                     <h5 className="register-form-title">

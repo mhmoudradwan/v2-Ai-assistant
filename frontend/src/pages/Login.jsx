@@ -119,7 +119,7 @@ function Login(){
                         </div>
                     )}
 
-                <form className="login-form" onSubmit={handleSubmit}>
+                <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
                     <h5 className="login-form-title">
                         Email Address
                     </h5>
@@ -131,7 +131,7 @@ function Login(){
                             type="email"
                             placeholder=" Email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => { setEmail(e.target.value); setError(""); }}
                             disabled={loading}
                             required
                         />
@@ -148,7 +148,7 @@ function Login(){
                             type={showPassword ? "text" : "password"}
                             placeholder="Password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => { setPassword(e.target.value); setError(""); }}
                             disabled={loading}
                             required
                         />
