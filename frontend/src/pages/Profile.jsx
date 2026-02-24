@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import LandingNavbar from "../components/LandingNavbar";
 import "../profile.css";
 import { Link, useNavigate } from "react-router-dom";
-import icon1 from "../assets/Profile.jpg";
 import { authApi } from "../api/authApi";
+
+const PLACEHOLDER_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2390a1b9'%3E%3Cpath d='M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z'/%3E%3C/svg%3E";
 
 function Profile() {
   const navigate = useNavigate();
-  const [avatarImage, setAvatarImage] = useState(localStorage.getItem("userAvatar") || icon1);
+  const [avatarImage, setAvatarImage] = useState(localStorage.getItem("userAvatar") || PLACEHOLDER_AVATAR);
   const [userData, setUserData] = useState({
     name: "User",
     username: "@user",
@@ -15,18 +16,20 @@ function Profile() {
     phone: "",
     role: "User",
     accountCreated: "",
-    avatar: localStorage.getItem("userAvatar") || icon1,
+    avatar: localStorage.getItem("userAvatar") || PLACEHOLDER_AVATAR,
   });
 
   useEffect(() => {
-    const storedAvatar = localStorage.getItem("userAvatar");
-    if (storedAvatar) setAvatarImage(storedAvatar);
-    
     // Fetch profile from API
     authApi.getProfile()
       .then(res => {
         if (res.success && res.data) {
           const d = res.data;
+          const apiAvatar = d.profileImageUrl || localStorage.getItem("userAvatar") || PLACEHOLDER_AVATAR;
+          if (d.profileImageUrl) {
+            localStorage.setItem("userAvatar", d.profileImageUrl);
+          }
+          setAvatarImage(apiAvatar);
           setUserData({
             name: `${d.firstName} ${d.lastName}`.trim() || "User",
             username: "@" + d.username,
@@ -34,12 +37,14 @@ function Profile() {
             phone: d.phoneNumber || "",
             role: d.role,
             accountCreated: d.createdAt ? new Date(d.createdAt).toLocaleDateString() : "",
-            avatar: localStorage.getItem("userAvatar") || icon1,
+            avatar: apiAvatar,
           });
         }
       })
       .catch(() => {
         // Fallback to localStorage if API fails
+        const storedAvatar = localStorage.getItem("userAvatar");
+        if (storedAvatar) setAvatarImage(storedAvatar);
         const storedUserData = localStorage.getItem("baseeraUserData");
         if (storedUserData) {
           try {
@@ -65,6 +70,8 @@ function Profile() {
         setAvatarImage(reader.result);
         localStorage.setItem("userAvatar", reader.result);
         setUserData(prev => ({ ...prev, avatar: reader.result }));
+        // Persist to backend
+        authApi.updateProfile({ profileImageUrl: reader.result }).catch(() => {});
       };
       reader.readAsDataURL(file);
     }

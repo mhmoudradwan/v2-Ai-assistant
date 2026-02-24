@@ -17,6 +17,7 @@ public class User
     public DateTime? DateOfBirth { get; set; }
     public string? Country { get; set; }
     public string? Bio { get; set; }
+    public string? ProfileImageUrl { get; set; }
     
     // Navigation Properties
     public ICollection<Scan> Scans { get; set; } = new List<Scan>();

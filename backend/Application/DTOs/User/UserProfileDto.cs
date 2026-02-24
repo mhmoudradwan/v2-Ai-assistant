@@ -13,5 +13,6 @@ public class UserProfileDto
     public DateTime? DateOfBirth { get; set; }
     public string? Country { get; set; }
     public string? Bio { get; set; }
+    public string? ProfileImageUrl { get; set; }
     public DateTime CreatedAt { get; set; }
 }

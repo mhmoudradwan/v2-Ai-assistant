@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LandingNavbar from "../components/LandingNavbar";
 import "../EditProfile.css";
-import icon1 from "../assets/user.png";
 import { authApi } from "../api/authApi";
+
+const PLACEHOLDER_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2390a1b9'%3E%3Cpath d='M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z'/%3E%3C/svg%3E";
 
 function EditProfile() {
   const navigate = useNavigate();
@@ -19,10 +20,10 @@ function EditProfile() {
     password: "",
     confirmPassword: "",
     bio: "",
-    avatar: localStorage.getItem("userAvatar") || icon1,
+    avatar: localStorage.getItem("userAvatar") || PLACEHOLDER_AVATAR,
   });
 
-  const [avatarPreview, setAvatarPreview] = useState(localStorage.getItem("userAvatar") || icon1);
+  const [avatarPreview, setAvatarPreview] = useState(localStorage.getItem("userAvatar") || PLACEHOLDER_AVATAR);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -34,8 +35,14 @@ function EditProfile() {
       .then(res => {
         if (res.success && res.data) {
           const d = res.data;
+          const apiAvatar = d.profileImageUrl || localStorage.getItem("userAvatar") || PLACEHOLDER_AVATAR;
+          if (d.profileImageUrl) {
+            localStorage.setItem("userAvatar", d.profileImageUrl);
+          }
+          setAvatarPreview(apiAvatar);
           setFormData(prev => ({
             ...prev,
+            avatar: apiAvatar,
             fullName: `${d.firstName || ''} ${d.lastName || ''}`.trim(),
             username: d.username || '',
             email: d.email || '',
@@ -49,6 +56,8 @@ function EditProfile() {
       })
       .catch(() => {
         // Fallback to localStorage
+        const storedAvatar = localStorage.getItem("userAvatar");
+        if (storedAvatar) setAvatarPreview(storedAvatar);
         const storedUserData = localStorage.getItem("baseeraUserData");
         if (storedUserData) {
           try {
@@ -106,6 +115,7 @@ function EditProfile() {
     const lastName = nameParts.slice(1).join(' ') || '';
 
     try {
+      const storedOrDefaultAvatar = localStorage.getItem("userAvatar") || PLACEHOLDER_AVATAR;
       const response = await authApi.updateProfile({
         firstName,
         lastName,
@@ -113,7 +123,8 @@ function EditProfile() {
         gender: formData.gender || null,
         dateOfBirth: formData.dateOfBirth || null,
         country: formData.country || null,
-        bio: formData.bio || null
+        bio: formData.bio || null,
+        profileImageUrl: avatarPreview !== storedOrDefaultAvatar ? avatarPreview : undefined
       });
 
       if (response.success) {
