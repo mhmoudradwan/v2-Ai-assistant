@@ -16,6 +16,7 @@ function Profile() {
     phone: "",
     role: "User",
     accountCreated: "",
+    bio: "",
     avatar: localStorage.getItem("userAvatar") || PLACEHOLDER_AVATAR,
   });
 
@@ -37,6 +38,7 @@ function Profile() {
             phone: d.phoneNumber || "",
             role: d.role,
             accountCreated: d.createdAt ? new Date(d.createdAt).toLocaleDateString() : "",
+            bio: d.bio || "",
             avatar: apiAvatar,
           });
         }
@@ -123,6 +125,11 @@ function Profile() {
           <div className="profile-user-info">
             <h2 className="profile-name">{userData.name}</h2>
             <p className="profile-username">{userData.username}</p>
+            {userData.bio && (
+              <p className="profile-bio">
+                {userData.bio}
+              </p>
+            )}
           </div>
 
           {/* Info Grid */}
