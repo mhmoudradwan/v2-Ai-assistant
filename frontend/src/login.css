@@ -83,25 +83,32 @@ background: rgba(15, 23, 43, 0.50);
   gap: 20px;
   width: 100%;
 }
-.login-form .fa-envelope  {
-  position: absolute;
-margin-left: 27px;
-  margin-top: 46px;
-  color: #90A1B9;
+.login-input-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 5px;
 }
 
-.login-form .fa-lock {
-  position: absolute;
-margin-left: 27px;
-  margin-top: 141px;
-  color: #90A1B9;
+.login-input-icon-left {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #90a1b9;
+    font-size: 16px;
+    z-index: 2;
+    pointer-events: none;
 }
-.login-form .fa-eye {
-  position: absolute;
-  margin-left: 341px;
-  margin-top: 143px;
-  color: #90A1B9;
-  cursor: pointer;
+
+.login-input-icon-right {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #90a1b9;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 2;
 }
 
 .login-form button {
@@ -175,9 +182,6 @@ line-height: 24px; /* 150% */
         justify-content: center;
     }
 
-    .login-form .fa-eye {
-        margin-left: 285px;
-    }
 }
 
 @media (max-width: 480px) {
@@ -218,21 +222,6 @@ line-height: 24px; /* 150% */
         height: 44px;
         font-size: 14px;
         padding: 10px 20px;
-    }
-
-    .login-form .fa-envelope {
-        margin-left: 20px;
-        margin-top: 46px;
-    }
-
-    .login-form .fa-lock {
-        margin-left: 20px;
-        margin-top: 141px;
-    }
-
-    .login-form .fa-eye {
-        margin-left: 245px;
-        margin-top: 143px;
     }
 
     .forget a, .register a {
