@@ -16,6 +16,7 @@ import Bugs from './pages/Bugs'
 import Profile from './pages/Profile'
 import EditProfile from './pages/EditProfile';
 import Delete from './pages/Delete';
+import ChangePassword from './pages/ChangePassword';
 
 
 function AppContent() {
@@ -54,6 +55,11 @@ function AppContent() {
         <Route path="/delete" element={
             <ProtectedRoute>
               <Delete />
+            </ProtectedRoute>
+          } />
+        <Route path="/change-password" element={
+            <ProtectedRoute>
+              <ChangePassword />
             </ProtectedRoute>
           } />
         <Route
