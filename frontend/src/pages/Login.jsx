@@ -82,6 +82,7 @@ function Login(){
                     }
                 }
 
+                setError("");
                 navigate("/landing");
 
             } else {
@@ -151,7 +152,7 @@ function Login(){
                             onChange={(e) => { setPassword(e.target.value); if (error) setError(""); }}
                             disabled={loading}
                             required
-                            autoComplete="current-password"
+                            autoComplete="off"
                         />
                         <i
                             className="fa-solid fa-eye login-input-icon-right"
