@@ -18,7 +18,7 @@
   background: rgba(29, 41, 61, 0.50);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   margin-top: 46px;
-  padding: 20px;
+  padding: 30px 35px;
   box-sizing: border-box;
 }
 .logo-icon{
@@ -66,7 +66,7 @@ line-height: 24px; /* 150% */
 /* width: 641px; */
 padding: 29px 0;
 flex-direction: column;
-align-items: flex-start;
+align-items: stretch;
 margin-top: -41px;
 /* gap: 37px; */
 }
@@ -82,14 +82,13 @@ margin-top: 20px;
 .register-form-input{
     display: flex;
 width: 100%;
-max-width: 376px;
 height: 48px;
 padding: 14px 16px 14px 48px;
 align-items: center;
 border-radius: 14px;
 border: 0.8px solid #314158;
 background: rgba(15, 23, 43, 0.50);
-  outline: #00D492;
+  outline: none;
   color: #fff;
   box-sizing: border-box;
 }
@@ -107,8 +106,7 @@ line-height: normal;
 }
 .register-form button {
 width: 100%;
-max-width: 376px;
-height:44px;
+height: 48px;
 background: linear-gradient(90deg, #096 0%, #0092B8 100%);
 border-radius: 14px;
 border: none;
@@ -118,6 +116,8 @@ font-size: 16px;
 font-style: normal;
 font-weight: 400;
 line-height: 24px; /* 150% */
+cursor: pointer;
+box-sizing: border-box;
 }
 .login-2{
 display: flex;
@@ -146,7 +146,6 @@ line-height: 24px; /* 150% */
 .register-input-wrapper {
     position: relative;
     width: 100%;
-    max-width: 376px;
 }
 
 .register-input-icon {
@@ -178,7 +177,6 @@ line-height: 24px; /* 150% */
 .register-form select {
     display: flex;
     width: 100%;
-    max-width: 376px;
     height: 48px;
     padding: 14px 16px 14px 48px;
     align-items: center;
@@ -192,6 +190,7 @@ line-height: 24px; /* 150% */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+    box-sizing: border-box;
 }
 
 .register-form select option {
@@ -219,24 +218,25 @@ line-height: 24px; /* 150% */
 @media (max-width: 768px) {
     .register-box {
         width: 90%;
-        max-width: 400px;
+        max-width: 475px;
         margin: 20px auto;
-        padding: 20px;
+        padding: 25px 25px;
     }
 
     .register-form-input {
         width: 100%;
-        max-width: 320px;
     }
 
     .register-input-wrapper {
         width: 100%;
-        max-width: 320px;
+    }
+
+    .register-form select {
+        width: 100%;
     }
 
     .register-form button {
         width: 100%;
-        max-width: 320px;
     }
 
     .create {
@@ -251,7 +251,7 @@ line-height: 24px; /* 150% */
 @media (max-width: 480px) {
     .register-box {
         width: 95%;
-        padding: 15px;
+        padding: 20px 16px;
         gap: 8px;
         margin: 10px auto;
     }
@@ -261,12 +261,12 @@ line-height: 24px; /* 150% */
     }
 
     .create {
-        font-size: 12px;
+        font-size: 13px;
     }
 
     .register-description {
-        font-size: 12px;
-        padding: 0 10px;
+        font-size: 13px;
+        padding: 0 5px;
     }
 
     .register-form-title {
@@ -275,7 +275,6 @@ line-height: 24px; /* 150% */
 
     .register-form-input {
         width: 100%;
-        max-width: 280px;
         height: 44px;
         font-size: 14px;
         padding: 12px 14px 12px 40px;
@@ -283,13 +282,17 @@ line-height: 24px; /* 150% */
 
     .register-input-wrapper {
         width: 100%;
-        max-width: 280px;
+    }
+
+    .register-form select {
+        width: 100%;
+        height: 44px;
+        font-size: 14px;
     }
 
     .register-form button {
         width: 100%;
-        max-width: 280px;
-        height: 40px;
+        height: 42px;
         font-size: 14px;
     }
 
