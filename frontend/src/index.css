@@ -1404,6 +1404,40 @@ gap: 8px;
   .extension-section {
     padding: 80px 20px;
   }
+
+  /* Extension section */
+  .extension-download-section {
+    height: auto;
+    padding: 40px 30px;
+  }
+
+  .extension-container {
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .extension-left, .extension-right {
+    width: 100%;
+  }
+
+  .extension-card {
+    width: 100%;
+    max-width: 316px;
+    height: auto;
+    margin: 0 auto;
+  }
+
+  .extension-lightning,
+  .card-lightning {
+    display: none;
+  }
+
+  /* Security section */
+  .security-description {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1444,6 +1478,45 @@ gap: 8px;
 
   .extension-section {
     padding: 60px 15px;
+  }
+
+  /* Extension section */
+  .extension-download-section {
+    padding: 30px 20px;
+    border-radius: 16px;
+  }
+
+  .extension-container {
+    gap: 30px;
+  }
+
+  .text-sec2 h2 {
+    font-size: 1.8rem;
+  }
+
+  .text-sec2 p {
+    font-size: 15px;
+  }
+
+  .extension-card {
+    max-width: 280px;
+  }
+
+  /* Security section */
+  .security-description {
+    width: 95%;
+    font-size: 14px;
+  }
+
+  .security-solutions-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  /* Footer */
+  .Fotter-Section .links {
+    flex-direction: column;
+    gap: 30px;
   }
 
   .Fotter-Section {
@@ -1503,6 +1576,60 @@ gap: 8px;
 
   .extension-section {
     padding: 50px 10px;
+  }
+
+  /* Extension section */
+  .extension-download-section {
+    padding: 24px 16px;
+    margin: 0 10px;
+  }
+
+  .text-sec2 h2 {
+    font-size: 1.5rem;
+  }
+
+  .text-sec2 p {
+    font-size: 14px;
+  }
+
+  .btn-download {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+
+  .extension-card {
+    max-width: 260px;
+  }
+
+  /* Security section */
+  .security-solutions-section {
+    padding: 60px 16px;
+  }
+
+  .security-description {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .security-solutions-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .security-solution-card {
+    padding: 24px 16px;
+  }
+
+  /* Footer */
+  .Fotter-Section .links {
+    flex-direction: column;
+    gap: 24px;
+    padding: 0 10px;
+  }
+
+  .Fotter-Section .links ul {
+    align-items: center;
+    text-align: center;
   }
 
   .Fotter-Section {
