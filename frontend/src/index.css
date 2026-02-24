@@ -1504,3 +1504,133 @@ gap: 8px;
     gap: 6px;
   }
 }
+
+/* ===== SHARED FORM STYLES ===== */
+
+.form-input-global {
+    display: flex;
+    width: 100%;
+    height: 48px;
+    padding: 14px 16px 14px 48px;
+    align-items: center;
+    border-radius: 14px;
+    border: 0.8px solid #314158;
+    background: rgba(15, 23, 43, 0.50);
+    outline: none;
+    color: #fff;
+    font-family: Arimo;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.form-input-global:focus {
+    border-color: #00D492;
+}
+
+.form-input-global::placeholder {
+    color: #62748E;
+    font-family: Arimo;
+    font-size: 16px;
+}
+
+.form-input-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 376px;
+}
+
+.form-input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #90A1B9;
+    font-size: 16px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.form-btn-primary {
+    width: 100%;
+    max-width: 376px;
+    height: 48px;
+    background: linear-gradient(90deg, #096 0%, #0092B8 100%);
+    border-radius: 14px;
+    border: none;
+    color: #fff;
+    font-family: Arimo;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.form-btn-primary:hover {
+    opacity: 0.9;
+}
+
+.form-btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.form-label {
+    color: #FFF;
+    font-family: Arimo;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    margin-top: 20px;
+    margin-bottom: 8px;
+}
+
+.form-error-msg {
+    color: #ffffff;
+    text-align: center;
+    padding: 8px 10px;
+    background-color: rgba(211, 47, 47, 0.15);
+    border-left: 3px solid #d32f2f;
+    border-radius: 4px;
+    font-size: 13px;
+    box-sizing: border-box;
+    margin-top: 15px;
+    margin-bottom: 0;
+}
+
+.form-success-msg {
+    color: rgb(197, 244, 201);
+    text-align: center;
+    padding: 8px 10px;
+    background-color: rgba(76, 175, 80, 0.15);
+    border-left: 3px solid #4caf50;
+    border-radius: 4px;
+    font-size: 13px;
+    box-sizing: border-box;
+    margin-top: 15px;
+    margin-bottom: 0;
+}
+
+.form-select-global {
+    display: flex;
+    width: 100%;
+    height: 48px;
+    padding: 14px 16px 14px 48px;
+    align-items: center;
+    border-radius: 14px;
+    border: 0.8px solid #314158;
+    background: rgba(15, 23, 43, 0.50);
+    outline: none;
+    color: #fff;
+    font-family: Arimo;
+    font-size: 16px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+}
+
+.form-select-global option {
+    background: #1D293D;
+    color: #fff;
+}
