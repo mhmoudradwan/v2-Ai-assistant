@@ -115,11 +115,12 @@
 }
 
 .navbar-username {
-  max-width: 160px;
+  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: default;
+  margin-left: 15px;
 }
 
 /* Responsive Design */

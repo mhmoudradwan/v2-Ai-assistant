@@ -21,9 +21,11 @@
 .forget-input-wrapper {
     position: relative;
     width: 100%;
+    max-width: 376px;
 }
 
-.forget-input-icon {
+/* Higher specificity to override login.css .login-form .fa-envelope rule */
+.forget-input-wrapper .forget-input-icon {
     position: absolute;
     left: 16px;
     top: 50%;
@@ -32,6 +34,13 @@
     font-size: 16px;
     z-index: 1;
     pointer-events: none;
+    margin-left: 0;
+    margin-top: 0;
+}
+
+/* Center the lock icon at the top of the card (override login.css negative margin) */
+.login-icon {
+    margin: 0 auto 27px;
 }
 
 .forget-pass {

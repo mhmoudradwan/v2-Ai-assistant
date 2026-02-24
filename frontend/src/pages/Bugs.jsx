@@ -585,7 +585,7 @@ function Bugs() {
         <div style={{textAlign: 'center', padding: '40px', color: '#64748b'}}>Loading scans...</div>
       )}
       {!loading && filteredScans.length === 0 && (
-        <div style={{textAlign: 'center', padding: '40px', color: '#64748b'}}>
+        <div style={{textAlign: 'center', padding: '40px', color: '#64748b', width: '100%'}}>
           {scans.length === 0 ? 'No scans found. Use the Chrome Extension to scan pages!' : 'No scans match your search.'}
         </div>
       )}
