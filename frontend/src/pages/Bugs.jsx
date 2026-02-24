@@ -87,15 +87,6 @@ function Bugs() {
             </svg>
             <h4>Export Report</h4>
           </button>
-
-          <button className="scan-btn">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g clipPath="url(#clip0_191_1490)">
-                <path d="M2.6665 9.33328C2.54034 9.33371 2.41665 9.29833 2.3098 9.23126C2.20295 9.1642 2.11732 9.06818 2.06287 8.95438C2.00841 8.84059 1.98736 8.71367 2.00217 8.58838C2.01697 8.4631 2.06702 8.34459 2.1465 8.24661L8.7465 1.44661C8.79601 1.38947 8.86347 1.35085 8.93782 1.3371C9.01217 1.32335 9.08898 1.33529 9.15565 1.37095C9.22232 1.40661 9.27489 1.46388 9.30472 1.53335C9.33456 1.60283 9.33988 1.68038 9.31983 1.75328L8.03983 5.76661C8.00209 5.86763 7.98941 5.97629 8.00289 6.08328C8.01637 6.19028 8.05561 6.2924 8.11723 6.3809C8.17885 6.46939 8.26101 6.54162 8.35668 6.59139C8.45235 6.64115 8.55866 6.66696 8.6665 6.66661H13.3332C13.4593 6.66618 13.583 6.70156 13.6899 6.76863C13.7967 6.8357 13.8823 6.93171 13.9368 7.04551C13.9913 7.15931 14.0123 7.28622 13.9975 7.41151C13.9827 7.53679 13.9326 7.65531 13.8532 7.75328L7.25317 14.5533C7.20366 14.6104 7.13619 14.649 7.06184 14.6628C6.9875 14.6765 6.91068 14.6646 6.84401 14.6289C6.77734 14.5933 6.72478 14.536 6.69494 14.4665C6.66511 14.3971 6.65978 14.3195 6.67983 14.2466L7.95983 10.2333C7.99758 10.1323 8.01025 10.0236 7.99677 9.91661C7.98329 9.80962 7.94406 9.70749 7.88244 9.619C7.82082 9.5305 7.73865 9.45827 7.64298 9.40851C7.54731 9.35874 7.441 9.33293 7.33317 9.33328H2.6665Z" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-              </g>
-            </svg>
-            <h4>Run Scan</h4>
-          </button>
         </div>
       </div>
 
@@ -639,122 +630,80 @@ function Bugs() {
 {activeTab === 'analytics' && (
   <section className="analytics-section">
     <div className="analytics-container">
-      {/* Left Section - Severity Distribution */}
-      <div className="analytics-box">
-        <h3 className="analytics-title">Severity Distribution</h3>
-        
-        <div className="analytics-severity-items">
-          {/* Critical */}
-          <div className="analytics-severity-row">
-            <div className="analytics-severity-left">
-              <div className="analytics-severity-badge analytics-severity-critical">1</div>
-              <span className="analytics-severity-label">Critical</span>
-            </div>
-            <div className="analytics-severity-right">
-              <div className="analytics-severity-bar-container">
-                <div className="analytics-severity-bar analytics-bar-critical" style={{width: '17%'}}></div>
-              </div>
-              <div className="analytics-severity-stats">
-                <span className="analytics-severity-number">17</span>
-                <span className="analytics-severity-percent">%</span>
-              </div>
-            </div>
-          </div>
-
-          {/* High */}
-          <div className="analytics-severity-row">
-            <div className="analytics-severity-left">
-              <div className="analytics-severity-badge analytics-severity-high">2</div>
-              <span className="analytics-severity-label">High</span>
-            </div>
-            <div className="analytics-severity-right">
-              <div className="analytics-severity-bar-container">
-                <div className="analytics-severity-bar analytics-bar-high" style={{width: '33%'}}></div>
-              </div>
-              <div className="analytics-severity-stats">
-                <span className="analytics-severity-number">33</span>
-                <span className="analytics-severity-percent">%</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Medium */}
-          <div className="analytics-severity-row">
-            <div className="analytics-severity-left">
-              <div className="analytics-severity-badge analytics-severity-medium">2</div>
-              <span className="analytics-severity-label">Medium</span>
-            </div>
-            <div className="analytics-severity-right">
-              <div className="analytics-severity-bar-container">
-                <div className="analytics-severity-bar analytics-bar-medium" style={{width: '33%'}}></div>
-              </div>
-              <div className="analytics-severity-stats">
-                <span className="analytics-severity-number">33</span>
-                <span className="analytics-severity-percent">%</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Low */}
-          <div className="analytics-severity-row">
-            <div className="analytics-severity-left">
-              <div className="analytics-severity-badge analytics-severity-low">1</div>
-              <span className="analytics-severity-label">Low</span>
-            </div>
-            <div className="analytics-severity-right">
-              <div className="analytics-severity-bar-container">
-                <div className="analytics-severity-bar analytics-bar-low" style={{width: '17%'}}></div>
-              </div>
-              <div className="analytics-severity-stats">
-                <span className="analytics-severity-number">17</span>
-                <span className="analytics-severity-percent">%</span>
-              </div>
-            </div>
-          </div>
+      {totalVulns === 0 ? (
+        <div className="analytics-box" style={{width: '100%', textAlign: 'center', padding: '40px'}}>
+          <p style={{color: '#90A1B9', fontFamily: 'Arimo', fontSize: '16px'}}>No scan data available</p>
         </div>
-      </div>
-
-      {/* Right Section - Status Breakdown */}
-      <div className="analytics-box">
-        <h3 className="analytics-title">Status Breakdown</h3>
-        
-        <div className="analytics-status-items">
-          {/* Open */}
-          <div className="analytics-status-row">
-            <span className="analytics-status-label">Open</span>
-            <div className="analytics-status-wrapper">
-              <div className="analytics-status-bar-container">
-                <div className="analytics-status-bar analytics-bar-critical" style={{width: '17%'}}></div>
-                <div className="analytics-status-bar analytics-bar-high" style={{width: '33%'}}></div>
-                <div className="analytics-status-bar analytics-bar-medium" style={{width: '17%'}}></div>
+      ) : (
+        <>
+          {/* Left Section - Severity Distribution */}
+          <div className="analytics-box">
+            <h3 className="analytics-title">Severity Distribution</h3>
+            <div className="analytics-severity-items">
+              <div className="analytics-severity-row">
+                <div className="analytics-severity-left">
+                  <div className="analytics-severity-badge analytics-severity-critical">{totalCritical}</div>
+                  <span className="analytics-severity-label">Critical</span>
+                </div>
+                <div className="analytics-severity-right">
+                  <div className="analytics-severity-bar-container">
+                    <div className="analytics-severity-bar analytics-bar-critical" style={{width: `${totalVulns > 0 ? Math.round(totalCritical / totalVulns * 100) : 0}%`}}></div>
+                  </div>
+                  <div className="analytics-severity-stats">
+                    <span className="analytics-severity-number">{totalVulns > 0 ? Math.round(totalCritical / totalVulns * 100) : 0}</span>
+                    <span className="analytics-severity-percent">%</span>
+                  </div>
+                </div>
               </div>
-              <span className="analytics-status-count">3</span>
+              <div className="analytics-severity-row">
+                <div className="analytics-severity-left">
+                  <div className="analytics-severity-badge analytics-severity-high">{totalHigh}</div>
+                  <span className="analytics-severity-label">High</span>
+                </div>
+                <div className="analytics-severity-right">
+                  <div className="analytics-severity-bar-container">
+                    <div className="analytics-severity-bar analytics-bar-high" style={{width: `${totalVulns > 0 ? Math.round(totalHigh / totalVulns * 100) : 0}%`}}></div>
+                  </div>
+                  <div className="analytics-severity-stats">
+                    <span className="analytics-severity-number">{totalVulns > 0 ? Math.round(totalHigh / totalVulns * 100) : 0}</span>
+                    <span className="analytics-severity-percent">%</span>
+                  </div>
+                </div>
+              </div>
+              <div className="analytics-severity-row">
+                <div className="analytics-severity-left">
+                  <div className="analytics-severity-badge analytics-severity-medium">{totalMedium}</div>
+                  <span className="analytics-severity-label">Medium</span>
+                </div>
+                <div className="analytics-severity-right">
+                  <div className="analytics-severity-bar-container">
+                    <div className="analytics-severity-bar analytics-bar-medium" style={{width: `${totalVulns > 0 ? Math.round(totalMedium / totalVulns * 100) : 0}%`}}></div>
+                  </div>
+                  <div className="analytics-severity-stats">
+                    <span className="analytics-severity-number">{totalVulns > 0 ? Math.round(totalMedium / totalVulns * 100) : 0}</span>
+                    <span className="analytics-severity-percent">%</span>
+                  </div>
+                </div>
+              </div>
+              <div className="analytics-severity-row">
+                <div className="analytics-severity-left">
+                  <div className="analytics-severity-badge analytics-severity-low">{totalLow}</div>
+                  <span className="analytics-severity-label">Low</span>
+                </div>
+                <div className="analytics-severity-right">
+                  <div className="analytics-severity-bar-container">
+                    <div className="analytics-severity-bar analytics-bar-low" style={{width: `${totalVulns > 0 ? Math.round(totalLow / totalVulns * 100) : 0}%`}}></div>
+                  </div>
+                  <div className="analytics-severity-stats">
+                    <span className="analytics-severity-number">{totalVulns > 0 ? Math.round(totalLow / totalVulns * 100) : 0}</span>
+                    <span className="analytics-severity-percent">%</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* In Progress */}
-          <div className="analytics-status-row">
-            <span className="analytics-status-label">In Progress</span>
-            <div className="analytics-status-wrapper">
-              <div className="analytics-status-bar-container">
-                <div className="analytics-status-bar analytics-bar-progress" style={{width: '17%'}}></div>
-              </div>
-              <span className="analytics-status-count">1</span>
-            </div>
-          </div>
-
-          {/* Fixed */}
-          <div className="analytics-status-row">
-            <span className="analytics-status-label">Fixed</span>
-            <div className="analytics-status-wrapper">
-              <div className="analytics-status-bar-container">
-                <div className="analytics-status-bar analytics-bar-fixed" style={{width: '17%'}}></div>
-              </div>
-              <span className="analytics-status-count">1</span>
-            </div>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   </section>
 )}

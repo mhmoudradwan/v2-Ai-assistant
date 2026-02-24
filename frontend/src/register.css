@@ -136,53 +136,20 @@ font-weight: 400;
 line-height: 24px; /* 150% */
   text-decoration: none;
 }
-.register-form .fa-solid  {
-  color: #90A1B9;
-  margin-left: 27px;
-}
-.register-form .fa-user-secret {
-    position: absolute;
-    margin-top: 82px;
-}
-.register-form .first-name-icon {
-    position: absolute;
-    margin-top: 67px;
-}
-.register-form .last-name-icon {
-    position: absolute;
-    margin-top: 166px;
-}
-.register-form .fa-at {
-    position: absolute;
-    margin-top: 269px;
-}
-.register-form .fa-envelope {
-    position: absolute;
-    margin-top: 368px;
-}
-.register-form .fa-lock {
-    position: absolute;
-    margin-top:464px;
+.register-input-wrapper {
+    position: relative;
+    width: 376px;
 }
 
-.register-form .fa-phone {
+.register-input-icon {
     position: absolute;
-    margin-top: 560px;
-}
-
-.register-form .fa-venus-mars {
-    position: absolute;
-    margin-top: 656px;
-}
-
-.register-form .fa-calendar {
-    position: absolute;
-    margin-top: 752px;
-}
-
-.register-form .fa-globe {
-    position: absolute;
-    margin-top: 848px;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #90A1B9;
+    font-size: 16px;
+    z-index: 1;
+    pointer-events: none;
 }
 
 .register-form select {
@@ -228,6 +195,11 @@ line-height: 24px; /* 150% */
         max-width: 320px;
     }
 
+    .register-input-wrapper {
+        width: 100%;
+        max-width: 320px;
+    }
+
     .register-form button {
         width: 100%;
         max-width: 320px;
@@ -239,26 +211,6 @@ line-height: 24px; /* 150% */
 
     .register-description {
         font-size: 14px;
-    }
-
-    .register-form .first-name-icon {
-        margin-top: 67px;
-    }
-
-    .register-form .last-name-icon {
-        margin-top: 166px;
-    }
-
-    .register-form .fa-at {
-        margin-top: 269px;
-    }
-
-    .register-form .fa-envelope {
-        margin-top: 368px;
-    }
-
-    .register-form .fa-lock {
-        margin-top: 464px;
     }
 }
 
@@ -295,6 +247,11 @@ line-height: 24px; /* 150% */
         padding: 12px 14px 12px 40px;
     }
 
+    .register-input-wrapper {
+        width: 100%;
+        max-width: 280px;
+    }
+
     .register-form button {
         width: 100%;
         max-width: 280px;
@@ -309,9 +266,5 @@ line-height: 24px; /* 150% */
 
     .login-p, .login-2 a {
         font-size: 14px;
-    }
-
-    .register-form .fa-solid {
-        margin-left: 20px;
     }
 }
