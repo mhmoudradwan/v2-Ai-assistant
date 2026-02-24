@@ -117,6 +117,7 @@ line-height: 24px; /* 150% */
 display: flex;
 justify-content: center;
 margin-top: -29px;
+gap: 6px;
 }
 .login-p{
 color: #90A1B9;

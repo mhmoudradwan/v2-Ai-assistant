@@ -272,32 +272,9 @@ background: linear-gradient(135deg, #0F172B 1%, #1D293D 50%, #0F172B 100%);
   margin: 0 auto;
 }
 
-.map-placeholder {
-  background: rgba(26, 35, 50, 0.5);
-  border: 1px solid rgba(144, 161, 185, 0.1);
+.map-container iframe {
+  width: 100%;
   border-radius: 20px;
-  padding: 80px 40px;
-  text-align: center;
-}
-
-.map-icon {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 20px;
-  color: #00D492;
-}
-
-.map-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #ffffff;
-  margin-bottom: 8px;
-}
-
-.map-location {
-  font-size: 1rem;
-  color: #90a1b9;
-  margin: 0;
 }
 
 /* Support Section */
@@ -463,10 +440,6 @@ background: linear-gradient(135deg, #0F172B 1%, #1D293D 50%, #0F172B 100%);
     font-size: 1.5rem;
   }
 
-  .map-placeholder {
-    padding: 60px 30px;
-  }
-
   .support-title {
     font-size: 1.6rem;
   }
@@ -569,23 +542,6 @@ background: linear-gradient(135deg, #0F172B 1%, #1D293D 50%, #0F172B 100%);
 
   .social-url {
     font-size: 0.8rem;
-  }
-
-  .map-placeholder {
-    padding: 40px 20px;
-  }
-
-  .map-icon {
-    width: 60px;
-    height: 60px;
-  }
-
-  .map-title {
-    font-size: 1.2rem;
-  }
-
-  .map-location {
-    font-size: 0.9rem;
   }
 
   .support-section {
