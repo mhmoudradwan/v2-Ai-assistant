@@ -71,6 +71,11 @@ background: rgba(15, 23, 43, 0.50);
   outline: none;
     color: #fff;
   box-sizing: border-box;
+  font-family: Arimo;
+  font-size: 16px;
+}
+.login-form-input:focus {
+    border-color: #00D492;
 }
 .login-form-input::placeholder {
   color: #90A1B9;

@@ -19,7 +19,6 @@ function Login(){
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError("");
         setLoading(true);
 
         if (!email || !password) {
@@ -131,9 +130,10 @@ function Login(){
                             type="email"
                             placeholder=" Email"
                             value={email}
-                            onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                            onChange={(e) => { setEmail(e.target.value); if (error) setError(""); }}
                             disabled={loading}
                             required
+                            autoComplete="email"
                         />
                     </div>
 
@@ -148,9 +148,10 @@ function Login(){
                             type={showPassword ? "text" : "password"}
                             placeholder="Password"
                             value={password}
-                            onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                            onChange={(e) => { setPassword(e.target.value); if (error) setError(""); }}
                             disabled={loading}
                             required
+                            autoComplete="current-password"
                         />
                         <i
                             className="fa-solid fa-eye login-input-icon-right"
