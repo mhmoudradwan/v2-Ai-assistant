@@ -176,9 +176,19 @@ line-height: 24px; /* 150% */
     color: #fff;
 }
 
+.register-form input[type="date"] {
+    padding-left: 36px;
+}
+
 .register-form input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
+    position: absolute;
+    left: 10px;
+    right: auto;
+    padding: 0;
+    margin: 0;
     cursor: pointer;
+    opacity: 0.6;
+    filter: invert(0.7);
 }
 
 

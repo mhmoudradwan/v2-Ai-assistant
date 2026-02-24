@@ -124,44 +124,47 @@ function Login(){
                         Email Address
                     </h5>
 
-                    <i className="fa-solid fa-envelope"></i>
-                    <input
-                        className="login-form-input"
-                        type="email"
-                        placeholder=" Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        disabled={loading}
-                        required
-                    />
+                    <div className="login-input-wrapper">
+                        <i className="fa-solid fa-envelope login-input-icon-left"></i>
+                        <input
+                            className="login-form-input"
+                            type="email"
+                            placeholder=" Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            disabled={loading}
+                            required
+                        />
+                    </div>
 
                     <h5 className="login-form-title">
                         Password
                     </h5>
 
-                    <i className="fa-solid fa-lock"></i>
-                    <input
-                        className="login-form-input"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        disabled={loading}
-                        required
-                    />
-
-                    <i
-                        className="fa-solid fa-eye"
-                        onClick={() => setShowPassword((prev) => !prev)}
-                        role="button"
-                        aria-label={showPassword ? "Hide password" : "Show password"}
-                        tabIndex={0}
-                        onKeyDown={(event) => {
-                            if (event.key === "Enter" || event.key === " ") {
-                                setShowPassword((prev) => !prev);
-                            }
-                        }}
-                    ></i>
+                    <div className="login-input-wrapper">
+                        <i className="fa-solid fa-lock login-input-icon-left"></i>
+                        <input
+                            className="login-form-input"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            disabled={loading}
+                            required
+                        />
+                        <i
+                            className="fa-solid fa-eye login-input-icon-right"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            role="button"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                            tabIndex={0}
+                            onKeyDown={(event) => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                    setShowPassword((prev) => !prev);
+                                }
+                            }}
+                        ></i>
+                    </div>
 
                     <button type="submit" disabled={loading}>
                         {loading ? "Logging in..." : "Login"}

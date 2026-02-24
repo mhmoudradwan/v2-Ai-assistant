@@ -200,7 +200,6 @@ function Register(){
                             name="dateOfBirth" 
                             type="date" 
                             disabled={loading}
-                            style={{paddingLeft: '16px'}}
                             max={maxDate}
                             min={minDate}
                         />
