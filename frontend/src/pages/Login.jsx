@@ -19,6 +19,7 @@ function Login(){
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError("");
         setLoading(true);
 
         if (!email || !password) {
@@ -120,6 +121,7 @@ function Login(){
                     )}
 
                 <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
+                    <input type="text" name="prevent_autofill" id="prevent_autofill" value="" style={{display:'none'}} readOnly aria-hidden="true" />
                     <h5 className="login-form-title">
                         Email Address
                     </h5>
@@ -131,10 +133,10 @@ function Login(){
                             type="email"
                             placeholder=" Email"
                             value={email}
-                            onChange={(e) => { setEmail(e.target.value); if (error) setError(""); }}
+                            onChange={(e) => setEmail(e.target.value)}
                             disabled={loading}
                             required
-                            autoComplete="email"
+                            autoComplete="off"
                         />
                     </div>
 
@@ -149,10 +151,10 @@ function Login(){
                             type={showPassword ? "text" : "password"}
                             placeholder="Password"
                             value={password}
-                            onChange={(e) => { setPassword(e.target.value); if (error) setError(""); }}
+                            onChange={(e) => setPassword(e.target.value)}
                             disabled={loading}
                             required
-                            autoComplete="off"
+                            autoComplete="new-password"
                         />
                         <i
                             className="fa-solid fa-eye login-input-icon-right"
