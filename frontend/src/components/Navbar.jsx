@@ -1,14 +1,26 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import logo from '../assets/logo.png'
 // import '../index.css'
 import '../navbar.css'
 
 function Navbar() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [displayName, setDisplayName] = useState("User");
+
+    useEffect(() => {
+        const token = localStorage.getItem("authToken");
+        setIsLoggedIn(!!token);
+        const savedName = localStorage.getItem("baseeraUserName");
+        if (savedName) {
+            setDisplayName(savedName);
+        }
+    }, []);
+
     return (
         <nav className="navbar navbar-expand-lg bg-body">
             <div className="container-fluid navbar-inner">
-                <Link className="navbar-brand" to="/">
+                <Link className="navbar-brand" to={isLoggedIn ? "/landing" : "/"}>
                     <img src={logo} alt="logo" />
                     <span className="navbar-brand-text">Baseera</span>
                 </Link>
@@ -29,7 +41,7 @@ function Navbar() {
                 <div className="collapse navbar-collapse" id="navbarNav">
                     <ul className="navbar-nav">
                         <li className="nav-item">
-                            <Link className="nav-link" to="/">
+                            <Link className="nav-link" to={isLoggedIn ? "/landing" : "/"}>
                                 Home
                             </Link>
                         </li>
@@ -43,17 +55,38 @@ function Navbar() {
                                 Contact
                             </Link>
                         </li>
-                        <li className="nav-item">
-                            <Link className="nav-link" to="/login">
-                                Login
-                            </Link>
-                        </li>
+                        {isLoggedIn ? (
+                            <>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/bugs">
+                                        Bugs
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/profile">
+                                        Profile
+                                    </Link>
+                                </li>
+                            </>
+                        ) : (
+                            <li className="nav-item">
+                                <Link className="nav-link" to="/login">
+                                    Login
+                                </Link>
+                            </li>
+                        )}
                     </ul>
                 </div>
                 <div className="navbar-actions">
-                    <Link to="/register" className="register-btn">
-                        Register
-                    </Link>
+                    {isLoggedIn ? (
+                        <div className="register-btn" style={{maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                            Hello, {displayName}
+                        </div>
+                    ) : (
+                        <Link to="/register" className="register-btn">
+                            Register
+                        </Link>
+                    )}
                 </div>
             </div>
         </nav>
