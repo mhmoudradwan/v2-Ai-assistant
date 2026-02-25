@@ -12,4 +12,5 @@ public interface IScansService
     Task<ScanDto?> GetScanByIdAsync(int scanId, int userId);
     Task<ScanDto> UpdateScanStatusAsync(int scanId, UpdateScanStatusDto updateStatusDto, int userId);
     Task DeleteScanAsync(int scanId, int userId);
+    Task ClearAllScansAsync(int userId);
 }

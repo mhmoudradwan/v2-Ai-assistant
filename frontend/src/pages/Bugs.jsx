@@ -16,6 +16,10 @@ function Bugs() {
   const [expandedScanId, setExpandedScanId] = useState(null);
   const [scanVulnerabilities, setScanVulnerabilities] = useState({});
   const [loadingVulns, setLoadingVulns] = useState(null);
+  const [timelineRange, setTimelineRange] = useState(7);
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
+  const [clearLoading, setClearLoading] = useState(false);
 
   // Derived stats from scans
   const totalCritical = scans.reduce((sum, s) => sum + (s.criticalCount || 0), 0);
@@ -99,6 +103,94 @@ function Bugs() {
     }
   };
 
+  const handleExportPDF = async () => {
+    setExportLoading(true);
+    setShowExportDropdown(false);
+    try {
+      const allVulns = { ...scanVulnerabilities };
+      for (const scan of scans) {
+        if (!allVulns[scan.id]) {
+          try {
+            const res = await apiClient.get(`/scans/${scan.id}/vulnerabilities`);
+            if (res.success && res.data) allVulns[scan.id] = res.data;
+          } catch (err) { console.error('Failed to fetch vulnerabilities for scan', scan.id, err); }
+        }
+      }
+      const dateStr = new Date().toLocaleDateString();
+      let vulnRows = '';
+      scans.forEach(scan => {
+        const vulns = allVulns[scan.id] || [];
+        let hostname = scan.targetURL || '';
+        try { hostname = new URL(scan.targetURL).hostname; } catch {}
+        vulns.forEach(v => {
+          const sev = (v.severity || '').toLowerCase();
+          const color = sev === 'critical' ? '#dc2626' : sev === 'high' ? '#ea580c' : sev === 'medium' ? '#d97706' : '#16a34a';
+          vulnRows += `<tr><td>${hostname}</td><td>${scan.createdAt ? new Date(scan.createdAt).toLocaleDateString() : ''}</td><td><span style="background:${color};color:#fff;padding:2px 8px;border-radius:4px;font-size:12px">${v.severity || ''}</span></td><td>${v.type || ''}</td><td>${v.description || ''}</td><td style="font-size:11px">${v.location || ''}</td><td style="font-size:11px">${v.recommendation || ''}</td></tr>`;
+        });
+      });
+      const html = `<!DOCTYPE html><html><head><title>Baseera Security Scan Report</title><style>body{font-family:Arial,sans-serif;margin:40px;color:#1a202c}h1{color:#1e3a5f;border-bottom:3px solid #1e3a5f;padding-bottom:10px}.summary{display:flex;gap:20px;margin:20px 0}.summary-item{background:#f7fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;text-align:center;flex:1}.summary-item h2{margin:0;font-size:28px;color:#1e3a5f}.summary-item p{margin:4px 0;color:#718096;font-size:13px}table{width:100%;border-collapse:collapse;margin-top:20px}th{background:#1e3a5f;color:#fff;padding:10px;text-align:left;font-size:13px}td{padding:8px 10px;border-bottom:1px solid #e2e8f0;font-size:12px}tr:nth-child(even){background:#f7fafc}.footer{margin-top:40px;color:#718096;font-size:12px;text-align:center}@media print{body{margin:20px}}</style></head><body><h1>Baseera Security Scan Report</h1><p style="color:#718096">Generated: ${dateStr}</p><div class="summary"><div class="summary-item"><h2>${totalVulns}</h2><p>Total Vulnerabilities</p></div><div class="summary-item"><h2 style="color:#dc2626">${totalCritical}</h2><p>Critical</p></div><div class="summary-item"><h2 style="color:#ea580c">${totalHigh}</h2><p>High</p></div><div class="summary-item"><h2 style="color:#d97706">${totalMedium}</h2><p>Medium</p></div><div class="summary-item"><h2 style="color:#16a34a">${totalLow}</h2><p>Low</p></div><div class="summary-item"><h2>${securityScore}</h2><p>Security Score</p></div></div><table><thead><tr><th>Host</th><th>Scan Date</th><th>Severity</th><th>Type</th><th>Description</th><th>Location</th><th>Recommendation</th></tr></thead><tbody>${vulnRows || '<tr><td colspan="7" style="text-align:center;color:#718096">No vulnerabilities found</td></tr>'}</tbody></table><div class="footer">Baseera Security Scanner &bull; ${dateStr}</div></body></html>`;
+      const win = window.open('', '_blank');
+      if (win) { win.document.write(html); win.document.close(); win.print(); }
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  const handleExportHTML = async () => {
+    setExportLoading(true);
+    setShowExportDropdown(false);
+    try {
+      const allVulns = { ...scanVulnerabilities };
+      for (const scan of scans) {
+        if (!allVulns[scan.id]) {
+          try {
+            const res = await apiClient.get(`/scans/${scan.id}/vulnerabilities`);
+            if (res.success && res.data) allVulns[scan.id] = res.data;
+          } catch (err) { console.error('Failed to fetch vulnerabilities for scan', scan.id, err); }
+        }
+      }
+      const dateStr = new Date().toLocaleDateString();
+      let vulnSections = '';
+      scans.forEach(scan => {
+        const vulns = allVulns[scan.id] || [];
+        if (vulns.length === 0) return;
+        let hostname = scan.targetURL || '';
+        try { hostname = new URL(scan.targetURL).hostname; } catch {}
+        vulns.forEach((v, i) => {
+          const sev = (v.severity || '').toLowerCase();
+          const color = sev === 'critical' ? '#dc2626' : sev === 'high' ? '#ea580c' : sev === 'medium' ? '#d97706' : '#16a34a';
+          vulnSections += `<div class="vuln-item"><div class="vuln-header"><span class="badge" style="background:${color}">${v.severity || ''}</span><span class="vuln-type">${v.type || ''}</span></div><table class="detail-table"><tr><th>Host</th><td>${hostname}</td></tr><tr><th>Scan Date</th><td>${scan.createdAt ? new Date(scan.createdAt).toLocaleDateString() : ''}</td></tr>${v.description ? `<tr><th>Description</th><td>${v.description}</td></tr>` : ''}${v.location ? `<tr><th>Location</th><td>${v.location}</td></tr>` : ''}${v.recommendation ? `<tr><th>Recommendation</th><td>${v.recommendation}</td></tr>` : ''}</table></div>`;
+        });
+      });
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Baseera Security Scanner Report</title><style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;background:#f0f4f8;margin:0;padding:0;color:#1a202c}.report-header{background:#1e3a5f;color:#fff;padding:32px 40px}.report-header h1{margin:0;font-size:28px}.report-header p{margin:8px 0 0;opacity:.8;font-size:14px}.container{max-width:1100px;margin:0 auto;padding:32px 40px}.summary-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-bottom:32px}.summary-card{background:#fff;border-radius:8px;padding:16px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.1)}.summary-card h2{margin:0 0 4px;font-size:26px;color:#1e3a5f}.summary-card p{margin:0;font-size:12px;color:#718096}.vuln-item{background:#fff;border-radius:8px;margin-bottom:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.1)}.vuln-header{display:flex;align-items:center;gap:12px;padding:14px 20px;background:#f7fafc;border-bottom:1px solid #e2e8f0}.badge{color:#fff;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:700}.vuln-type{font-weight:600;font-size:15px}.detail-table{width:100%;border-collapse:collapse}.detail-table th{background:#f7fafc;padding:10px 16px;text-align:left;font-size:13px;width:140px;border-bottom:1px solid #e2e8f0;color:#4a5568}.detail-table td{padding:10px 16px;font-size:13px;border-bottom:1px solid #e2e8f0}.footer{text-align:center;color:#718096;font-size:12px;margin-top:32px;padding-bottom:32px}</style></head><body><div class="report-header"><h1>Baseera Security Scanner Report</h1><p>Generated: ${dateStr}</p></div><div class="container"><div class="summary-grid"><div class="summary-card"><h2>${totalVulns}</h2><p>Total</p></div><div class="summary-card"><h2 style="color:#dc2626">${totalCritical}</h2><p>Critical</p></div><div class="summary-card"><h2 style="color:#ea580c">${totalHigh}</h2><p>High</p></div><div class="summary-card"><h2 style="color:#d97706">${totalMedium}</h2><p>Medium</p></div><div class="summary-card"><h2 style="color:#16a34a">${totalLow}</h2><p>Low</p></div><div class="summary-card"><h2>${securityScore}</h2><p>Security Score</p></div></div>${vulnSections || '<p style="text-align:center;color:#718096">No vulnerabilities found.</p>'}<div class="footer">Baseera Security Scanner &bull; ${dateStr}</div></div></body></html>`;
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `baseera-report-${new Date().toISOString().slice(0, 10)}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  const handleClearAll = async () => {
+    if (!window.confirm('Are you sure you want to clear all vulnerability data? This action cannot be undone.')) return;
+    setClearLoading(true);
+    try {
+      await apiClient.delete('/scans/clear-all');
+      setScans([]);
+      setScanVulnerabilities({});
+      setExpandedScanId(null);
+    } catch (err) {
+      console.error('Failed to clear all scans:', err);
+      alert('Failed to clear data. Please try again.');
+    } finally {
+      setClearLoading(false);
+    }
+  };
+
   return (
     <>
       <LandingNavbar />
@@ -134,13 +226,31 @@ function Bugs() {
             </div>
           </div>
 
-          <button className="export-btn">
+          <div className="export-dropdown-wrapper">
+            <button className="export-btn" onClick={() => setShowExportDropdown(v => !v)} disabled={exportLoading}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 10V2" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M4.6665 6.66663L7.99984 9.99996L11.3332 6.66663" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <h4>{exportLoading ? 'Exporting...' : 'Export Report ▼'}</h4>
+            </button>
+            {showExportDropdown && (
+              <div className="export-dropdown">
+                <button className="export-dropdown-item" onClick={handleExportPDF}>📄 Export as PDF</button>
+                <button className="export-dropdown-item" onClick={handleExportHTML}>🌐 Export as HTML</button>
+              </div>
+            )}
+          </div>
+          <button className="clear-btn" onClick={handleClearAll} disabled={clearLoading}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 10V2" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M4.6665 6.66663L7.99984 9.99996L11.3332 6.66663" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 4H14" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M5.3335 4V2.66667C5.3335 2.31305 5.47397 1.97391 5.72402 1.72386C5.97407 1.47381 6.31321 1.33333 6.66683 1.33333H9.3335C9.68712 1.33333 10.0263 1.47381 10.2763 1.72386C10.5264 1.97391 10.6668 2.31305 10.6668 2.66667V4" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M6.6665 7.33333V11.3333" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M9.3335 7.33333V11.3333" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3.3335 4L4.00016 12.6667C4.00016 13.0203 4.14064 13.3594 4.39069 13.6095C4.64074 13.8595 4.97987 14 5.3335 14H10.6668C11.0205 14 11.3596 13.8595 11.6096 13.6095C11.8597 13.3594 12.0002 13.0203 12.0002 12.6667L12.6668 4" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <h4>Export Report</h4>
+            <h4>{clearLoading ? 'Clearing...' : 'Clear All'}</h4>
           </button>
         </div>
       </div>
@@ -330,17 +440,26 @@ function Bugs() {
                 </div>
               </div>
               <div className="container-last">
-                <h4>Last 7 days</h4>
-                <div className="arrow-icon">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 12L10 8L6 4" stroke="#90A1B9" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
+                <select
+                  value={timelineRange}
+                  onChange={e => setTimelineRange(Number(e.target.value))}
+                  style={{background: '#0d1b35', color: '#90A1B9', border: '1px solid #1e2d4e', borderRadius: '8px', padding: '6px 12px', fontSize: '13px', cursor: 'pointer'}}
+                >
+                  <option value={7}>Last 7 Days</option>
+                  <option value={30}>Last 30 Days</option>
+                  <option value={90}>Last 90 Days</option>
+                </select>
               </div>
             </div>
 
             <div className="bug-table">
-              {scans.slice(0, 5).map((scan, idx) => {
+              {(() => {
+                const cutoff = new Date();
+                cutoff.setDate(cutoff.getDate() - timelineRange);
+                const timelineScans = scans
+                  .filter(scan => scan.createdAt && new Date(scan.createdAt) >= cutoff)
+                  .slice(0, 10);
+                return timelineScans.map((scan, idx) => {
                 const severity = scan.criticalCount > 0 ? 'Critical' : scan.highCount > 0 ? 'High' : scan.mediumCount > 0 ? 'Medium' : 'Low';
                 const badgeClass = severity === 'Critical' ? 'Badge' : severity === 'High' ? 'Badge-1' : 'Badge-2';
                 const lineClass = severity === 'Critical' ? 'head-line' : severity === 'High' ? 'head-line-1' : 'head-line-2';
@@ -383,7 +502,8 @@ function Bugs() {
                     </div>
                   </div>
                 );
-              })}
+                });
+              })()}
             </div>
           </div>
 
@@ -425,34 +545,6 @@ function Bugs() {
               </div>
             </div>
 
-            <div className="quick-actions-box">
-              <h4>Quick Actions</h4>
-              
-              <div className="actions-list">
-                <button className="action-item">
-                  <div className="action-icon">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M3.99984 14.6666C3.64622 14.6666 3.30708 14.5261 3.05703 14.2761C2.80698 14.026 2.6665 13.6869 2.6665 13.3333V2.66659C2.6665 2.31297 2.80698 1.97383 3.05703 1.72378C3.30708 1.47373 3.64622 1.33325 3.99984 1.33325H9.33317C9.54421 1.33291 9.75323 1.37432 9.94819 1.4551C10.1432 1.53588 10.3202 1.65443 10.4692 1.80392L12.8612 4.19592C13.0111 4.34493 13.13 4.52215 13.211 4.71736C13.292 4.91257 13.3335 5.1219 13.3332 5.33325V13.3333C13.3332 13.6869 13.1927 14.026 12.9426 14.2761C12.6926 14.5261 12.3535 14.6666 11.9998 14.6666H3.99984Z" stroke="#00D492" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M9.3335 1.33325V4.66659C9.3335 4.8434 9.40373 5.01297 9.52876 5.13799C9.65378 5.26301 9.82335 5.33325 10.0002 5.33325H13.3335" stroke="#00D492" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M6.66683 6H5.3335" stroke="#00D492" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M10.6668 8.66675H5.3335" stroke="#00D492" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M10.6668 11.3333H5.3335" stroke="#00D492" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <span>Generate Report</span>
-                </button>
-
-                <button className="action-item">
-                  <div className="action-icon">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M6.44754 2.75735C6.48427 2.37091 6.66376 2.01205 6.95094 1.75087C7.23812 1.4897 7.61235 1.34497 8.00054 1.34497C8.38872 1.34497 8.76296 1.4897 9.05014 1.75087C9.33732 2.01205 9.5168 2.37091 9.55354 2.75735C9.57561 3.00699 9.65751 3.24763 9.79229 3.45891C9.92707 3.67019 10.1108 3.84589 10.3278 3.97114C10.5449 4.09638 10.789 4.16749 11.0393 4.17843C11.2897 4.18938 11.539 4.13984 11.7662 4.03402C12.1189 3.87387 12.5187 3.8507 12.8875 3.96901C13.2564 4.08732 13.5681 4.33865 13.7619 4.67409C13.9557 5.00953 14.0177 5.40507 13.936 5.78373C13.8542 6.1624 13.6345 6.4971 13.3195 6.72269C13.1145 6.86658 12.9471 7.05776 12.8315 7.28004C12.7159 7.50231 12.6556 7.74916 12.6556 7.99969C12.6556 8.25021 12.7159 8.49706 12.8315 8.71934C12.9471 8.94161 13.1145 9.13279 13.3195 9.27669C13.6345 9.50228 13.8542 9.83697 13.936 10.2156C14.0177 10.5943 13.9557 10.9898 13.7619 11.3253C13.5681 11.6607 13.2564 11.9121 12.8875 12.0304C12.5187 12.1487 12.1189 12.1255 11.7662 11.9654C11.539 11.8595 11.2897 11.81 11.0393 11.8209C10.789 11.8319 10.5449 11.903 10.3278 12.0282C10.1108 12.1535 9.92707 12.3292 9.79229 12.5405C9.65751 12.7517 9.57561 12.9924 9.55354 13.242C9.5168 13.6285 9.33732 13.9873 9.05014 14.2485C8.76296 14.5097 8.38872 14.6544 8.00054 14.6544C7.61235 14.6544 7.23812 14.5097 6.95094 14.2485C6.66376 13.9873 6.48427 13.6285 6.44754 13.242C6.4255 12.9923 6.3436 12.7516 6.20878 12.5402C6.07396 12.3288 5.89018 12.1531 5.67302 12.0278C5.45586 11.9026 5.21172 11.8315 4.96126 11.8206C4.7108 11.8097 4.4614 11.8594 4.2342 11.9654C3.88146 12.1255 3.48175 12.1487 3.11287 12.0304C2.74399 11.9121 2.43232 11.6607 2.23853 11.3253C2.04473 10.9898 1.98268 10.5943 2.06444 10.2156C2.14621 9.83697 2.36594 9.50228 2.68087 9.27669C2.88595 9.13279 3.05336 8.94161 3.16893 8.71934C3.2845 8.49706 3.34484 8.25021 3.34484 7.99969C3.34484 7.74916 3.2845 7.50231 3.16893 7.28004C3.05336 7.05776 2.88595 6.86658 2.68087 6.72269C2.36638 6.49698 2.14704 6.16242 2.06547 5.78401C1.9839 5.4056 2.04594 5.01038 2.23953 4.67516C2.43311 4.33994 2.74441 4.08867 3.11293 3.97018C3.48145 3.85169 3.88086 3.87444 4.23354 4.03402C4.46071 4.13984 4.71003 4.18938 4.9604 4.17843C5.21078 4.16749 5.45482 4.09638 5.67189 3.97114C5.88896 3.84589 6.07266 3.67019 6.20745 3.45891C6.34223 3.24763 6.42413 3.00699 6.4462 2.75735" stroke="#00D3F2" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M8 10C9.10457 10 10 9.10457 10 8C10 6.89543 9.10457 6 8 6C6.89543 6 6 6.89543 6 8C6 9.10457 6.89543 10 8 10Z" stroke="#00D3F2" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <span>Configure Alerts</span>
-                </button>
-              </div>
-            </div>
           </div>
           </>
           )}

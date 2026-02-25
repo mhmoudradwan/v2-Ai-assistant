@@ -222,4 +222,13 @@ public class ScansService : IScansService
 
         await _scanRepository.DeleteAsync(scan.Id);
     }
+
+    public async Task ClearAllScansAsync(int userId)
+    {
+        var scans = await _scanRepository.GetByUserIdAsync(userId);
+        foreach (var scan in scans)
+        {
+            await _scanRepository.DeleteAsync(scan.Id);
+        }
+    }
 }
