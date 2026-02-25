@@ -57,3 +57,33 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
     return true;
   }
 });
+
+// When a Baseera website tab finishes loading, sync auth state
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete' && tab.url) {
+    const baseeraOrigins = ['http://localhost:5173', 'https://localhost'];
+    const isBaseeraTab = baseeraOrigins.some(origin => tab.url.startsWith(origin));
+
+    if (isBaseeraTab) {
+      chrome.scripting.executeScript({
+        target: { tabId },
+        func: () => ({
+          token: localStorage.getItem('authToken'),
+          userName: localStorage.getItem('baseeraUserName'),
+          userData: localStorage.getItem('baseeraUserData')
+        })
+      }).then(results => {
+        const webAuth = results[0]?.result;
+        if (webAuth?.token) {
+          let displayName = webAuth.userName || '';
+          if (!displayName && webAuth.userData) {
+            try { displayName = JSON.parse(webAuth.userData).email || ''; } catch (e) {}
+          }
+          chrome.storage.local.set({ authToken: webAuth.token, userName: displayName });
+        } else {
+          chrome.storage.local.remove(['authToken', 'userName']);
+        }
+      }).catch(() => {});
+    }
+  }
+});

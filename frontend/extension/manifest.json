@@ -3,7 +3,7 @@
   "name": "Baseera Security Scanner",
   "version": "1.0.0",
   "description": "Web Security Vulnerability Scanner - Powered by Baseera",
-  "permissions": ["activeTab", "storage", "scripting"],
+  "permissions": ["activeTab", "storage", "scripting", "tabs"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup/popup.html",
