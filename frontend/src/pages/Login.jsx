@@ -87,7 +87,7 @@ function Login(){
                 window.postMessage({ type: 'BASEERA_AUTH_UPDATE', token: response.data, email: email }, '*');
 
                 setError("");
-                navigate("/landing");
+                setTimeout(() => navigate("/landing"), 150);
 
             } else {
                 setError(response.message || "Login failed");
