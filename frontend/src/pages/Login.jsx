@@ -139,7 +139,6 @@ function Login(){
                     )}
 
                 <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
-                    <input type="text" name="prevent_autofill" id="prevent_autofill" value="" style={{display:'none'}} readOnly aria-hidden="true" />
                     <h5 className="login-form-title">
                         Email Address
                     </h5>
@@ -172,7 +171,7 @@ function Login(){
                             onChange={(e) => setPassword(e.target.value)}
                             disabled={loading}
                             required
-                            autoComplete="new-password"
+                            autoComplete="current-password"
                         />
                         <i
                             className="fa-solid fa-eye login-input-icon-right"
