@@ -12,7 +12,7 @@ function VerifyEmail() {
     const email = searchParams.get("email") || "";
     const token = searchParams.get("token") || "";
 
-    const [status, setStatus] = useState("verifying"); // "verifying" | "success" | "error"
+    const [status, setStatus] = useState("verifying"); // "verifying" | "success" | "already-verified" | "error"
     const [message, setMessage] = useState("");
     const [resendStatus, setResendStatus] = useState("");
     const [resendLoading, setResendLoading] = useState(false);
@@ -30,10 +30,14 @@ function VerifyEmail() {
                 setMessage("Email verified successfully! Redirecting to login...");
                 setTimeout(() => navigate("/login"), 3000);
             } catch (err) {
-                setStatus("error");
-                setMessage(
-                    err.response?.data?.message || "Invalid or expired verification link."
-                );
+                const errMsg = err.response?.data?.message || "Invalid or expired verification link.";
+                if (errMsg.toLowerCase().includes("already been verified")) {
+                    setStatus("already-verified");
+                    setMessage("This email has already been verified. You can proceed to login.");
+                } else {
+                    setStatus("error");
+                    setMessage(errMsg);
+                }
             }
         };
         verify();
@@ -66,6 +70,7 @@ function VerifyEmail() {
                             <h1 className="create">
                                 {status === "verifying" && "Verifying Email..."}
                                 {status === "success" && "Email Verified!"}
+                                {status === "already-verified" && "Email Already Verified"}
                                 {status === "error" && "Verification Failed"}
                             </h1>
                             {status === "verifying" && (
@@ -73,6 +78,9 @@ function VerifyEmail() {
                             )}
                             {status === "success" && (
                                 <p className="register-description" style={{ color: "#4caf50" }}>{message}</p>
+                            )}
+                            {status === "already-verified" && (
+                                <p className="register-description" style={{ color: "#00D492" }}>{message}</p>
                             )}
                             {status === "error" && (
                                 <p className="register-description" style={{ color: "#f44336" }}>{message}</p>
