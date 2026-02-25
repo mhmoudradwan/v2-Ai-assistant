@@ -55,7 +55,7 @@ function AccountVerification() {
                     )}
 
                     <div className="btn" style={{ marginTop: "16px" }}>
-                        <button onClick={handleResend} disabled={resendLoading} style={{ color: "#00D492" }}>
+                        <button onClick={handleResend} disabled={resendLoading} style={{ color: "#00D492", background: "transparent", border: "1px solid #00D492", borderRadius: "8px", padding: "10px 24px", cursor: "pointer", fontSize: "16px", fontWeight: "600" }}>
                             {resendLoading ? "Sending..." : "Resend Verification Email"}
                         </button>
                     </div>

@@ -234,7 +234,7 @@ public class AuthService : IAuthService
             throw new UnauthorizedAccessException("Invalid or expired verification token");
 
         if (user.IsEmailVerified)
-            return; // Already verified
+            throw new InvalidOperationException("This email has already been verified. Please proceed to login.");
 
         var tokenHash = Sha256Hex(token);
         var now = DateTime.UtcNow;

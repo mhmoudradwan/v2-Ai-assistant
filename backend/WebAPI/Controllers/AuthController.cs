@@ -185,6 +185,15 @@ public class AuthController : ControllerBase
                 Data = null
             });
         }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new ResponseDto<string>
+            {
+                Success = false,
+                Message = ex.Message,
+                Data = null
+            });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Email verification failed for email: {Email}", dto.Email);
