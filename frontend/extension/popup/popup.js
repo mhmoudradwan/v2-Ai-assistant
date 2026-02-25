@@ -12,11 +12,52 @@ document.addEventListener('DOMContentLoaded', async () => {
   await initPopup();
 });
 
+async function syncAuthFromWebsite() {
+  try {
+    const baseeraTabs = await chrome.tabs.query({ url: `${APP_BASE_URL}/*` });
+
+    if (baseeraTabs.length > 0) {
+      const results = await chrome.scripting.executeScript({
+        target: { tabId: baseeraTabs[0].id },
+        func: () => ({
+          token: localStorage.getItem('authToken'),
+          userName: localStorage.getItem('baseeraUserName'),
+          userData: localStorage.getItem('baseeraUserData')
+        })
+      });
+
+      const webAuth = results[0]?.result;
+
+      if (webAuth?.token) {
+        let displayName = webAuth.userName || '';
+        if (!displayName && webAuth.userData) {
+          try {
+            const parsed = JSON.parse(webAuth.userData);
+            displayName = parsed.email || parsed.username || '';
+          } catch (e) {}
+        }
+        await new Promise(resolve => {
+          chrome.storage.local.set({ authToken: webAuth.token, userName: displayName }, resolve);
+        });
+      } else {
+        await new Promise(resolve => {
+          chrome.storage.local.remove(['authToken', 'userName'], resolve);
+        });
+      }
+    }
+  } catch (err) {
+    console.log('Auth sync skipped:', err.message);
+  }
+}
+
 async function initPopup() {
   // Get current tab URL
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   currentURL = tab?.url || '';
   document.getElementById('current-url').textContent = currentURL || 'Unknown';
+
+  // Proactively sync auth from website's localStorage
+  await syncAuthFromWebsite();
 
   // Check auth status
   await checkAuthStatus();
