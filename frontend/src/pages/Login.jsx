@@ -83,6 +83,9 @@ function Login(){
                     }
                 }
 
+                // Notify extension about auth change via postMessage
+                window.postMessage({ type: 'BASEERA_AUTH_UPDATE', token: response.data, email: email }, '*');
+
                 setError("");
                 navigate("/landing");
 
