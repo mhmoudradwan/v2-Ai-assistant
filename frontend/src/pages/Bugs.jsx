@@ -504,11 +504,10 @@ function Bugs() {
             <div className="vulnerability-header-row">
               <div className="vulnerability-meta">
                 <span className="vulnerability-id">SCAN-{scan.id}</span>
-                {scan.criticalCount > 0 && <span className="severity-badge severity-critical">Critical: {scan.criticalCount}</span>}
-                {scan.highCount > 0 && <span className="severity-badge severity-high">High: {scan.highCount}</span>}
-                {scan.mediumCount > 0 && <span className="severity-badge severity-medium">Medium: {scan.mediumCount}</span>}
-                {scan.lowCount > 0 && <span className="severity-badge severity-low">Low: {scan.lowCount}</span>}
-                <span className={`status-badge ${scan.status === 'Completed' ? 'status-in-progress' : 'status-open'}`}>{scan.status}</span>
+                <span className="severity-badge severity-critical">Critical: {scan.criticalCount}</span>
+                <span className="severity-badge severity-high">High: {scan.highCount}</span>
+                <span className="severity-badge severity-medium">Medium: {scan.mediumCount}</span>
+                <span className="severity-badge severity-low">Low: {scan.lowCount}</span>
               </div>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{transform: expandedScanId === scan.id ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease', flexShrink: 0}}>
                 <path d="M4 6L8 10L12 6" stroke="#90A1B9" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>

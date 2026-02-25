@@ -4,6 +4,7 @@ import "../contact.css";
 import Navbar from "../components/Navbar";
 import LandingNavbar from "../components/LandingNavbar";
 import Fotter from "../components/Fotter";
+import apiClient from "../api/axios.config";
 
 function Contact() {
   const [formData, setFormData] = useState({
@@ -13,6 +14,8 @@ function Contact() {
     message: ""
   });
   const [showPopup, setShowPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,15 +25,19 @@ function Contact() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowPopup(true);
-    setFormData({
-      fullName: "",
-      email: "",
-      subject: "",
-      message: ""
-    });
+    setError("");
+    setLoading(true);
+    try {
+      await apiClient.post("/contact", formData);
+      setShowPopup(true);
+      setFormData({ fullName: "", email: "", subject: "", message: "" });
+    } catch {
+      setError("Failed to send message. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -67,6 +74,7 @@ function Contact() {
             </div>
 
             <form className="contact-form" onSubmit={handleSubmit}>
+              {error && <div className="form-error-msg">{error}</div>}
               {/* Full Name */}
               <div className="form-group">
                 <label className="form-label" htmlFor="fullName">
@@ -136,12 +144,12 @@ function Contact() {
               </div>
 
               {/* Submit Button */}
-              <button type="submit" className="submit-btn">
+              <button type="submit" className="submit-btn" disabled={loading}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" 
                         stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                Send Message
+                {loading ? "Sending..." : "Send Message"}
               </button>
             </form>
           </div>
