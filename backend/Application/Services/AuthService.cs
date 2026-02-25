@@ -15,14 +15,17 @@ public class AuthService : IAuthService
     private readonly IConfiguration _configuration;
     private readonly IEmailSender _emailSender;
     private readonly IPasswordResetTokenRepository _tokenRepository;
+    private readonly IEmailVerificationTokenRepository _verificationTokenRepository;
 
     public AuthService(IUserRepository userRepository, IConfiguration configuration,
-        IEmailSender emailSender, IPasswordResetTokenRepository tokenRepository)
+        IEmailSender emailSender, IPasswordResetTokenRepository tokenRepository,
+        IEmailVerificationTokenRepository verificationTokenRepository)
     {
         _userRepository = userRepository;
         _configuration = configuration;
         _emailSender = emailSender;
         _tokenRepository = tokenRepository;
+        _verificationTokenRepository = verificationTokenRepository;
     }
 
     public async Task<string> RegisterAsync(string email, string username, string firstName, string lastName, string password,
@@ -61,11 +64,42 @@ public class AuthService : IAuthService
             DateOfBirth = dateOfBirth,
             Country = country,
             Bio = bio,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            IsEmailVerified = false
         };
 
         await _userRepository.AddAsync(user);
-        return GenerateJwtToken(user);
+
+        var rawToken = GenerateSecureToken();
+        var tokenHash = Sha256Hex(rawToken);
+        var now = DateTime.UtcNow;
+
+        var verificationToken = new EmailVerificationToken
+        {
+            UserId = user.Id,
+            TokenHash = tokenHash,
+            CreatedAtUtc = now,
+            ExpiresAtUtc = now.AddHours(24)
+        };
+
+        await _verificationTokenRepository.AddAsync(verificationToken);
+        await _verificationTokenRepository.SaveChangesAsync();
+
+        var frontendBase = _configuration["Frontend:BaseUrl"] ?? "http://localhost:5173";
+        var verifyLink = $"{frontendBase}/verify-email?email={Uri.EscapeDataString(email)}&token={Uri.EscapeDataString(rawToken)}";
+
+        var htmlBody = $@"
+<h2>Welcome to Bassera!</h2>
+<p>Hello,</p>
+<p>Please click the link below to verify your email address and activate your Bassera account:</p>
+<p><a href=""{verifyLink}"">Verify Email Address</a></p>
+<p>This link will expire in 24 hours.</p>
+<p>If you did not create this account, you can safely ignore this email.</p>
+<p>Best regards,<br>The Bassera Team</p>";
+
+        await _emailSender.SendAsync(email, "Verify Your Email – Bassera", htmlBody);
+
+        return "Registration successful. Please check your email to verify your account.";
     }
 
     public async Task<string> LoginAsync(string email, string password)
@@ -77,6 +111,9 @@ public class AuthService : IAuthService
 
         if (!user.IsActive)
             throw new UnauthorizedAccessException("Account is inactive");
+
+        if (!user.IsEmailVerified)
+            throw new UnauthorizedAccessException("Please verify your email before logging in.");
 
         return GenerateJwtToken(user);
     }
@@ -185,6 +222,74 @@ public class AuthService : IAuthService
 
         resetToken.UsedAtUtc = now;
         await _tokenRepository.SaveChangesAsync(ct);
+    }
+
+    public async Task VerifyEmailAsync(string email, string token, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+            throw new UnauthorizedAccessException("Invalid request");
+
+        var user = await _userRepository.GetByEmailAsync(email);
+        if (user == null)
+            throw new UnauthorizedAccessException("Invalid or expired verification token");
+
+        if (user.IsEmailVerified)
+            return; // Already verified
+
+        var tokenHash = Sha256Hex(token);
+        var now = DateTime.UtcNow;
+        var verificationToken = await _verificationTokenRepository.GetValidTokenAsync(user.Id, tokenHash, now, ct);
+
+        if (verificationToken == null)
+            throw new UnauthorizedAccessException("Invalid or expired verification token");
+
+        user.IsEmailVerified = true;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _userRepository.UpdateAsync(user);
+
+        verificationToken.UsedAtUtc = now;
+        await _verificationTokenRepository.SaveChangesAsync(ct);
+    }
+
+    public async Task ResendVerificationEmailAsync(string email, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return;
+
+        var user = await _userRepository.GetByEmailAsync(email);
+        if (user == null || user.IsEmailVerified)
+            return; // Do not reveal whether email exists or is already verified
+
+        var rawToken = GenerateSecureToken();
+        var tokenHash = Sha256Hex(rawToken);
+        var now = DateTime.UtcNow;
+
+        await _verificationTokenRepository.InvalidateAllActiveForUserAsync(user.Id, now, ct);
+
+        var verificationToken = new EmailVerificationToken
+        {
+            UserId = user.Id,
+            TokenHash = tokenHash,
+            CreatedAtUtc = now,
+            ExpiresAtUtc = now.AddHours(24)
+        };
+
+        await _verificationTokenRepository.AddAsync(verificationToken, ct);
+        await _verificationTokenRepository.SaveChangesAsync(ct);
+
+        var frontendBase = _configuration["Frontend:BaseUrl"] ?? "http://localhost:5173";
+        var verifyLink = $"{frontendBase}/verify-email?email={Uri.EscapeDataString(email)}&token={Uri.EscapeDataString(rawToken)}";
+
+        var htmlBody = $@"
+<h2>Welcome to Bassera!</h2>
+<p>Hello,</p>
+<p>Please click the link below to verify your email address and activate your Bassera account:</p>
+<p><a href=""{verifyLink}"">Verify Email Address</a></p>
+<p>This link will expire in 24 hours.</p>
+<p>If you did not create this account, you can safely ignore this email.</p>
+<p>Best regards,<br>The Bassera Team</p>";
+
+        await _emailSender.SendAsync(email, "Verify Your Email – Bassera", htmlBody, ct);
     }
 
     private static string GenerateSecureToken()

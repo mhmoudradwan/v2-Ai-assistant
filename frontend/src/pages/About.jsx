@@ -6,7 +6,7 @@ import "../components/Navbar"
 import "../about.css";
 
 
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import icon1 from "../assets/about.png";
 import icon2 from "../assets/Mission.png";
@@ -23,6 +23,20 @@ import Fotter from "../components/Fotter";
 
 
 function About() {
+    const navigate = useNavigate();
+    const isAuthenticated = !!localStorage.getItem('authToken');
+
+    const handleGetStarted = (e) => {
+        if (isAuthenticated) {
+            e.preventDefault();
+            navigate('/landing#Extension');
+        }
+    };
+
+    const handleLearnMore = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
     <>
        <LandingNavbar/>
@@ -168,11 +182,11 @@ Beautiful reports that communicate security posture clearly                </p>
   </p>
   
   <div className="home-actions">
-                 <Link className="get-btn" to="/Login">
+                 <Link className="get-btn" to={isAuthenticated ? "/landing#Extension" : "/Login"} onClick={handleGetStarted}>
                              Get Started  <i className="arrow fa-solid fa-arrow-right"></i>
             
                                </Link> 
-            <button className="ghost-btn">Learn More</button>
+            <button className="ghost-btn" onClick={handleLearnMore}>Learn More</button>
           </div>
           </div>
 </div>

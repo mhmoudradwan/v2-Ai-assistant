@@ -101,9 +101,9 @@ function Register(){
             });
 
             if (response.success) {
-                setSuccess("Account created successfully! Redirecting to login...");
+                setSuccess("Account created successfully! Please check your email to verify your account.");
                 setTimeout(() => {
-                    navigate("/login");
+                    navigate("/account-verification", { state: { email } });
                 }, 1500);
             } else {
                 setError(response.message || "Registration failed");

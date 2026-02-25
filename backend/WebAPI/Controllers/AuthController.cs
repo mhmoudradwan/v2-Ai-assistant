@@ -162,4 +162,63 @@ public class AuthController : ControllerBase
             });
         }
     }
+
+    [HttpPost("verify-email")]
+    public async Task<ActionResult<ResponseDto<string>>> VerifyEmail([FromBody] VerifyEmailDto dto, CancellationToken ct)
+    {
+        try
+        {
+            await _authService.VerifyEmailAsync(dto.Email, dto.Token, ct);
+            return Ok(new ResponseDto<string>
+            {
+                Success = true,
+                Message = "Email verified successfully.",
+                Data = null
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new ResponseDto<string>
+            {
+                Success = false,
+                Message = ex.Message,
+                Data = null
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Email verification failed for email: {Email}", dto.Email);
+            return BadRequest(new ResponseDto<string>
+            {
+                Success = false,
+                Message = "An error occurred. Please try again.",
+                Data = null
+            });
+        }
+    }
+
+    [HttpPost("resend-verification")]
+    public async Task<ActionResult<ResponseDto<string>>> ResendVerification([FromBody] ResendVerificationDto dto, CancellationToken ct)
+    {
+        try
+        {
+            await _authService.ResendVerificationEmailAsync(dto.Email, ct);
+            return Ok(new ResponseDto<string>
+            {
+                Success = true,
+                Message = "If your email is registered and not yet verified, a new verification link has been sent.",
+                Data = null
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Resend verification failed for email: {Email}", dto.Email);
+            return BadRequest(new ResponseDto<string>
+            {
+                Success = false,
+                Message = "An error occurred. Please try again.",
+                Data = null
+            });
+        }
+    }
 }

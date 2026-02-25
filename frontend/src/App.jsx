@@ -19,6 +19,8 @@ import EditProfile from './pages/EditProfile';
 import Delete from './pages/Delete';
 import ChangePassword from './pages/ChangePassword';
 import ExtensionSettings from './pages/ExtensionSettings';
+import AccountVerification from './pages/AccountVerification';
+import VerifyEmail from './pages/VerifyEmail';
 
 
 function AppContent() {
@@ -66,6 +68,8 @@ function AppContent() {
             </ProtectedRoute>
           } />
         <Route path="/extension-settings" element={<ExtensionSettings />} />
+        <Route path="/account-verification" element={<AccountVerification />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route
           path="/landing"
           element={

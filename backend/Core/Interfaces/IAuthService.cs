@@ -9,4 +9,6 @@ public interface IAuthService
     Task ChangePasswordAsync(int userId, string newPassword);
     Task ForgotPasswordAsync(string email, CancellationToken ct = default);
     Task ResetPasswordAsync(string email, string token, string newPassword, CancellationToken ct = default);
+    Task VerifyEmailAsync(string email, string token, CancellationToken ct = default);
+    Task ResendVerificationEmailAsync(string email, CancellationToken ct = default);
 }

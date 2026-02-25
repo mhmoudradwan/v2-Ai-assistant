@@ -15,6 +15,7 @@ public class SecurityScannerDbContext : DbContext
     public DbSet<Vulnerability> Vulnerabilities { get; set; }
     public DbSet<Report> Reports { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+    public DbSet<EmailVerificationToken> EmailVerificationTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,6 +32,7 @@ public class SecurityScannerDbContext : DbContext
             entity.Property(e => e.PasswordHash).IsRequired();
             entity.Property(e => e.Role).IsRequired().HasMaxLength(20).HasDefaultValue("User");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsEmailVerified).HasDefaultValue(false);
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
             entity.Property(e => e.Gender).HasMaxLength(20);
             entity.Property(e => e.Country).HasMaxLength(100);
@@ -93,6 +95,20 @@ public class SecurityScannerDbContext : DbContext
 
         // PasswordResetToken Configuration
         modelBuilder.Entity<PasswordResetToken>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TokenHash).IsRequired().HasMaxLength(128);
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.UserId, e.TokenHash });
+        });
+
+        // EmailVerificationToken Configuration
+        modelBuilder.Entity<EmailVerificationToken>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.TokenHash).IsRequired().HasMaxLength(128);

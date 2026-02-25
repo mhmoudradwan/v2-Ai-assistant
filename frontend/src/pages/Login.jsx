@@ -98,7 +98,19 @@ function Login(){
 
         } catch (error) {
             console.error("Login error:", error);
-            setError(error.response?.data?.message || "Invalid email or password");
+            const errMsg = error.response?.data?.message || "Invalid email or password";
+            if (errMsg.toLowerCase().includes("verify your email")) {
+                setError(
+                    <>
+                        {errMsg}{" "}
+                        <Link className="link" to="/account-verification" state={{ email }}>
+                            Resend verification email
+                        </Link>
+                    </>
+                );
+            } else {
+                setError(errMsg);
+            }
         } finally {
             setLoading(false);
         }

@@ -36,6 +36,7 @@ public static class ServiceExtensions
         services.AddScoped<IVulnerabilityRepository, VulnerabilityRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
         services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
+        services.AddScoped<IEmailVerificationTokenRepository, EmailVerificationTokenRepository>();
         services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
 
         // Services
