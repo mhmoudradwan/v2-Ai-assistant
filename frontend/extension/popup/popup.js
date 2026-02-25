@@ -43,7 +43,13 @@ async function initPopup() {
   // Bind open dashboard link
   document.getElementById('open-app-link').addEventListener('click', (e) => {
     e.preventDefault();
-    chrome.tabs.create({ url: APP_BASE_URL });
+    chrome.storage.local.get(['authToken'], (result) => {
+      if (result.authToken) {
+        chrome.tabs.create({ url: `${APP_BASE_URL}/bugs` });
+      } else {
+        chrome.tabs.create({ url: `${APP_BASE_URL}/login` });
+      }
+    });
   });
 
   // Bind view previous results link
