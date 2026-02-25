@@ -227,6 +227,8 @@ function Profile() {
                 localStorage.removeItem('baseeraUserName');
                 localStorage.removeItem('baseeraUserData');
                 localStorage.removeItem('userAvatar');
+                // Notify extension about logout
+                window.postMessage({ type: 'BASEERA_AUTH_LOGOUT' }, '*');
                 navigate('/login');
               }}
             >

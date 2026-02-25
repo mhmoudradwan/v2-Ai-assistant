@@ -52,6 +52,11 @@ async function initPopup() {
     });
   });
 
+  // Bind settings gear button
+  document.getElementById('settings-btn').addEventListener('click', () => {
+    chrome.tabs.create({ url: `${APP_BASE_URL}/extension-settings` });
+  });
+
   // Bind view previous results link
   document.getElementById('view-prev-link').addEventListener('click', (e) => {
     e.preventDefault();

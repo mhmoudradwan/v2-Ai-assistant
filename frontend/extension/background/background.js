@@ -30,3 +30,30 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 });
+
+// Listen for external messages from the Baseera website
+chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
+  if (message.type === 'SAVE_AUTH' || message.type === 'AUTH_TOKEN') {
+    chrome.storage.local.set({
+      authToken: message.token,
+      userName: message.userName || message.email
+    }, () => {
+      sendResponse({ success: true });
+    });
+    return true;
+  }
+
+  if (message.type === 'CLEAR_AUTH' || message.type === 'BASEERA_AUTH_LOGOUT') {
+    chrome.storage.local.remove(['authToken', 'userName'], () => {
+      sendResponse({ success: true });
+    });
+    return true;
+  }
+
+  if (message.type === 'GET_AUTH') {
+    chrome.storage.local.get(['authToken', 'userName'], (result) => {
+      sendResponse({ token: result.authToken, userName: result.userName });
+    });
+    return true;
+  }
+});
