@@ -4,7 +4,6 @@ import LandingNavbar from "../components/LandingNavbar";
 import "../index.css";
 import "../bugs.css";
 import icon1 from "../assets/lock.png";
-import icon2 from "../assets/circle-score.png";
 import icon3 from "../assets/calander.png";
 import apiClient from "../api/axios.config";
 
@@ -14,6 +13,9 @@ function Bugs() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [severityFilter, setSeverityFilter] = useState('all');
+  const [expandedScanId, setExpandedScanId] = useState(null);
+  const [scanVulnerabilities, setScanVulnerabilities] = useState({});
+  const [loadingVulns, setLoadingVulns] = useState(null);
 
   // Derived stats from scans
   const totalCritical = scans.reduce((sum, s) => sum + (s.criticalCount || 0), 0);
@@ -30,10 +32,10 @@ function Bugs() {
                         securityScore >= 40 ? 'Moderate security posture' :
                         'Poor security posture';
 
-  // Dynamic top vulnerability types from scan data
+  // Dynamic top vulnerability types from fetched vulnerability data
   const vulnTypeCounts = {};
-  scans.forEach(scan => {
-    (scan.vulnerabilities || []).forEach(v => {
+  Object.values(scanVulnerabilities).forEach(vulnArray => {
+    (vulnArray || []).forEach(v => {
       const type = v.type || 'Unknown';
       vulnTypeCounts[type] = (vulnTypeCounts[type] || 0) + 1;
     });
@@ -58,12 +60,44 @@ function Bugs() {
     apiClient.get('/scans')
       .then(res => {
         if (res.success && res.data) {
-          setScans(Array.isArray(res.data) ? res.data : []);
+          const loadedScans = Array.isArray(res.data) ? res.data : [];
+          setScans(loadedScans);
+          // Fetch vulnerabilities for the 5 most recent scans (for timeline & top types)
+          loadedScans.slice(0, 5).forEach(scan => {
+            apiClient.get(`/scans/${scan.id}/vulnerabilities`)
+              .then(vRes => {
+                if (vRes.success && vRes.data) {
+                  setScanVulnerabilities(prev => ({ ...prev, [scan.id]: vRes.data }));
+                }
+              })
+              .catch(() => {});
+          });
         }
       })
       .catch(() => setScans([]))
       .finally(() => setLoading(false));
   }, []);
+
+  const toggleScanExpand = async (scanId) => {
+    if (expandedScanId === scanId) {
+      setExpandedScanId(null);
+      return;
+    }
+    setExpandedScanId(scanId);
+    if (!scanVulnerabilities[scanId]) {
+      setLoadingVulns(scanId);
+      try {
+        const res = await apiClient.get(`/scans/${scanId}/vulnerabilities`);
+        if (res.success && res.data) {
+          setScanVulnerabilities(prev => ({ ...prev, [scanId]: res.data }));
+        }
+      } catch (err) {
+        console.error('Failed to load vulnerabilities:', err);
+      } finally {
+        setLoadingVulns(null);
+      }
+    }
+  };
 
   return (
     <>
@@ -137,7 +171,7 @@ function Bugs() {
                 <path d="M11 3.5L6.75 7.75L4.25 5.25L1 8.5" stroke="#FF6467" strokeLinecap="round" strokeLinejoin="round"/>
               </g>
             </svg>
-            <h4>{totalCritical > 0 ? "+2 this week" : "No data"}</h4>
+            <h4>{totalCritical > 0 ? `${totalCritical} total` : "No data"}</h4>
           </div>
         </div>
 
@@ -165,7 +199,7 @@ function Bugs() {
                 <path d="M6 11C8.76142 11 11 8.76142 11 6C11 3.23858 8.76142 1 6 1C3.23858 1 1 3.23858 1 6C1 8.76142 3.23858 11 6 11Z" stroke="#FF8904" strokeLinecap="round" strokeLinejoin="round"/>
               </g>
             </svg>
-            <h4>{totalHigh > 0 ? "Avg. 3 days old" : "No data"}</h4>
+            <h4>{totalHigh > 0 ? `${totalHigh} total` : "No data"}</h4>
           </div>
         </div>
 
@@ -195,7 +229,7 @@ function Bugs() {
                 <path d="M4.5 5.5C5.60457 5.5 6.5 4.60457 6.5 3.5C6.5 2.39543 5.60457 1.5 4.5 1.5C3.39543 1.5 2.5 2.39543 2.5 3.5C2.5 4.60457 3.39543 5.5 4.5 5.5Z" stroke="#00D3F2" strokeLinecap="round" strokeLinejoin="round"/>
               </g>
             </svg>
-            <h4>{totalMedium > 0 ? "3 teams assigned" : "No data"}</h4>
+            <h4>{totalMedium > 0 ? `${totalMedium} total` : "No data"}</h4>
           </div>
         </div>
 
@@ -313,7 +347,7 @@ function Bugs() {
                 let hostname = scan.targetURL || '';
         try { hostname = new URL(scan.targetURL).hostname; } catch { hostname = scan.targetURL || ''; }
                 const date = scan.createdAt ? new Date(scan.createdAt).toISOString().slice(0, 10) : '';
-                const vulnType = (scan.vulnerabilities && scan.vulnerabilities[0]?.type) || `${scan.totalVulns} vulnerabilities`;
+                const vulnType = (scanVulnerabilities[scan.id] && scanVulnerabilities[scan.id][0]?.type) || `${scan.totalVulns} vulnerabilities`;
                 return (
                   <div key={scan.id || idx} className="bug-1">
                     <div className="bug-line">
@@ -357,10 +391,9 @@ function Bugs() {
             <div className="score-box">
               <h4>Security Score</h4>
               <div className="circle-score">
-                <img src={icon2} alt="circle-score" width={128} height={128}/>
-                <div className="score-info">
-                  <h4>{securityScore}</h4>
-                  <h5>/100</h5>
+                <div className="score-circle-display">
+                  <span className="score-number-large">{securityScore}</span>
+                  <span className="score-denom">/100</span>
                 </div>
               </div>
               <div className="score-footer">
@@ -467,36 +500,81 @@ function Bugs() {
       )}
       {!loading && filteredScans.map((scan, idx) => (
         <div key={scan.id || idx} className="vulnerability-card">
-          <div className="vulnerability-header-row">
-            <div className="vulnerability-meta">
-              <span className="vulnerability-id">SCAN-{scan.id}</span>
-              {scan.criticalCount > 0 && <span className="severity-badge severity-critical">Critical: {scan.criticalCount}</span>}
-              {scan.highCount > 0 && <span className="severity-badge severity-high">High: {scan.highCount}</span>}
-              {scan.mediumCount > 0 && <span className="severity-badge" style={{background: 'rgba(250,204,21,0.15)', color: '#facc15', border: '1px solid rgba(250,204,21,0.3)', borderRadius: '4px', padding: '2px 8px', fontSize: '11px'}}>Medium: {scan.mediumCount}</span>}
-              {scan.lowCount > 0 && <span className="severity-badge" style={{background: 'rgba(0,188,125,0.15)', color: '#00BC7D', border: '1px solid rgba(0,188,125,0.3)', borderRadius: '4px', padding: '2px 8px', fontSize: '11px'}}>Low: {scan.lowCount}</span>}
-              <span className={`status-badge ${scan.status === 'Completed' ? 'status-in-progress' : 'status-open'}`}>{scan.status}</span>
+          <div className="vulnerability-card-header" onClick={() => toggleScanExpand(scan.id)} style={{cursor: 'pointer'}}>
+            <div className="vulnerability-header-row">
+              <div className="vulnerability-meta">
+                <span className="vulnerability-id">SCAN-{scan.id}</span>
+                {scan.criticalCount > 0 && <span className="severity-badge severity-critical">Critical: {scan.criticalCount}</span>}
+                {scan.highCount > 0 && <span className="severity-badge severity-high">High: {scan.highCount}</span>}
+                {scan.mediumCount > 0 && <span className="severity-badge severity-medium">Medium: {scan.mediumCount}</span>}
+                {scan.lowCount > 0 && <span className="severity-badge severity-low">Low: {scan.lowCount}</span>}
+                <span className={`status-badge ${scan.status === 'Completed' ? 'status-in-progress' : 'status-open'}`}>{scan.status}</span>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{transform: expandedScanId === scan.id ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease', flexShrink: 0}}>
+                <path d="M4 6L8 10L12 6" stroke="#90A1B9" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <h3 className="vulnerability-title" style={{wordBreak: 'break-all'}}>{scan.targetURL}</h3>
+            <div className="vulnerability-footer">
+              <div className="vulnerability-info-item">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 13C10.3137 13 13 10.3137 13 7C13 3.68629 10.3137 1 7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M1 7H13" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M7 1C8.5 2.5 9.5 4.5 9.5 7C9.5 9.5 8.5 11.5 7 13C5.5 11.5 4.5 9.5 4.5 7C4.5 4.5 5.5 2.5 7 1Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>{scan.totalVulns} vulnerabilities</span>
+              </div>
+              <div className="vulnerability-info-item">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="3" y="3.5" width="8" height="8" rx="1" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M5 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3 7H11" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>{scan.createdAt ? new Date(scan.createdAt).toLocaleDateString() : ''}</span>
+              </div>
             </div>
           </div>
-          <h3 className="vulnerability-title" style={{wordBreak: 'break-all'}}>{scan.targetURL}</h3>
-          <div className="vulnerability-footer">
-            <div className="vulnerability-info-item">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 13C10.3137 13 13 10.3137 13 7C13 3.68629 10.3137 1 7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M1 7H13" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M7 1C8.5 2.5 9.5 4.5 9.5 7C9.5 9.5 8.5 11.5 7 13C5.5 11.5 4.5 9.5 4.5 7C4.5 4.5 5.5 2.5 7 1Z" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span>{scan.totalVulns} vulnerabilities</span>
+          {expandedScanId === scan.id && (
+            <div className="scan-vulns-expanded">
+              {loadingVulns === scan.id ? (
+                <div className="scan-vulns-loading">Loading vulnerabilities...</div>
+              ) : (scanVulnerabilities[scan.id] || []).length === 0 ? (
+                <div className="scan-vulns-empty">No vulnerabilities found for this scan.</div>
+              ) : (
+                (scanVulnerabilities[scan.id] || []).map((vuln, vIdx) => {
+                  const sev = (vuln.severity || '').toLowerCase();
+                  return (
+                    <div key={vuln.id || vIdx} className="vuln-detail-item">
+                      <div className="vuln-detail-header">
+                        <span className={`severity-badge severity-${sev}`}>{vuln.severity}</span>
+                        <span className="vuln-detail-type">{vuln.type}</span>
+                      </div>
+                      {vuln.description && <p className="vuln-detail-description">{vuln.description}</p>}
+                      {vuln.location && (
+                        <div className="vuln-detail-meta">
+                          <span className="vuln-detail-icon">📍</span>
+                          <span className="vuln-detail-text"><strong>Location:</strong> {vuln.location}</span>
+                        </div>
+                      )}
+                      {vuln.recommendation && (
+                        <div className="vuln-detail-meta">
+                          <span className="vuln-detail-icon">💡</span>
+                          <span className="vuln-detail-text"><strong>Fix:</strong> {vuln.recommendation}</span>
+                        </div>
+                      )}
+                      {vuln.detectedAt && (
+                        <div className="vuln-detail-meta">
+                          <span className="vuln-detail-icon">🕐</span>
+                          <span className="vuln-detail-text">Detected: {new Date(vuln.detectedAt).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
             </div>
-            <div className="vulnerability-info-item">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="3.5" width="8" height="8" rx="1" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M9 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M5 2.5V4.5" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M3 7H11" stroke="#90A1B9" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span>{scan.createdAt ? new Date(scan.createdAt).toLocaleDateString() : ''}</span>
-            </div>
-          </div>
+          )}
         </div>
       ))}
     </div>
