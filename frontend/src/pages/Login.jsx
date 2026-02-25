@@ -67,27 +67,30 @@ function Login(){
                 }
 
                 // ✅ Send token to Chrome Extension
+                // Notify extension about auth change
+                // Method 1: Direct external messaging (most reliable)
                 if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
                     try {
-                        const extensionId = "cfcnlbhngnjogcaofelchahdfejjcdei";
-
-                        chrome.runtime.sendMessage(extensionId, {
-                            type: "AUTH_TOKEN",
+                        // Try to find the extension - the extension ID may vary
+                        // Use postMessage as primary since extension ID is dynamic
+                        window.postMessage({
+                            type: 'BASEERA_AUTH_UPDATE',
                             token: response.data,
-                            userName: username
-                        });
-
-                        console.log("Token sent to extension");
+                            email: email
+                        }, '*');
                     } catch (e) {
-                        console.log("Extension not available");
+                        console.log("Extension notification via postMessage failed:", e);
                     }
                 }
 
-                // Notify extension about auth change via postMessage
+                // Method 2: postMessage for content script relay (backup)
                 window.postMessage({ type: 'BASEERA_AUTH_UPDATE', token: response.data, email: email }, '*');
 
                 setError("");
-                setTimeout(() => navigate("/landing"), 150);
+                // Delay navigation to allow content script to relay auth to extension
+                setTimeout(() => {
+                    navigate("/landing");
+                }, 200);
 
             } else {
                 setError(response.message || "Login failed");
