@@ -5,6 +5,7 @@ const APP_BASE_URL = 'http://localhost:5173';
 
 let scanResults = null;
 let currentURL = '';
+let scanCancelled = false;
 
 // Initialize popup
 document.addEventListener('DOMContentLoaded', async () => {
@@ -20,23 +21,45 @@ async function initPopup() {
   // Check auth status
   await checkAuthStatus();
 
-  // Bind scan button
+  // Bind scan button (state 1 → start scan)
   document.getElementById('scan-btn').addEventListener('click', runScan);
+
+  // Bind rescan button (state 3 → start scan again)
+  document.getElementById('rescan-btn').addEventListener('click', runScan);
+
+  // Bind cancel button (state 2 → back to idle)
+  document.getElementById('cancel-btn').addEventListener('click', () => {
+    scanCancelled = true;
+    showState('idle');
+  });
+
+  // Bind refresh URL button
+  document.getElementById('refresh-btn').addEventListener('click', async () => {
+    const [t] = await chrome.tabs.query({ active: true, currentWindow: true });
+    currentURL = t?.url || '';
+    document.getElementById('current-url').textContent = currentURL || 'Unknown';
+  });
 
   // Bind submit button
   document.getElementById('submit-btn').addEventListener('click', submitToBackend);
 
-  // Bind open app link
+  // Bind open dashboard link
   document.getElementById('open-app-link').addEventListener('click', (e) => {
     e.preventDefault();
     chrome.tabs.create({ url: APP_BASE_URL });
   });
 
-  // Bind login link
-  document.getElementById('login-link').addEventListener('click', (e) => {
+  // Bind view previous results link
+  document.getElementById('view-prev-link').addEventListener('click', (e) => {
     e.preventDefault();
-    chrome.tabs.create({ url: `${APP_BASE_URL}/login` });
+    chrome.tabs.create({ url: `${APP_BASE_URL}/bugs` });
   });
+}
+
+function showState(state) {
+  document.getElementById('state-idle').style.display = state === 'idle' ? 'block' : 'none';
+  document.getElementById('state-scanning').style.display = state === 'scanning' ? 'block' : 'none';
+  document.getElementById('state-results').style.display = state === 'results' ? 'block' : 'none';
 }
 
 async function checkAuthStatus() {
@@ -56,104 +79,112 @@ async function checkAuthStatus() {
 }
 
 async function runScan() {
-  const scanBtn = document.getElementById('scan-btn');
-  const scanSection = document.getElementById('scanning-section');
-  const riskSection = document.getElementById('risk-section');
-  const resultsSection = document.getElementById('results-section');
-  const noIssues = document.getElementById('no-issues');
-  const submitSection = document.getElementById('submit-section');
-
-  // Reset UI
-  scanBtn.disabled = true;
-  scanSection.style.display = 'flex';
-  riskSection.style.display = 'none';
-  resultsSection.style.display = 'none';
-  noIssues.style.display = 'none';
-  submitSection.style.display = 'none';
+  scanCancelled = false;
+  showState('scanning');
+  resetChecklist();
+  animateChecklist();
 
   try {
     // Execute scanner in page context
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    
+
     const results = await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       func: runPageScanners,
       args: [currentURL]
     });
 
+    if (scanCancelled) return;
+
     scanResults = results[0]?.result || { vulnerabilities: [], riskScore: 0 };
   } catch (err) {
     console.error('Scan error:', err);
+    if (scanCancelled) return;
     scanResults = { vulnerabilities: [], riskScore: 0, error: err.message };
   }
 
-  scanSection.style.display = 'none';
-  scanBtn.disabled = false;
-
+  if (scanCancelled) return;
+  completeChecklist();
   displayResults(scanResults);
 }
 
+function resetChecklist() {
+  const ids = ['check-ssl', 'check-scripts', 'check-vulns', 'check-headers', 'check-exploits'];
+  ids.forEach(id => {
+    const icon = document.querySelector(`#${id} .check-icon`);
+    if (icon) icon.className = 'check-icon check-pending';
+  });
+}
+
+function animateChecklist() {
+  const steps = ['check-ssl', 'check-scripts', 'check-vulns', 'check-headers', 'check-exploits'];
+  const delays = [400, 900, 1400, 1900, 2400];
+
+  steps.forEach((id, i) => {
+    setTimeout(() => {
+      if (scanCancelled) return;
+      const icon = document.querySelector(`#${id} .check-icon`);
+      if (!icon) return;
+      // Mark previous as done
+      if (i > 0) {
+        const prevIcon = document.querySelector(`#${steps[i - 1]} .check-icon`);
+        if (prevIcon) prevIcon.className = 'check-icon check-done';
+      }
+      icon.className = 'check-icon check-active';
+    }, delays[i]);
+  });
+}
+
+function completeChecklist() {
+  const steps = ['check-ssl', 'check-scripts', 'check-vulns', 'check-headers', 'check-exploits'];
+  steps.forEach(id => {
+    const icon = document.querySelector(`#${id} .check-icon`);
+    if (icon) icon.className = 'check-icon check-done';
+  });
+}
+
 function displayResults(results) {
-  const riskSection = document.getElementById('risk-section');
-  const resultsSection = document.getElementById('results-section');
-  const noIssues = document.getElementById('no-issues');
-  const submitSection = document.getElementById('submit-section');
-
   const vulns = results.vulnerabilities || [];
-  const riskScore = results.riskScore || 0;
-
-  // Update risk score
-  document.getElementById('risk-score').textContent = riskScore;
-  document.getElementById('risk-bar-fill').style.width = `${riskScore}%`;
-
-  const level = riskScore >= 70 ? 'High Risk' : riskScore >= 40 ? 'Medium Risk' : riskScore >= 10 ? 'Low Risk' : 'Safe';
-  document.getElementById('risk-level').textContent = level;
-
-  // Update counts
-  const critical = vulns.filter(v => v.severity === 'Critical').length;
-  const high = vulns.filter(v => v.severity === 'High').length;
+  const critical = vulns.filter(v => v.severity === 'Critical' || v.severity === 'High').length;
   const medium = vulns.filter(v => v.severity === 'Medium').length;
   const low = vulns.filter(v => v.severity === 'Low').length;
 
+  // Update summary counts
   document.getElementById('count-critical').textContent = critical;
-  document.getElementById('count-high').textContent = high;
   document.getElementById('count-medium').textContent = medium;
   document.getElementById('count-low').textContent = low;
 
-  riskSection.style.display = 'block';
-
+  // Build results center content
+  const resultsCenter = document.getElementById('results-center');
   if (vulns.length === 0) {
-    noIssues.style.display = 'block';
-    resultsSection.style.display = 'none';
-  } else {
-    noIssues.style.display = 'none';
-    resultsSection.style.display = 'block';
-    document.getElementById('total-count').textContent = vulns.length;
-    renderResults(vulns);
-    submitSection.style.display = 'block';
-  }
-}
-
-function renderResults(vulns) {
-  const list = document.getElementById('results-list');
-  list.innerHTML = '';
-
-  // Sort by severity
-  const order = { Critical: 0, High: 1, Medium: 2, Low: 3 };
-  vulns.sort((a, b) => (order[a.severity] || 99) - (order[b.severity] || 99));
-
-  vulns.forEach(v => {
-    const item = document.createElement('div');
-    item.className = `result-item ${v.severity.toLowerCase()}`;
-    item.innerHTML = `
-      <span class="severity-badge ${v.severity.toLowerCase()}">${v.severity}</span>
-      <div class="result-info">
-        <div class="result-type">${escapeHtml(v.type)}</div>
-        <div class="result-desc">${escapeHtml(v.description)}</div>
+    resultsCenter.innerHTML = `
+      <div class="result-icon">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#00BC7D" stroke-width="1.5" fill="rgba(0,188,125,0.08)"/>
+          <path d="M9 12l2 2 4-4" stroke="#00BC7D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
+      <p class="result-main-title">Scan Completed</p>
+      <p class="result-main-subtitle--safe">No security issues found!</p>
     `;
-    list.appendChild(item);
-  });
+    document.getElementById('vuln-summary-card').style.display = 'none';
+  } else {
+    resultsCenter.innerHTML = `
+      <div class="result-icon">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#f59e0b" stroke-width="1.5" fill="rgba(245,158,11,0.1)"/>
+          <line x1="12" y1="9" x2="12" y2="13" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+          <line x1="12" y1="17" x2="12.01" y2="17" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="result-main-title">Scan Completed</p>
+      <p class="result-main-subtitle">Some security concerns found</p>
+    `;
+    document.getElementById('vuln-summary-card').style.display = 'block';
+    document.getElementById('submit-section').style.display = 'block';
+  }
+
+  showState('results');
 }
 
 async function submitToBackend() {

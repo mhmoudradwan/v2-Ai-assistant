@@ -48,5 +48,15 @@ export const authApi = {
   // PUT /api/users/change-password
   changePassword: async (newPassword) => {
     return apiClient.put('/users/change-password', { newPassword });
+  },
+
+  // POST /api/auth/forgot-password
+  forgotPassword: async (email) => {
+    return apiClient.post('/auth/forgot-password', { email });
+  },
+
+  // POST /api/auth/reset-password
+  resetPassword: async (email, token, newPassword) => {
+    return apiClient.post('/auth/reset-password', { email, token, newPassword });
   }
 };

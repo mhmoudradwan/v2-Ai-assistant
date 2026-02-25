@@ -10,6 +10,7 @@ using Application.Interfaces;
 using Application.Services;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 
 namespace WebAPI.Extensions;
 
@@ -34,6 +35,7 @@ public static class ServiceExtensions
         services.AddScoped<IScanRepository, ScanRepository>();
         services.AddScoped<IVulnerabilityRepository, VulnerabilityRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
+        services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
         services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
 
         // Services
@@ -41,6 +43,7 @@ public static class ServiceExtensions
         services.AddScoped<IScansService, ScansService>();
         services.AddScoped<IReportsService, ReportsService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
 
         return services;
     }

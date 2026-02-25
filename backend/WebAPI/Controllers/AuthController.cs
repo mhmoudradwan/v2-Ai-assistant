@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Core.Interfaces;
 using Application.DTOs.Auth;
 using Application.DTOs.Common;
+using Application.DTOs.Password;
 
 namespace WebAPI.Controllers;
 
@@ -92,5 +93,73 @@ public class AuthController : ControllerBase
             Message = isValid ? "Token is valid" : "Token is invalid",
             Data = isValid
         });
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<ActionResult<ResponseDto<string>>> ForgotPassword([FromBody] ForgotPasswordDto dto, CancellationToken ct)
+    {
+        try
+        {
+            await _authService.ForgotPasswordAsync(dto.Email, ct);
+            return Ok(new ResponseDto<string>
+            {
+                Success = true,
+                Message = "If an account with that email exists, a reset link has been sent.",
+                Data = null
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Forgot password failed for email: {Email}", dto.Email);
+            return BadRequest(new ResponseDto<string>
+            {
+                Success = false,
+                Message = "An error occurred. Please try again.",
+                Data = null
+            });
+        }
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<ActionResult<ResponseDto<string>>> ResetPassword([FromBody] ResetPasswordDto dto, CancellationToken ct)
+    {
+        try
+        {
+            await _authService.ResetPasswordAsync(dto.Email, dto.Token, dto.NewPassword, ct);
+            return Ok(new ResponseDto<string>
+            {
+                Success = true,
+                Message = "Password reset successfully.",
+                Data = null
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new ResponseDto<string>
+            {
+                Success = false,
+                Message = ex.Message,
+                Data = null
+            });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new ResponseDto<string>
+            {
+                Success = false,
+                Message = ex.Message,
+                Data = null
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Reset password failed for email: {Email}", dto.Email);
+            return BadRequest(new ResponseDto<string>
+            {
+                Success = false,
+                Message = "An error occurred. Please try again.",
+                Data = null
+            });
+        }
     }
 }

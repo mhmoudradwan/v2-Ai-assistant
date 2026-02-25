@@ -7,4 +7,6 @@ public interface IAuthService
     Task<string> LoginAsync(string email, string password);
     Task<bool> ValidateTokenAsync(string token);
     Task ChangePasswordAsync(int userId, string newPassword);
+    Task ForgotPasswordAsync(string email, CancellationToken ct = default);
+    Task ResetPasswordAsync(string email, string token, string newPassword, CancellationToken ct = default);
 }
