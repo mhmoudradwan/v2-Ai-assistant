@@ -128,6 +128,22 @@ public class ScansController : ControllerBase
     }
 
     /// <summary>
+    /// Delete all scans for the current user
+    /// </summary>
+    [HttpDelete("clear-all")]
+    public async Task<ActionResult<ResponseDto<object>>> ClearAllScans()
+    {
+        var userId = GetCurrentUserId();
+        await _scansService.ClearAllScansAsync(userId);
+
+        return Ok(new ResponseDto<object>
+        {
+            Success = true,
+            Message = "All scan data cleared successfully"
+        });
+    }
+
+    /// <summary>
     /// Submit scan results from the Chrome Extension
     /// </summary>
     [HttpPost("extension")]

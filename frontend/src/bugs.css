@@ -1803,3 +1803,98 @@ line-height: 24px; /* 150% */
   background: rgba(0, 188, 125, 0.15) !important;
   border-color: rgba(0, 188, 125, 0.3) !important;
 }
+
+/* ====== EXPORT DROPDOWN ====== */
+.export-dropdown-wrapper {
+  position: relative;
+}
+
+.export-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: #0d1b35;
+  border: 1px solid #1e2d4e;
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 100;
+  min-width: 200px;
+}
+
+.export-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  color: #90A1B9;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: Arimo, sans-serif;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.export-dropdown-item:hover {
+  background: #1e2d4e;
+  color: #fff;
+}
+
+/* ====== CLEAR ALL BUTTON ====== */
+.clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #dc2626;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-family: Arimo, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.clear-btn h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+}
+
+.clear-btn:hover {
+  background: #b91c1c;
+}
+
+.clear-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ====== VULNERABILITY OVERFLOW FIXES ====== */
+.vulnerabilities-section {
+  overflow: visible;
+}
+
+.vulnerabilities-list {
+  margin-bottom: 24px;
+}
+
+.vulnerability-card {
+  overflow: hidden;
+  word-break: break-word;
+  margin-bottom: 0;
+}
+
+.scan-vulns-expanded {
+  max-height: none;
+  overflow-y: auto;
+}
+
+.vuln-detail-item {
+  overflow: hidden;
+}
