@@ -41,7 +41,7 @@ function AccountVerification() {
                                 A verification link has been sent to your email address. Please check your inbox and verify your account to continue.
                             </p>
                             {email && (
-                                <p style={{ color: "#64b5f6", marginTop: "8px", fontSize: "14px" }}>
+                                <p style={{ color: "#64b5f6", marginTop: "8px", fontSize: "14px", textAlign: "center" }}>
                                     Sent to: <strong>{email}</strong>
                                 </p>
                             )}
@@ -55,7 +55,7 @@ function AccountVerification() {
                     )}
 
                     <div className="btn" style={{ marginTop: "16px" }}>
-                        <button onClick={handleResend} disabled={resendLoading}>
+                        <button onClick={handleResend} disabled={resendLoading} style={{ color: "#00D492" }}>
                             {resendLoading ? "Sending..." : "Resend Verification Email"}
                         </button>
                     </div>
