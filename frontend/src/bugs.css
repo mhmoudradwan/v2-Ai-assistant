@@ -1665,3 +1665,141 @@ line-height: 24px; /* 150% */
     font-size: 11px;
   }
 }
+
+/* ====== CSS-BASED CIRCULAR SCORE DISPLAY ====== */
+.score-circle-display {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  border: 4px solid #00BC7D;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(0, 188, 125, 0.12) 0%, rgba(0, 212, 146, 0.05) 100%);
+  margin: 16px auto;
+  box-shadow: 0 0 24px rgba(0, 188, 125, 0.25);
+}
+
+.score-number-large {
+  color: #FFF;
+  font-family: Arimo, sans-serif;
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.score-denom {
+  color: #90A1B9;
+  font-family: Arimo, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+/* ====== EXPANDABLE SCAN CARD ====== */
+.vulnerability-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.vulnerability-card-header {
+  width: 100%;
+}
+
+.vulnerability-card-header:hover .vulnerability-title {
+  color: #00D492;
+  transition: color 0.15s ease;
+}
+
+/* ====== EXPANDED VULNERABILITY DETAILS ====== */
+.scan-vulns-expanded {
+  border-top: 1px solid rgba(49, 65, 88, 0.5);
+  margin-top: 16px;
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scan-vulns-loading,
+.scan-vulns-empty {
+  color: #64748b;
+  font-family: Arimo, sans-serif;
+  font-size: 13px;
+  text-align: center;
+  padding: 16px 0;
+}
+
+.vuln-detail-item {
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 0.8px solid rgba(49, 65, 88, 0.5);
+  background: rgba(15, 23, 43, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vuln-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.vuln-detail-type {
+  color: #e2e8f0;
+  font-family: Arimo, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.vuln-detail-description {
+  color: #90A1B9;
+  font-family: Arimo, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.vuln-detail-meta {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.vuln-detail-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.vuln-detail-text {
+  color: #90A1B9;
+  font-family: Arimo, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.vuln-detail-text strong {
+  color: #e2e8f0;
+  font-weight: 400;
+}
+
+/* ====== SEVERITY BADGE — MEDIUM & LOW (matching design system) ====== */
+.severity-medium {
+  color: #facc15 !important;
+  background: rgba(250, 204, 21, 0.15) !important;
+  border-color: rgba(250, 204, 21, 0.3) !important;
+}
+
+.severity-low {
+  color: #00BC7D !important;
+  background: rgba(0, 188, 125, 0.15) !important;
+  border-color: rgba(0, 188, 125, 0.3) !important;
+}
