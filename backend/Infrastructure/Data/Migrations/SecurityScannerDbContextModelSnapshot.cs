@@ -253,8 +253,7 @@ namespace Infrastructure.Data.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.HasIndex("Username")
-                        .IsUnique();
+                    b.HasIndex("Username");
 
                     b.ToTable("Users");
                 });
