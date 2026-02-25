@@ -20,9 +20,6 @@ width: 67px;
 }
 
 .login-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
     padding: 40px 32px;
   border-radius: 24px;
   border: 0.8px solid #314158;
@@ -31,7 +28,6 @@ width: 67px;
   width: 100%;
   max-width: 440px;
   box-sizing: border-box;
-  gap: 0;
 }
 
 .welcome{
