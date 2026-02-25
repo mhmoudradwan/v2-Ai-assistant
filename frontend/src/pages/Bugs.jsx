@@ -22,6 +22,27 @@ function Bugs() {
   const totalLow = scans.reduce((sum, s) => sum + (s.lowCount || 0), 0);
   const totalVulns = scans.reduce((sum, s) => sum + (s.totalVulns || 0), 0);
 
+  // Dynamic security score
+  const riskScore = totalVulns > 0 ? Math.min(100, totalCritical * 25 + totalHigh * 15 + totalMedium * 8 + totalLow * 3) : 0;
+  const securityScore = 100 - riskScore;
+  const securityLabel = securityScore >= 80 ? 'Excellent security posture' :
+                        securityScore >= 60 ? 'Good security posture' :
+                        securityScore >= 40 ? 'Moderate security posture' :
+                        'Poor security posture';
+
+  // Dynamic top vulnerability types from scan data
+  const vulnTypeCounts = {};
+  scans.forEach(scan => {
+    (scan.vulnerabilities || []).forEach(v => {
+      const type = v.type || 'Unknown';
+      vulnTypeCounts[type] = (vulnTypeCounts[type] || 0) + 1;
+    });
+  });
+  const topVulnTypes = Object.entries(vulnTypeCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  const maxVulnCount = topVulnTypes.length > 0 ? topVulnTypes[0][1] : 1;
+
   // Filtered scans for display
   const filteredScans = scans.filter(s => {
     const matchesSearch = !searchQuery || s.targetURL?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -74,7 +95,7 @@ function Bugs() {
                   <path d="M10.6665 11.3334H14.6665V7.33337" stroke="#00D492" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M14.6668 11.3333L9.00016 5.66663L5.66683 8.99996L1.3335 4.66663" stroke="#00D492" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span className="risk-change">{totalVulns > 0 ? "12%" : "—"}</span>
+                <span className="risk-change">{totalVulns > 0 ? `${totalVulns} found` : "—"}</span>
               </div>
             </div>
           </div>
@@ -101,7 +122,7 @@ function Bugs() {
                 <path d="M15.312 2C15.8424 2.00011 16.351 2.2109 16.726 2.586L21.414 7.274C21.7891 7.64899 21.9999 8.15761 22 8.688V15.312C21.9999 15.8424 21.7891 16.351 21.414 16.726L16.726 21.414C16.351 21.7891 15.8424 21.9999 15.312 22H8.688C8.15761 21.9999 7.64899 21.7891 7.274 21.414L2.586 16.726C2.2109 16.351 2.00011 15.8424 2 15.312V8.688C2.00011 8.15761 2.2109 7.64899 2.586 7.274L7.274 2.586C7.64899 2.2109 8.15761 2.00011 8.688 2H15.312Z" stroke="#FF6467" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h4>High Priority</h4>
+            <h4>Critical</h4>
           </div>
           <div className="num">
             <h1>{totalCritical}</h1>
@@ -129,7 +150,7 @@ function Bugs() {
                 <path d="M12 17H12.01" stroke="#FF8904" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h4>Urgent</h4>
+            <h4>High</h4>
           </div>
           <div className="num">
             <h1>{totalHigh}</h1>
@@ -157,7 +178,7 @@ function Bugs() {
                 <path d="M12 16H12.01" stroke="#00D3F2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h4>In Progress</h4>
+            <h4>Medium</h4>
           </div>
           <div className="num">
             <h1>{totalMedium}</h1>
@@ -186,13 +207,13 @@ function Bugs() {
                 <path d="M9 11L12 14L22 4" stroke="#00D492" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h4>Completed</h4>
+            <h4>Low</h4>
           </div>
           <div className="num">
-            <h1>{scans.filter(s => s.status === 'Completed').length}</h1>
+            <h1>{totalLow}</h1>
           </div>
           <div className="info">
-            <h4>Resolved This Week</h4>
+            <h4>Low Severity</h4>
           </div>
           <div className="Completed-img">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -201,7 +222,7 @@ function Bugs() {
                 <path d="M11 8.5L6.75 4.25L4.25 6.75L1 3.5" stroke="#00D492" strokeLinecap="round" strokeLinejoin="round"/>
               </g>
             </svg>
-            <h4>{scans.filter(s => s.status === 'Completed').length > 0 ? "-15% vs last week" : "No data"}</h4>
+            <h4>{totalLow > 0 ? `${totalLow} total` : "No data"}</h4>
           </div>
         </div>
       </div>
@@ -285,180 +306,50 @@ function Bugs() {
             </div>
 
             <div className="bug-table">
-              {/* Bug 1 */}
-              <div className="bug-1">
-                <div className="bug-line">
-                  <div className="head-line"></div>
-                  <div className="line"></div>
-                </div>
-                <div className="bug-box">
-                  <div className="bug-contact">
-                    <div className="Badge">
-                      <h4>Critical</h4>
+              {scans.slice(0, 5).map((scan, idx) => {
+                const severity = scan.criticalCount > 0 ? 'Critical' : scan.highCount > 0 ? 'High' : scan.mediumCount > 0 ? 'Medium' : 'Low';
+                const badgeClass = severity === 'Critical' ? 'Badge' : severity === 'High' ? 'Badge-1' : 'Badge-2';
+                const lineClass = severity === 'Critical' ? 'head-line' : severity === 'High' ? 'head-line-1' : 'head-line-2';
+                let hostname = scan.targetURL || '';
+        try { hostname = new URL(scan.targetURL).hostname; } catch { hostname = scan.targetURL || ''; }
+                const date = scan.createdAt ? new Date(scan.createdAt).toISOString().slice(0, 10) : '';
+                const vulnType = (scan.vulnerabilities && scan.vulnerabilities[0]?.type) || `${scan.totalVulns} vulnerabilities`;
+                return (
+                  <div key={scan.id || idx} className="bug-1">
+                    <div className="bug-line">
+                      <div className={lineClass}></div>
+                      <div className="line"></div>
                     </div>
-                    <div className="date">
-                      <h4>• 2024-12-20</h4>
-                    </div>
-                  </div>
-                  <div className="bug-name">
-                    <h4>SQL Injection in Login Form</h4>
-                  </div>
-                  <div className="bug-web">
-                    <div className="web-icon">
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clipPath="url(#clip0_191_1637)">
-                          <path d="M6 11C8.76142 11 11 8.76142 11 6C11 3.23858 8.76142 1 6 1C3.23858 1 1 3.23858 1 6C1 8.76142 3.23858 11 6 11Z" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M6 1C4.71612 2.34808 4 4.13837 4 6C4 7.86163 4.71612 9.65192 6 11C7.28388 9.65192 8 7.86163 8 6C8 4.13837 7.28388 2.34808 6 1Z" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M1 6H11" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                        </g>
-                      </svg>
-                    </div>
-                    <div className="web">
-                      <h4>auth.example.com</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bug 2 */}
-              <div className="bug-1">
-                <div className="bug-line">
-                  <div className="head-line-1"></div>
-                  <div className="line"></div>
-                </div>
-                <div className="bug-box">
-                  <div className="bug-contact">
-                    <div className="Badge-1">
-                      <h4>High</h4>
-                    </div>
-                    <div className="date">
-                      <h4>• 2024-12-19</h4>
+                    <div className="bug-box">
+                      <div className="bug-contact">
+                        <div className={badgeClass}>
+                          <h4>{severity}</h4>
+                        </div>
+                        <div className="date">
+                          <h4>• {date}</h4>
+                        </div>
+                      </div>
+                      <div className="bug-name">
+                        <h4>{vulnType}</h4>
+                      </div>
+                      <div className="bug-web">
+                        <div className="web-icon">
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g clipPath="url(#clip0_191_1637)">
+                              <path d="M6 11C8.76142 11 11 8.76142 11 6C11 3.23858 8.76142 1 6 1C3.23858 1 1 3.23858 1 6C1 8.76142 3.23858 11 6 11Z" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M6 1C4.71612 2.34808 4 4.13837 4 6C4 7.86163 4.71612 9.65192 6 11C7.28388 9.65192 8 7.86163 8 6C8 4.13837 7.28388 2.34808 6 1Z" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M1 6H11" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
+                            </g>
+                          </svg>
+                        </div>
+                        <div className="web">
+                          <h4>{hostname}</h4>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="bug-name">
-                    <h4>Cross-Site Scripting (XSS)</h4>
-                  </div>
-                  <div className="bug-web">
-                    <div className="web-icon">
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clipPath="url(#clip0_191_1637)">
-                          <path d="M6 11C8.76142 11 11 8.76142 11 6C11 3.23858 8.76142 1 6 1C3.23858 1 1 3.23858 1 6C1 8.76142 3.23858 11 6 11Z" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M6 1C4.71612 2.34808 4 4.13837 4 6C4 7.86163 4.71612 9.65192 6 11C7.28388 9.65192 8 7.86163 8 6C8 4.13837 7.28388 2.34808 6 1Z" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M1 6H11" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                        </g>
-                      </svg>
-                    </div>
-                    <div className="web">
-                      <h4>app.example.com</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bug 3 */}
-              <div className="bug-1">
-                <div className="bug-line">
-                  <div className="head-line-2"></div>
-                  <div className="line"></div>
-                </div>
-                <div className="bug-box">
-                  <div className="bug-contact">
-                    <div className="Badge-2">
-                      <h4>Medium</h4>
-                    </div>
-                    <div className="date">
-                      <h4>• 2024-12-18</h4>
-                    </div>
-                  </div>
-                  <div className="bug-name">
-                    <h4>Outdated SSL Certificate</h4>
-                  </div>
-                  <div className="bug-web">
-                    <div className="web-icon">
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clipPath="url(#clip0_191_1637)">
-                          <path d="M6 11C8.76142 11 11 8.76142 11 6C11 3.23858 8.76142 1 6 1C3.23858 1 1 3.23858 1 6C1 8.76142 3.23858 11 6 11Z" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M6 1C4.71612 2.34808 4 4.13837 4 6C4 7.86163 4.71612 9.65192 6 11C7.28388 9.65192 8 7.86163 8 6C8 4.13837 7.28388 2.34808 6 1Z" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M1 6H11" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                        </g>
-                      </svg>
-                    </div>
-                    <div className="web">
-                      <h4>api.example.com</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bug 4 */}
-              <div className="bug-1">
-                <div className="bug-line">
-                  <div className="head-line-2"></div>
-                  <div className="line"></div>
-                </div>
-                <div className="bug-box">
-                  <div className="bug-contact">
-                    <div className="Badge-2">
-                      <h4>Low</h4>
-                    </div>
-                    <div className="date">
-                      <h4>• 2024-12-17</h4>
-                    </div>
-                  </div>
-                  <div className="bug-name">
-                    <h4>Missing Security Headers</h4>
-                  </div>
-                  <div className="bug-web">
-                    <div className="web-icon">
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clipPath="url(#clip0_191_1637)">
-                          <path d="M6 11C8.76142 11 11 8.76142 11 6C11 3.23858 8.76142 1 6 1C3.23858 1 1 3.23858 1 6C1 8.76142 3.23858 11 6 11Z" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M6 1C4.71612 2.34808 4 4.13837 4 6C4 7.86163 4.71612 9.65192 6 11C7.28388 9.65192 8 7.86163 8 6C8 4.13837 7.28388 2.34808 6 1Z" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M1 6H11" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                        </g>
-                      </svg>
-                    </div>
-                    <div className="web">
-                      <h4>cdn.example.com</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bug 5 */}
-              <div className="bug-1">
-                <div className="bug-line">
-                  <div className="head-line-2"></div>
-                  <div className="line"></div>
-                </div>
-                <div className="bug-box">
-                  <div className="bug-contact">
-                    <div className="Badge-2">
-                      <h4>Medium</h4>
-                    </div>
-                    <div className="date">
-                      <h4>• 2024-12-16</h4>
-                    </div>
-                  </div>
-                  <div className="bug-name">
-                    <h4>Weak Password Policy</h4>
-                  </div>
-                  <div className="bug-web">
-                    <div className="web-icon">
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clipPath="url(#clip0_191_1637)">
-                          <path d="M6 11C8.76142 11 11 8.76142 11 6C11 3.23858 8.76142 1 6 1C3.23858 1 1 3.23858 1 6C1 8.76142 3.23858 11 6 11Z" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M6 1C4.71612 2.34808 4 4.13837 4 6C4 7.86163 4.71612 9.65192 6 11C7.28388 9.65192 8 7.86163 8 6C8 4.13837 7.28388 2.34808 6 1Z" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M1 6H11" stroke="#90A1B9" strokeLinecap="round" strokeLinejoin="round"/>
-                        </g>
-                      </svg>
-                    </div>
-                    <div className="web">
-                      <h4>auth.example.com</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                );
+              })}
             </div>
           </div>
 
@@ -468,12 +359,12 @@ function Bugs() {
               <div className="circle-score">
                 <img src={icon2} alt="circle-score" width={128} height={128}/>
                 <div className="score-info">
-                  <h4>74</h4>
+                  <h4>{securityScore}</h4>
                   <h5>/100</h5>
                 </div>
               </div>
               <div className="score-footer">
-                <h4>Good security posture</h4>
+                <h4>{securityLabel}</h4>
               </div>
             </div>
 
@@ -481,38 +372,23 @@ function Bugs() {
               <h4>Top Vulnerability Types</h4>
               
               <div className="vulnerability-list">
-                <div className="vulnerability-item">
-                  <div className="vulnerability-header">
-                    <span className="vulnerability-name">Injection</span>
-                    <span className="vulnerability-count">2</span>
-                  </div>
-                  <div className="progress-bar-container">
-                    <div className="progress-bar-fill progress-red"></div>
-                    <div className="progress-bar-bg"></div>
-                  </div>
-                </div>
-
-                <div className="vulnerability-item">
-                  <div className="vulnerability-header">
-                    <span className="vulnerability-name">XSS</span>
-                    <span className="vulnerability-count">2</span>
-                  </div>
-                  <div className="progress-bar-container">
-                    <div className="progress-bar-fill progress-orange"></div>
-                    <div className="progress-bar-bg"></div>
-                  </div>
-                </div>
-
-                <div className="vulnerability-item">
-                  <div className="vulnerability-header">
-                    <span className="vulnerability-name">Configuration</span>
-                    <span className="vulnerability-count">2</span>
-                  </div>
-                  <div className="progress-bar-container">
-                    <div className="progress-bar-fill progress-yellow"></div>
-                    <div className="progress-bar-bg"></div>
-                  </div>
-                </div>
+                {topVulnTypes.length === 0 ? (
+                  <div style={{color: '#64748b', fontSize: '13px', padding: '8px 0'}}>No vulnerability data yet.</div>
+                ) : topVulnTypes.map(([type, count], idx) => {
+                  const barColors = ['progress-red', 'progress-orange', 'progress-yellow', 'progress-orange', 'progress-red'];
+                  return (
+                    <div key={type} className="vulnerability-item">
+                      <div className="vulnerability-header">
+                        <span className="vulnerability-name">{type}</span>
+                        <span className="vulnerability-count">{count}</span>
+                      </div>
+                      <div className="progress-bar-container">
+                        <div className={`progress-bar-fill ${barColors[idx] || 'progress-yellow'}`} style={{width: `${Math.round(count / maxVulnCount * 100)}%`}}></div>
+                        <div className="progress-bar-bg"></div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

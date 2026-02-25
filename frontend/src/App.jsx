@@ -18,6 +18,7 @@ import Profile from './pages/Profile'
 import EditProfile from './pages/EditProfile';
 import Delete from './pages/Delete';
 import ChangePassword from './pages/ChangePassword';
+import ExtensionSettings from './pages/ExtensionSettings';
 
 
 function AppContent() {
@@ -64,6 +65,7 @@ function AppContent() {
               <ChangePassword />
             </ProtectedRoute>
           } />
+        <Route path="/extension-settings" element={<ExtensionSettings />} />
         <Route
           path="/landing"
           element={

@@ -459,38 +459,6 @@ body::-webkit-scrollbar-thumb { background: #1e2d4e; border-radius: 4px; }
 .rescan-btn:hover { opacity: 0.92; }
 .rescan-btn:active { transform: scale(0.98); }
 
-/* Submit section inside state 3 */
-.submit-btn {
-  width: 100%;
-  padding: 9px 16px;
-  background: rgba(0, 188, 125, 0.1);
-  color: #00BC7D;
-  border: 1px solid rgba(0, 188, 125, 0.3);
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: background 0.2s;
-}
-
-.submit-btn:hover { background: rgba(0, 188, 125, 0.18); }
-.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.submit-status {
-  margin-top: 6px;
-  font-size: 11px;
-  text-align: center;
-  color: #64748b;
-}
-
-.submit-status.success { color: #00BC7D; }
-.submit-status.error { color: #FF6467; }
-
 /* ── Footer ── */
 .popup-footer {
   padding: 10px 16px 12px;

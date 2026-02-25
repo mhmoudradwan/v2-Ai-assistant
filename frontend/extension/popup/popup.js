@@ -40,9 +40,6 @@ async function initPopup() {
     document.getElementById('current-url').textContent = currentURL || 'Unknown';
   });
 
-  // Bind submit button
-  document.getElementById('submit-btn').addEventListener('click', submitToBackend);
-
   // Bind open dashboard link
   document.getElementById('open-app-link').addEventListener('click', (e) => {
     e.preventDefault();
@@ -67,11 +64,16 @@ async function checkAuthStatus() {
     chrome.storage.local.get(['authToken', 'userName'], (result) => {
       const badge = document.getElementById('auth-status');
       if (result.authToken) {
-        badge.textContent = result.userName ? `Hi, ${result.userName}` : 'Logged in';
+        badge.textContent = result.userName ? `Logged in as ${result.userName}` : 'Authenticated';
         badge.className = 'auth-badge auth-badge--logged-in';
       } else {
         badge.textContent = 'Not logged in';
         badge.className = 'auth-badge auth-badge--guest';
+        // Show a hint in the idle state
+        const idleSubtitle = document.querySelector('.idle-subtitle');
+        if (idleSubtitle) {
+          idleSubtitle.textContent = 'Log in on Baseera website to save scan results automatically.';
+        }
       }
       resolve(result.authToken);
     });
@@ -181,34 +183,21 @@ function displayResults(results) {
       <p class="result-main-subtitle">Some security concerns found</p>
     `;
     document.getElementById('vuln-summary-card').style.display = 'block';
-    document.getElementById('submit-section').style.display = 'block';
+    autoSaveResults();
   }
 
   showState('results');
 }
 
-async function submitToBackend() {
-  const submitBtn = document.getElementById('submit-btn');
-  const submitStatus = document.getElementById('submit-status');
-
+async function autoSaveResults() {
   const token = await new Promise(resolve => {
     chrome.storage.local.get(['authToken'], r => resolve(r.authToken));
   });
 
-  if (!token) {
-    submitStatus.textContent = 'Please login first to save results.';
-    submitStatus.className = 'submit-status error';
-    return;
-  }
-
-  if (!scanResults) return;
-
-  submitBtn.disabled = true;
-  submitStatus.textContent = 'Saving...';
-  submitStatus.className = 'submit-status';
+  if (!token || !scanResults) return; // Silently skip if not logged in
 
   try {
-    const response = await fetch(`${API_BASE_URL}/scans/extension`, {
+    await fetch(`${API_BASE_URL}/scans/extension`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -226,21 +215,8 @@ async function submitToBackend() {
         }))
       })
     });
-
-    const data = await response.json();
-    if (data.success) {
-      submitStatus.textContent = '✓ Results saved to your account!';
-      submitStatus.className = 'submit-status success';
-      submitBtn.disabled = true;
-    } else {
-      submitStatus.textContent = data.message || 'Failed to save results.';
-      submitStatus.className = 'submit-status error';
-      submitBtn.disabled = false;
-    }
   } catch (err) {
-    submitStatus.textContent = 'Error connecting to Baseera API.';
-    submitStatus.className = 'submit-status error';
-    submitBtn.disabled = false;
+    console.error('Auto-save error:', err);
   }
 }
 
