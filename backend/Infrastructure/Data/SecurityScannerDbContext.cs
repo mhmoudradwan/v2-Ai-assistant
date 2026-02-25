@@ -14,6 +14,7 @@ public class SecurityScannerDbContext : DbContext
     public DbSet<Scan> Scans { get; set; }
     public DbSet<Vulnerability> Vulnerabilities { get; set; }
     public DbSet<Report> Reports { get; set; }
+    public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -88,6 +89,20 @@ public class SecurityScannerDbContext : DbContext
                   .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasIndex(e => e.ScanId);
+        });
+
+        // PasswordResetToken Configuration
+        modelBuilder.Entity<PasswordResetToken>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TokenHash).IsRequired().HasMaxLength(128);
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.UserId, e.TokenHash });
         });
     }
 }

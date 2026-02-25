@@ -11,6 +11,7 @@ import Contact from './pages/Contact'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Forget from './pages/Forget'
+import ResetPassword from './pages/ResetPassword'
 import Landing from './pages/Landing'
 import Bugs from './pages/Bugs'
 import Profile from './pages/Profile'
@@ -36,6 +37,7 @@ function AppContent() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forget" element={<Forget />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/bugs" element={
             <ProtectedRoute>
               <Bugs />
