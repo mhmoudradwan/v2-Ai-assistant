@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import LandingNavbar from "../components/LandingNavbar";
 import "../index.css";
 import "../bugs.css";
-import icon1 from "../assets/lock.png";
 import icon3 from "../assets/calander.png";
 import apiClient from "../api/axios.config";
 
@@ -196,17 +195,6 @@ function Bugs() {
       <LandingNavbar />
 
       <div className="bugs-sec">
-        {/* LEFT SIDE */}
-        <div className="bugs">
-          <div className="bugs-icon">
-            <img src={icon1} alt="security icon" width={28} height={28} />
-          </div>
-
-          <div className="bugs-text">
-            <h2>Security Command Center</h2>
-            <p>Real-time vulnerability monitoring and threat analysis</p>
-          </div>
-        </div>
 
         {/* RIGHT SIDE */}
         <div className="bugs-actions">
