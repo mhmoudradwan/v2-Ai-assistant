@@ -302,12 +302,16 @@ def regex_match(user_input: str) -> Optional[str]:
 # ---------------------------------------------------------------------------
 # Algorithm 3: Fuzzy String Matching
 # ---------------------------------------------------------------------------
-def fuzzy_match(user_input: str, threshold: int = 60) -> Optional[str]:
+def fuzzy_match(user_input: str, threshold: int = 75) -> Optional[str]:
     """
     Try fuzz.partial_ratio against each vulnerability's keyword list.
     Also use difflib.get_close_matches as a secondary pass.
     Returns the vulnerability key with the best score above threshold.
     """
+    # Skip fuzzy matching for very short inputs (almost always conversational)
+    if len(user_input.strip()) < 3:
+        return None
+
     text = user_input.lower()
     best_key = None
     best_score = 0
@@ -375,11 +379,13 @@ def analyze(user_input: str) -> dict:
     return {
         "vulnerability": None,
         "explanation": (
-            "I couldn't identify a specific vulnerability in your message. "
-            "Try asking about SQL Injection, XSS, CSRF, RCE, LFI, RFI, SSRF, "
-            "Directory Traversal, Open Redirect, Authentication Bypass, "
-            "Exposed API Keys, Insecure Cookies, Missing Security Headers, "
-            "Clickjacking, or Exposed Comments."
+            "I'm not sure I understood that. I'm best at helping with cybersecurity topics! 🔒\n\n"
+            "You can ask me things like:\n"
+            "• 'What is SQL Injection?'\n"
+            "• 'How to fix XSS?'\n"
+            "• 'Tell me about CSRF'\n"
+            "• 'List all vulnerabilities'\n\n"
+            "Or just say 'help' to see everything I can do!"
         ),
         "severity": None,
         "fix": None,
@@ -398,51 +404,164 @@ def _build_report(vuln: dict) -> str:
 
 
 def _handle_meta(text: str) -> Optional[dict]:
-    """Handle greetings, help, and list commands."""
+    """Handle greetings, help, list commands, and rich conversational patterns."""
     t = text.strip().lower()
 
-    greetings = {"hi", "hello", "hey", "greetings", "howdy", "yo"}
-    if t in greetings or re.match(r"^(hi|hello|hey)[!,.]?\s*$", t):
+    def _meta_response(explanation: str, tag: str) -> dict:
         return {
             "vulnerability": None,
-            "explanation": (
-                "Hello! I'm Baseera Assistant, your AI security advisor. "
-                "Ask me about any web vulnerability — e.g., 'What is XSS?' "
-                "or 'How do I fix SQL Injection?'"
-            ),
+            "explanation": explanation,
             "severity": None,
             "fix": None,
             "report": None,
-            "matched_by": "meta:greeting",
+            "matched_by": tag,
         }
 
+    # Greetings
+    greetings = {
+        "hi", "hello", "hey", "greetings", "howdy", "yo", "sup", "wassup",
+        "good morning", "good afternoon", "good evening",
+        "good night",
+    }
+    if t in greetings or re.match(r"^(hi|hello|hey|howdy|yo|sup|wassup)[!,.]?\s*$", t):
+        return _meta_response(
+            "Hello! 👋 I'm Baseera Assistant, your AI-powered security advisor. "
+            "Ask me about any web vulnerability — e.g., 'What is XSS?' "
+            "or 'How do I fix SQL Injection?'",
+            "meta:greeting",
+        )
+
+    # How are you
+    if re.search(
+        r"\b(how are you|how are you doing|how'?s it going|how do you do|"
+        r"are you okay|you good)\b",
+        t,
+    ):
+        return _meta_response(
+            "I'm doing great, thanks for asking! 😊 "
+            "I'm always ready to help you with cybersecurity questions. "
+            "What would you like to know about?",
+            "meta:how_are_you",
+        )
+
+    # Identity / About
+    if re.search(
+        r"\b(who are you|what are you|what is your name|what'?s your name|"
+        r"tell me about yourself|what do you do|your name|introduce yourself)\b",
+        t,
+    ):
+        return _meta_response(
+            "I'm Baseera Assistant — your AI-powered security advisor! 🛡️ "
+            "I can explain vulnerabilities, assess their severity, and suggest fixes "
+            "for 15 different types of web security issues. "
+            "Just ask me about any vulnerability!",
+            "meta:identity",
+        )
+
+    # Thanks
+    if re.search(
+        r"\b(thank you|thanks|thx|appreciate it|much appreciated|thanks a lot|"
+        r"thank you so much|ty)\b",
+        t,
+    ):
+        return _meta_response(
+            "You're welcome! 😊 "
+            "Feel free to ask me anything else about security vulnerabilities.",
+            "meta:thanks",
+        )
+
+    # Goodbye
+    if re.search(
+        r"\b(bye|goodbye|see you|later|take care|good night|gn|see ya|cya)\b",
+        t,
+    ):
+        return _meta_response(
+            "Goodbye! Stay safe online! 🔒 "
+            "Come back anytime you need security advice.",
+            "meta:goodbye",
+        )
+
+    # Affirmative / OK
+    if re.search(
+        r"^(ok|okay|got it|understood|sure|alright|cool|nice|great|awesome|"
+        r"perfect|good|yes|yep|yeah|right)[!.,]?\s*$",
+        t,
+    ):
+        return _meta_response(
+            "Great! Let me know if you have any other security questions. "
+            "I'm here to help! 💪",
+            "meta:affirmative",
+        )
+
+    # Negative
+    if re.search(
+        r"^(no|nope|nah|not really|never mind|forget it|cancel)[!.,]?\s*$",
+        t,
+    ):
+        return _meta_response(
+            "No problem! Feel free to ask whenever you're ready. 😊",
+            "meta:negative",
+        )
+
+    # Compliments
+    if re.search(
+        r"\b(you'?re great|nice work|good job|well done|amazing|impressive)\b",
+        t,
+    ):
+        return _meta_response(
+            "Thank you, that means a lot! 😊 "
+            "I'm always here to help you stay secure. "
+            "Is there anything else you'd like to know?",
+            "meta:compliment",
+        )
+
+    # Jokes / Fun
+    if re.search(r"\b(tell me a joke|make me laugh)\b", t) or t == "funny":
+        return _meta_response(
+            "Why did the hacker break up with the internet? "
+            "Because it had too many open connections! 😄 "
+            "Now, shall we get back to serious security topics?",
+            "meta:joke",
+        )
+
+    # General off-topic questions
+    if re.search(
+        r"\b(what time is it|what'?s the weather|what day is it)\b",
+        t,
+    ):
+        return _meta_response(
+            "I'm a security assistant, so I don't have access to the time or weather. 😊 "
+            "But I'm happy to help with any cybersecurity questions you have!",
+            "meta:off_topic",
+        )
+
+    # Profanity / abuse (simple heuristic)
+    if re.search(r"\b(damn|shit|fuck|bastard|idiot|stupid bot)\b", t):
+        return _meta_response(
+            "I'm here to help you with cybersecurity topics! 😊 "
+            "Let's keep it professional — feel free to ask me anything about security.",
+            "meta:profanity",
+        )
+
+    # Help / capabilities
     if re.search(r"\b(help|what can you do|capabilities)\b", t):
         vuln_names = ", ".join(v["name"] for v in VULNERABILITIES.values())
-        return {
-            "vulnerability": None,
-            "explanation": (
-                f"I can explain, assess severity, and suggest fixes for these "
-                f"vulnerabilities: {vuln_names}. "
-                "Just ask 'What is <vuln>?' or 'How to fix <vuln>?'"
-            ),
-            "severity": None,
-            "fix": None,
-            "report": None,
-            "matched_by": "meta:help",
-        }
+        return _meta_response(
+            f"I can explain, assess severity, and suggest fixes for these "
+            f"vulnerabilities: {vuln_names}. "
+            "Just ask 'What is <vuln>?' or 'How to fix <vuln>?'",
+            "meta:help",
+        )
 
+    # List all vulnerabilities
     if re.search(r"\b(list|show all|all vulner)\b", t) or re.match(r"^vulnerabilit", t):
         vuln_list = "\n".join(
             f"- {v['name']} ({v['severity']})"
             for v in VULNERABILITIES.values()
         )
-        return {
-            "vulnerability": None,
-            "explanation": f"Supported vulnerability types:\n{vuln_list}",
-            "severity": None,
-            "fix": None,
-            "report": None,
-            "matched_by": "meta:list",
-        }
+        return _meta_response(
+            f"Supported vulnerability types:\n{vuln_list}",
+            "meta:list",
+        )
 
     return None
