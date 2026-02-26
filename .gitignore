@@ -16,6 +16,11 @@ frontend/dist-ssr/
 frontend/.env.local
 frontend/Baseera/node_modules/
 
+# Python
+backend/AIChatService/__pycache__/
+backend/AIChatService/*.pyc
+backend/AIChatService/.venv/
+
 # OS
 .DS_Store
 Thumbs.db
