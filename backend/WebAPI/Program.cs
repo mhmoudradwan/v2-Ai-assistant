@@ -28,6 +28,7 @@ catch
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerDocumentation();
+builder.Services.AddHttpClient();
 
 // Database
 builder.Services.AddDatabaseConfiguration(builder.Configuration);

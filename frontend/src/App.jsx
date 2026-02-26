@@ -21,6 +21,7 @@ import ChangePassword from './pages/ChangePassword';
 import ExtensionSettings from './pages/ExtensionSettings';
 import AccountVerification from './pages/AccountVerification';
 import VerifyEmail from './pages/VerifyEmail';
+import AIChatbot from './pages/AIChatbot';
 
 
 function AppContent() {
@@ -70,6 +71,11 @@ function AppContent() {
         <Route path="/extension-settings" element={<ExtensionSettings />} />
         <Route path="/account-verification" element={<AccountVerification />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/ai-chatbot" element={
+            <ProtectedRoute>
+              <AIChatbot />
+            </ProtectedRoute>
+          } />
         <Route
           path="/landing"
           element={
