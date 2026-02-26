@@ -3,7 +3,17 @@
 
 (function() {
   'use strict';
-  
+
+  function safeSendMessage(msg) {
+    try {
+      if (chrome.runtime?.id) {
+        chrome.runtime.sendMessage(msg);
+      }
+    } catch (e) {
+      // Extension context invalidated — silently ignore
+    }
+  }
+
   // Listen for messages from the popup
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'PING') {
@@ -16,7 +26,7 @@
     if (event.source !== window) return;
 
     if (event.data?.type === 'BASEERA_AUTH_UPDATE') {
-      chrome.runtime.sendMessage({
+      safeSendMessage({
         type: 'SAVE_AUTH',
         token: event.data.token,
         userName: event.data.email || event.data.userName
@@ -24,7 +34,7 @@
     }
 
     if (event.data?.type === 'BASEERA_AUTH_LOGOUT') {
-      chrome.runtime.sendMessage({ type: 'CLEAR_AUTH' });
+      safeSendMessage({ type: 'CLEAR_AUTH' });
     }
   });
 
@@ -46,13 +56,13 @@
     } catch (e) {}
 
     if (token) {
-      chrome.runtime.sendMessage({
+      safeSendMessage({
         type: 'SAVE_AUTH',
         token: token,
         userName: email || userName || ''
       });
     } else {
-      chrome.runtime.sendMessage({ type: 'CLEAR_AUTH' });
+      safeSendMessage({ type: 'CLEAR_AUTH' });
     }
   })();
 
@@ -67,13 +77,13 @@
           if (userData) email = JSON.parse(userData).email || '';
         } catch (e) {}
 
-        chrome.runtime.sendMessage({
+        safeSendMessage({
           type: 'SAVE_AUTH',
           token: event.newValue,
           userName: email || userName || ''
         });
       } else {
-        chrome.runtime.sendMessage({ type: 'CLEAR_AUTH' });
+        safeSendMessage({ type: 'CLEAR_AUTH' });
       }
     }
   });
