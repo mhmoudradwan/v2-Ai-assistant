@@ -2,7 +2,7 @@
 /* ====== SECTION CONTAINER ====== */
 .bugs-sec {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
 
   padding: 24px 32px;
@@ -61,7 +61,7 @@ line-height: 20px; /* 142.857% */
 .bugs-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 }
 
 /* ====== RISK BOX ====== */
@@ -117,6 +117,65 @@ line-height: 16px; /* 133.333% */
 }
 
 /* ====== BUTTONS ====== */
+.export-split-btn {
+  display: flex;
+  align-items: stretch;
+  height: 40px;
+  border: 0.8px solid #314158;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(29, 41, 61, 0.60);
+}
+
+.export-main-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  background: transparent;
+  border: none;
+  border-right: 0.8px solid #314158;
+  color: #fff;
+  cursor: pointer;
+  font-family: Arimo, sans-serif;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.export-main-btn h4 {
+  margin: 0;
+  color: #fff;
+  font-family: Arimo;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.export-chevron-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.export-main-btn:hover,
+.export-chevron-btn:hover {
+  background: rgba(49, 65, 88, 0.5);
+}
+
+.export-main-btn:disabled,
+.export-chevron-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Keep legacy .export-btn for any fallback references */
 .export-btn {
 display: flex;
 /* justify-content: space-between; */
@@ -1557,6 +1616,7 @@ line-height: 24px; /* 150% */
   }
 
   .export-btn,
+  .export-split-btn,
   .scan-btn {
     width: 100%;
   }
@@ -1613,12 +1673,18 @@ line-height: 24px; /* 150% */
   }
 
   .export-btn,
+  .export-split-btn,
   .scan-btn {
     width: 100%;
     padding: 12px;
   }
 
+  .export-main-btn {
+    flex: 1;
+  }
+
   .export-btn h4,
+  .export-main-btn h4,
   .scan-btn h4 {
     font-size: 13px;
   }
@@ -1847,10 +1913,11 @@ line-height: 24px; /* 150% */
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  height: 40px;
+  padding: 0 16px;
   background: #dc2626;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   color: white;
   cursor: pointer;
   font-family: Arimo, sans-serif;
