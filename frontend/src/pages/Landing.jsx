@@ -70,7 +70,9 @@ function Landing() {
           </p>
 
           <div className="home-actions">
-
+              <Link className="get-btn" to="/ai-chatbot">
+                AI Assistant <i className="arrow fa-solid fa-arrow-right"></i>
+              </Link>
       <Link className="ghost-btn" to="/About">
                                 Learn More 
                                 </Link>
