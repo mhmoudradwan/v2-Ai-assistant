@@ -543,15 +543,40 @@ def _handle_meta(text: str) -> Optional[dict]:
             "meta:profanity",
         )
 
-    # Help / capabilities
+    # Help / capabilities (but NOT if a vulnerability name follows)
     if re.search(r"\b(help|what can you do|capabilities)\b", t):
-        vuln_names = ", ".join(v["name"] for v in VULNERABILITIES.values())
-        return _meta_response(
-            f"I can explain, assess severity, and suggest fixes for these "
-            f"vulnerabilities: {vuln_names}. "
-            "Just ask 'What is <vuln>?' or 'How to fix <vuln>?'",
-            "meta:help",
-        )
+        # Check if the message also contains a vulnerability keyword
+        has_vuln = False
+        for vuln in VULNERABILITIES.values():
+            for kw in vuln["keywords"]:
+                if kw in t:
+                    has_vuln = True
+                    break
+            if has_vuln:
+                break
+        if not has_vuln:
+            vuln_names = ", ".join(v["name"] for v in VULNERABILITIES.values())
+            return _meta_response(
+                f"I can explain, assess severity, and suggest fixes for these "
+                f"vulnerabilities: {vuln_names}. "
+                "Just ask 'What is <vuln>?' or 'How to fix <vuln>?'",
+                "meta:help",
+            )
+
+    # Show vulnerabilities by severity
+    severity_match = re.search(r"\b(show|list|display|get)\s+(critical|high|medium|low)\b", t)
+    if severity_match:
+        target_severity = severity_match.group(2).capitalize()
+        filtered = [
+            f"- {v['name']} ({v['severity']})"
+            for v in VULNERABILITIES.values()
+            if v["severity"].lower() == target_severity.lower()
+        ]
+        if filtered:
+            return _meta_response(
+                f"{target_severity} severity vulnerabilities:\n" + "\n".join(filtered),
+                f"meta:list:{target_severity.lower()}",
+            )
 
     # List all vulnerabilities
     if re.search(r"\b(list|show all|all vulner)\b", t) or re.match(r"^vulnerabilit", t):

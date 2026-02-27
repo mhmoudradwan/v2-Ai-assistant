@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Common;
 using System.Text;
 using System.Text.Json;
+using System.Linq;
 
 namespace WebAPI.Controllers;
 
@@ -132,33 +133,6 @@ public class ChatController : ControllerBase
                 "meta:affirmative");
         }
 
-        if (System.Text.RegularExpressions.Regex.IsMatch(lower,
-            @"\b(help|what can you do|capabilities)\b"))
-        {
-            return ConversationalResponse(
-                "I can explain vulnerabilities, assess their severity, and suggest fixes for: " +
-                "SQL Injection, XSS, CSRF, RCE, LFI, RFI, SSRF, Directory Traversal, Open Redirect, " +
-                "Authentication Bypass, Exposed API Keys, Insecure Cookies, Missing Security Headers, " +
-                "Clickjacking, and Exposed Comments. Just ask 'What is <vuln>?' or 'How to fix <vuln>?'",
-                "meta:help");
-        }
-
-        if (System.Text.RegularExpressions.Regex.IsMatch(lower,
-            @"\b(list|show all|all vulner)\b") ||
-            lower.StartsWith("vulnerabilit"))
-        {
-            return ConversationalResponse(
-                "Supported vulnerability types:\n" +
-                "- SQL Injection (Critical)\n- Cross-Site Scripting/XSS (High)\n" +
-                "- CSRF (Medium)\n- Remote Code Execution/RCE (Critical)\n" +
-                "- Local File Inclusion/LFI (High)\n- Remote File Inclusion/RFI (Critical)\n" +
-                "- SSRF (High)\n- Directory Traversal (High)\n- Open Redirect (Medium)\n" +
-                "- Authentication Bypass (Critical)\n- Exposed API Keys (Critical)\n" +
-                "- Insecure Cookies (Medium)\n- Missing Security Headers (Medium)\n" +
-                "- Clickjacking (Medium)\n- Exposed Comments (Low)",
-                "meta:list");
-        }
-
         // ── Vulnerability keyword matching with full explanations ──────────────
         var keywords = new Dictionary<string, (string name, string severity, string explanation, string fix)>
         {
@@ -239,6 +213,68 @@ public class ChatController : ControllerBase
                 "Remove sensitive comments before deploying to production. Use automated pre-commit hooks to detect accidental disclosures."),
         };
 
+        if (System.Text.RegularExpressions.Regex.IsMatch(lower,
+            @"\b(help|what can you do|capabilities)\b"))
+        {
+            // Don't show help if message also contains a vulnerability keyword
+            bool hasVuln = false;
+            foreach (var kv in keywords)
+            {
+                if (lower.Contains(kv.Key))
+                {
+                    hasVuln = true;
+                    break;
+                }
+            }
+            if (!hasVuln)
+            {
+                return ConversationalResponse(
+                    "I can explain vulnerabilities, assess their severity, and suggest fixes for: " +
+                    "SQL Injection, XSS, CSRF, RCE, LFI, RFI, SSRF, Directory Traversal, Open Redirect, " +
+                    "Authentication Bypass, Exposed API Keys, Insecure Cookies, Missing Security Headers, " +
+                    "Clickjacking, and Exposed Comments. Just ask 'What is <vuln>?' or 'How to fix <vuln>?'",
+                    "meta:help");
+            }
+        }
+
+        // Show vulnerabilities by severity
+        var severityMatch = System.Text.RegularExpressions.Regex.Match(lower,
+            @"\b(show|list|display|get)\s+(critical|high|medium|low)\b");
+        if (severityMatch.Success)
+        {
+            var targetSeverity = severityMatch.Groups[2].Value;
+            var severityMap = new Dictionary<string, string[]>
+            {
+                ["critical"] = new[] { "SQL Injection", "RCE", "RFI", "Authentication Bypass", "Exposed API Keys" },
+                ["high"] = new[] { "XSS", "LFI", "SSRF", "Directory Traversal" },
+                ["medium"] = new[] { "CSRF", "Open Redirect", "Insecure Cookies", "Missing Security Headers", "Clickjacking" },
+                ["low"] = new[] { "Exposed Comments" },
+            };
+            if (severityMap.ContainsKey(targetSeverity))
+            {
+                var list = string.Join("\n", severityMap[targetSeverity].Select(v => $"- {v}"));
+                return ConversationalResponse(
+                    $"{char.ToUpper(targetSeverity[0]) + targetSeverity.Substring(1)} severity vulnerabilities:\n{list}",
+                    $"meta:list:{targetSeverity}");
+            }
+        }
+
+        if (System.Text.RegularExpressions.Regex.IsMatch(lower,
+            @"\b(list|show all|all vulner)\b") ||
+            lower.StartsWith("vulnerabilit"))
+        {
+            return ConversationalResponse(
+                "Supported vulnerability types:\n" +
+                "- SQL Injection (Critical)\n- Cross-Site Scripting/XSS (High)\n" +
+                "- CSRF (Medium)\n- Remote Code Execution/RCE (Critical)\n" +
+                "- Local File Inclusion/LFI (High)\n- Remote File Inclusion/RFI (Critical)\n" +
+                "- SSRF (High)\n- Directory Traversal (High)\n- Open Redirect (Medium)\n" +
+                "- Authentication Bypass (Critical)\n- Exposed API Keys (Critical)\n" +
+                "- Insecure Cookies (Medium)\n- Missing Security Headers (Medium)\n" +
+                "- Clickjacking (Medium)\n- Exposed Comments (Low)",
+                "meta:list");
+        }
+
         foreach (var kv in keywords)
         {
             if (lower.Contains(kv.Key))
@@ -264,8 +300,7 @@ public class ChatController : ControllerBase
                           "• 'How to fix XSS?'\n" +
                           "• 'Tell me about CSRF'\n" +
                           "• 'List all vulnerabilities'\n\n" +
-                          "Or just say 'help' to see everything I can do!" +
-                          "\n\n(Note: The AI service is temporarily unavailable.)",
+                          "Or just say 'help' to see everything I can do!",
             severity = (string?)null,
             fix = (string?)null,
             report = (string?)null,
