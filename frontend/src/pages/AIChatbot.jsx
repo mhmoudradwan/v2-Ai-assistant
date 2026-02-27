@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LandingNavbar from '../components/LandingNavbar';
 import apiClient from '../api/axios.config';
+import baseeraIcon from '../assets/baseera-icon.svg';
 import './AIChatbot.css';
 
 const SUGGESTED_PROMPTS = [
@@ -10,8 +11,6 @@ const SUGGESTED_PROMPTS = [
   'What is XSS?',
   'List all vulnerabilities',
 ];
-
-const QUICK_ACTIONS = ['Tell me more', 'Show related issues', 'How to fix this?'];
 
 const generateId = () => Math.random().toString(36).slice(2, 10);
 
@@ -53,6 +52,8 @@ export default function AIChatbot() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -86,6 +87,64 @@ export default function AIChatbot() {
       updateConversations([]);
       setActiveId(null);
     }
+  };
+
+  const deleteConversation = (convId, e) => {
+    e.stopPropagation();
+    const updated = conversations.filter((c) => c.id !== convId);
+    updateConversations(updated);
+    if (activeId === convId) setActiveId(null);
+  };
+
+  const startRename = (conv, e) => {
+    e.stopPropagation();
+    setEditingId(conv.id);
+    setEditTitle(conv.title);
+  };
+
+  const saveRename = (convId) => {
+    if (!editTitle.trim()) return;
+    const updated = conversations.map((c) =>
+      c.id === convId ? { ...c, title: editTitle.trim() } : c
+    );
+    updateConversations(updated);
+    setEditingId(null);
+  };
+
+  const exportChatAsHTML = () => {
+    if (!activeConv || messages.length === 0) return;
+
+    const msgHTML = messages.map((msg) => {
+      const role = msg.role === 'user' ? 'You' : 'Baseera Assistant';
+      const bgColor = msg.role === 'user' ? '#6366f1' : '#1e293b';
+      const textColor = '#e2e8f0';
+      const align = msg.role === 'user' ? 'flex-end' : 'flex-start';
+      const time = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const escapedContent = msg.content
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br/>');
+      return `
+      <div style="display:flex;justify-content:${align};margin-bottom:16px;">
+        <div style="max-width:70%;background:${bgColor};color:${textColor};padding:12px 16px;border-radius:12px;">
+          <div style="font-weight:600;margin-bottom:4px;font-size:0.8rem;color:#94a3b8;">${role} · ${time}</div>
+          <div style="white-space:pre-wrap;">${escapedContent}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>${activeConv.title} - Baseera Chat Export</title>
+<style>body{background:#0f1724;font-family:'Inter','Segoe UI',sans-serif;padding:40px;max-width:800px;margin:0 auto;}
+h1{color:#f1f5f9;font-size:1.4rem;}h2{color:#64748b;font-size:0.85rem;font-weight:400;margin-bottom:30px;}</style>
+</head><body><h1>🛡️ ${activeConv.title}</h1><h2>Exported on ${new Date().toLocaleString()}</h2>${msgHTML}</body></html>`;
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${activeConv.title.replace(/[^a-z0-9]/gi, '_')}_chat.html`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const sendMessage = async (text) => {
@@ -243,7 +302,29 @@ export default function AIChatbot() {
                   className={`conv-item ${c.id === activeId ? 'active' : ''}`}
                   onClick={() => setActiveId(c.id)}
                 >
-                  <div className="conv-title">{c.title}</div>
+                  <div className="conv-item-header">
+                    {editingId === c.id ? (
+                      <input
+                        className="conv-rename-input"
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        onBlur={() => saveRename(c.id)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); saveRename(c.id); } if (e.key === 'Escape') setEditingId(null); }}
+                        autoFocus
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    ) : (
+                      <div className="conv-title">{c.title}</div>
+                    )}
+                    <div className="conv-item-actions">
+                      <button className="conv-action-btn" onClick={(e) => startRename(c, e)} title="Rename">
+                        <i className="fa-solid fa-pen" />
+                      </button>
+                      <button className="conv-delete-btn" onClick={(e) => deleteConversation(c.id, e)} title="Delete">
+                        <i className="fa-solid fa-xmark" />
+                      </button>
+                    </div>
+                  </div>
                   <div className="conv-meta">
                     <span className="conv-preview">{c.preview}</span>
                     <span className="conv-time">{relativeTime(c.timestamp)}</span>
@@ -284,8 +365,7 @@ export default function AIChatbot() {
               )}
             </div>
             <div className="chat-header-right">
-              <i className="fa-solid fa-download chat-icon-btn" title="Download" />
-              <i className="fa-solid fa-floppy-disk chat-icon-btn" title="Save" />
+              <i className="fa-solid fa-download chat-icon-btn" title="Export as HTML" onClick={exportChatAsHTML} style={{ cursor: messages.length ? 'pointer' : 'not-allowed', opacity: messages.length ? 1 : 0.4 }} />
             </div>
           </div>
 
@@ -315,25 +395,12 @@ export default function AIChatbot() {
                   {msg.role === 'user' ? (
                     <i className="fa-solid fa-user" />
                   ) : (
-                    <i className="fa-solid fa-robot bot-icon" />
+                    <img src={baseeraIcon} alt="Baseera" className="bot-icon-img" />
                   )}
                 </div>
                 <div className="message-body">
                   <div className="message-bubble">{renderMessage(msg)}</div>
                   <span className="message-time">{formatTime(msg.timestamp)}</span>
-                  {msg.role === 'bot' && (
-                    <div className="quick-actions">
-                      {QUICK_ACTIONS.map((a) => (
-                        <button
-                          key={a}
-                          className="quick-action-chip"
-                          onClick={() => sendMessage(a)}
-                        >
-                          {a}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
@@ -341,7 +408,7 @@ export default function AIChatbot() {
             {isTyping && (
               <div className="chat-message bot">
                 <div className="message-avatar">
-                  <i className="fa-solid fa-robot bot-icon" />
+                  <img src={baseeraIcon} alt="Baseera" className="bot-icon-img" />
                 </div>
                 <div className="message-body">
                   <div className="message-bubble typing-indicator">
@@ -356,9 +423,6 @@ export default function AIChatbot() {
           {/* Input */}
           <div className="chat-input-area">
             <div className="chat-input-row">
-              <button className="attach-btn" title="Attach file">
-                <i className="fa-solid fa-paperclip" />
-              </button>
               <textarea
                 ref={inputRef}
                 className="chat-input"
