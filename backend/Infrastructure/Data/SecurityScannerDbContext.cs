@@ -11,6 +11,7 @@ public class SecurityScannerDbContext : DbContext
     }
 
     public DbSet<User> Users { get; set; }
+    public DbSet<Profile> Profiles { get; set; }
     public DbSet<Scan> Scans { get; set; }
     public DbSet<Vulnerability> Vulnerabilities { get; set; }
     public DbSet<Report> Reports { get; set; }
@@ -41,6 +42,29 @@ public class SecurityScannerDbContext : DbContext
 
             entity.HasIndex(e => e.Email).IsUnique();
             entity.HasIndex(e => e.Username);
+        });
+
+        // Profile Configuration
+        modelBuilder.Entity<Profile>(entity =>
+        {
+            entity.HasKey(p => p.Id);
+
+            entity.Property(p => p.FullName).HasMaxLength(150);
+            entity.Property(p => p.PhoneNumber).HasMaxLength(30);
+            entity.Property(p => p.Address).HasMaxLength(300);
+            entity.Property(p => p.Bio).HasMaxLength(2000);
+            entity.Property(p => p.AvatarUrl).HasMaxLength(500);
+
+            entity.Property(p => p.CreatedAtUtc).IsRequired();
+
+            entity.HasIndex(p => p.UserId).IsUnique();
+
+            entity.HasOne(p => p.User)
+                  .WithOne(u => u.Profile)
+                  .HasForeignKey<Profile>(p => p.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasQueryFilter(p => p.DeletedAtUtc == null);
         });
 
         // Scan Configuration
