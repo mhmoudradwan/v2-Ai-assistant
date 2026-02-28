@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LandingNavbar from '../components/LandingNavbar';
 import apiClient from '../api/axios.config';
-import baseeraIcon from '../assets/baseera-icon.svg';
+import baseeraLogo from '../assets/logo.png';
 import './AIChatbot.css';
 
 const MAX_INPUT_HEIGHT = 120;
@@ -117,29 +117,49 @@ export default function AIChatbot() {
     if (!activeConv || messages.length === 0) return;
 
     const msgHTML = messages.map((msg) => {
-      const role = msg.role === 'user' ? 'You' : 'Baseera Assistant';
-      const roleIcon = msg.role === 'user' ? '👤' : '🔮';
-      const bgColor = msg.role === 'user' ? '#6366f1' : '#1e293b';
+      const isUser = msg.role === 'user';
+      const role = isUser ? 'You' : 'Baseera Assistant';
+      const roleIcon = isUser ? '👤' : '🛡️';
+      const bgColor = isUser ? '#6366f1' : '#1e293b';
       const textColor = '#e2e8f0';
-      const align = msg.role === 'user' ? 'flex-end' : 'flex-start';
+      const align = isUser ? 'flex-end' : 'flex-start';
+      const borderRadius = isUser
+        ? '14px 14px 4px 14px'
+        : '14px 14px 14px 4px';
       const time = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const escapedContent = msg.content
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/\n/g, '<br/>');
       return `
       <div style="display:flex;justify-content:${align};margin-bottom:16px;">
-        <div style="max-width:70%;background:${bgColor};color:${textColor};padding:12px 16px;border-radius:12px;">
-          <div style="font-weight:600;margin-bottom:4px;font-size:0.8rem;color:#94a3b8;">${roleIcon} ${role} · ${time}</div>
-          <div style="white-space:pre-wrap;">${escapedContent}</div>
+        <div style="max-width:70%;background:${bgColor};color:${textColor};padding:14px 18px;border-radius:${borderRadius};border:${isUser ? 'none' : '1px solid #2d3748'};">
+          <div style="font-weight:600;margin-bottom:6px;font-size:0.78rem;color:${isUser ? 'rgba(255,255,255,0.7)' : '#94a3b8'};">${roleIcon} ${role} · ${time}</div>
+          <div style="white-space:pre-wrap;line-height:1.6;font-size:0.9rem;">${escapedContent}</div>
         </div>
       </div>`;
     }).join('');
 
     const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><title>${activeConv.title} - Baseera Chat Export</title>
-<style>body{background:#0f1724;font-family:'Inter','Segoe UI',sans-serif;padding:40px;max-width:800px;margin:0 auto;}
-h1{color:#f1f5f9;font-size:1.4rem;}h2{color:#64748b;font-size:0.85rem;font-weight:400;margin-bottom:30px;}</style>
-</head><body><h1><span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#111827;border:2px solid #22c55e;vertical-align:middle;margin-right:8px;font-size:16px;">👁️</span> ${activeConv.title}</h1><h2>Exported on ${new Date().toLocaleString()}</h2>${msgHTML}</body></html>`;
+<style>
+  body { background: #0f1724; font-family: 'Inter', 'Segoe UI', sans-serif; padding: 40px 20px; max-width: 800px; margin: 0 auto; }
+  .export-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .export-logo { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #00bc7d, #00b8db); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
+  h1 { color: #f1f5f9; font-size: 1.3rem; margin: 0; }
+  .export-meta { color: #64748b; font-size: 0.82rem; margin-bottom: 30px; margin-left: 48px; }
+  .divider { border: none; border-top: 1px solid #1e2d3d; margin: 0 0 24px 0; }
+</style>
+</head><body>
+<div class="export-header">
+  <div class="export-logo">B</div>
+  <h1>${activeConv.title}</h1>
+</div>
+<div class="export-meta">Exported from Baseera Assistant · ${new Date().toLocaleString()}</div>
+<hr class="divider">
+${msgHTML}
+<div style="text-align:center;color:#475569;font-size:0.75rem;margin-top:30px;padding-top:20px;border-top:1px solid #1e2d3d;">Powered by Baseera · Cybersecurity AI Assistant</div>
+</body></html>`;
 
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
@@ -392,7 +412,7 @@ h1{color:#f1f5f9;font-size:1.4rem;}h2{color:#64748b;font-size:0.85rem;font-weigh
             {messages.length === 0 && !isTyping && (
               <div className="chat-empty">
                 <div className="chat-empty-icon">
-                  <img src={baseeraIcon} alt="Baseera" />
+                  <img src={baseeraLogo} alt="Baseera" style={{ width: '64px', height: '64px' }} />
                 </div>
                 <p>Ask Baseera about web vulnerabilities, fixes, and security best practices.</p>
               </div>
@@ -404,7 +424,7 @@ h1{color:#f1f5f9;font-size:1.4rem;}h2{color:#64748b;font-size:0.85rem;font-weigh
                   {msg.role === 'user' ? (
                     <i className="fa-solid fa-user" />
                   ) : (
-                    <img src={baseeraIcon} alt="Baseera" className="bot-icon-img" />
+                    <img src={baseeraLogo} alt="Baseera" className="bot-icon-img" />
                   )}
                 </div>
                 <div className="message-body">
@@ -417,7 +437,7 @@ h1{color:#f1f5f9;font-size:1.4rem;}h2{color:#64748b;font-size:0.85rem;font-weigh
             {isTyping && (
               <div className="chat-message bot">
                 <div className="message-avatar">
-                  <img src={baseeraIcon} alt="Baseera" className="bot-icon-img" />
+                  <img src={baseeraLogo} alt="Baseera" className="bot-icon-img" />
                 </div>
                 <div className="message-body">
                   <div className="message-bubble typing-indicator">

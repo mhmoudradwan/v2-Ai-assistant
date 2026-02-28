@@ -98,14 +98,23 @@ public class ChatController : ControllerBase
                 "meta:how_are_you");
         }
 
+        // What is Baseera? / Tell me about Baseera
         if (System.Text.RegularExpressions.Regex.IsMatch(lower,
-            @"\b(who are you|what are you|what is your name|what'?s your name|" +
-            @"tell me about yourself|what do you do|your name|introduce yourself)\b"))
+            @"\b(what is baseera|tell me about baseera|who is baseera|about baseera|explain baseera|describe baseera|baseera platform|what does baseera do|what(')?s baseera)\b"))
         {
             return ConversationalResponse(
-                "I'm Baseera Assistant — your AI-powered security advisor! 🛡️ " +
-                "I can explain vulnerabilities, assess their severity, and suggest fixes " +
-                "for 15 different types of web security issues. Just ask me about any vulnerability!",
+                "Baseera is a cybersecurity platform with a browser extension that helps detect vulnerabilities and security risks in websites. " +
+                "It analyzes web applications, highlights potential issues, and provides clear explanations and remediation guidance to improve overall security.",
+                "meta:about_baseera");
+        }
+
+        // Who is Baseera AI? / What is Baseera AI?
+        if (System.Text.RegularExpressions.Regex.IsMatch(lower,
+            @"\b(baseera ai|baseera assistant|who are you|what are you|your name|introduce yourself|what is your name|what(')?s your name|tell me about yourself|what do you do)\b"))
+        {
+            return ConversationalResponse(
+                "Baseera AI is an intelligent cybersecurity assistant that explains web application vulnerabilities, evaluates their severity, " +
+                "and provides structured recommendations for mitigation and secure implementation.",
                 "meta:identity");
         }
 

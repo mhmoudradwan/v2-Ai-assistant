@@ -460,17 +460,25 @@ def _handle_meta(text: str) -> Optional[dict]:
             "meta:how_are_you",
         )
 
-    # Identity / About
+    # What is Baseera?
     if re.search(
-        r"\b(who are you|what are you|what is your name|what'?s your name|"
-        r"tell me about yourself|what do you do|your name|introduce yourself)\b",
+        r"\b(what is baseera|tell me about baseera|who is baseera|about baseera|explain baseera|describe baseera|baseera platform|what does baseera do|what'?s baseera)\b",
         t,
     ):
         return _meta_response(
-            "I'm Baseera Assistant — your AI-powered security advisor! 🛡️ "
-            "I can explain vulnerabilities, assess their severity, and suggest fixes "
-            "for 15 different types of web security issues. "
-            "Just ask me about any vulnerability!",
+            "Baseera is a cybersecurity platform with a browser extension that helps detect vulnerabilities and security risks in websites. "
+            "It analyzes web applications, highlights potential issues, and provides clear explanations and remediation guidance to improve overall security.",
+            "meta:about_baseera",
+        )
+
+    # Who is Baseera AI?
+    if re.search(
+        r"\b(baseera ai|baseera assistant|who are you|what are you|your name|introduce yourself|what is your name|what'?s your name|tell me about yourself|what do you do)\b",
+        t,
+    ):
+        return _meta_response(
+            "Baseera AI is an intelligent cybersecurity assistant that explains web application vulnerabilities, evaluates their severity, "
+            "and provides structured recommendations for mitigation and secure implementation.",
             "meta:identity",
         )
 
