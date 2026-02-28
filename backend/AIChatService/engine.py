@@ -25,7 +25,7 @@ VULNERABILITIES = {
             r"(union\s+select|drop\s+table|or\s+1=1)",
         ],
         "keywords": ["sql injection", "sqli", "sql-injection", "sqlinjection",
-                     "union select", "drop table"],
+                     "union select", "drop table", "sql attack", "database injection"],
     },
     "xss": {
         "name": "Cross-Site Scripting (XSS)",
@@ -78,7 +78,8 @@ VULNERABILITIES = {
         "patterns": [
             r"(remote\s+code\s+exec|rce|\bcode\s+execut)",
         ],
-        "keywords": ["rce", "remote code execution", "code execution"],
+        "keywords": ["rce", "remote code execution", "code execution",
+                     "command injection", "command execution", "shell injection"],
     },
     "lfi": {
         "name": "Local File Inclusion (LFI)",
@@ -148,7 +149,7 @@ VULNERABILITIES = {
             r"(directory\s+travers|path\s+travers|\.\./|dot\s*dot\s*slash)",
         ],
         "keywords": ["directory traversal", "path traversal", "../",
-                     "dot dot slash"],
+                     "dot dot slash", "file traversal", "folder traversal"],
     },
     "open_redirect": {
         "name": "Open Redirect",
@@ -165,7 +166,8 @@ VULNERABILITIES = {
         "patterns": [
             r"(open\s+redirect|unvalidated\s+redirect)",
         ],
-        "keywords": ["open redirect", "unvalidated redirect"],
+        "keywords": ["open redirect", "unvalidated redirect",
+                     "url redirect", "redirect vulnerability", "open redirection"],
     },
     "auth_bypass": {
         "name": "Authentication Bypass",
@@ -182,7 +184,9 @@ VULNERABILITIES = {
         "patterns": [
             r"(auth\w*\s+bypass|authentication\s+bypass|bypass\s+auth)",
         ],
-        "keywords": ["authentication bypass", "auth bypass", "bypass login"],
+        "keywords": ["authentication bypass", "auth bypass", "bypass login",
+                     "bypass authentication", "login bypass", "broken authentication",
+                     "broken auth"],
     },
     "exposed_secrets": {
         "name": "Exposed API Keys / Secrets",
@@ -200,7 +204,10 @@ VULNERABILITIES = {
             r"(exposed\s+(api\s+key|secret|token|credential)|api\s+key\s+leak)",
         ],
         "keywords": ["exposed api key", "api key leak", "exposed secret",
-                     "hard-coded credentials"],
+                     "hard-coded credentials", "api keys", "exposed api", "api key",
+                     "exposed keys", "leaked credentials", "hardcoded credentials",
+                     "hardcoded secrets", "secret leak", "token leak", "exposed token",
+                     "exposed credential"],
     },
     "insecure_cookies": {
         "name": "Insecure Cookies",
@@ -217,7 +224,8 @@ VULNERABILITIES = {
             r"(insecure\s+cookie|cookie\s+security|missing\s+(httponly|secure)\s+flag)",
         ],
         "keywords": ["insecure cookie", "cookie security", "httponly flag",
-                     "secure flag", "samesite"],
+                     "secure flag", "samesite", "insecure cookies", "cookie flags",
+                     "cookie vulnerability"],
     },
     "missing_security_headers": {
         "name": "Missing Security Headers",
@@ -235,7 +243,8 @@ VULNERABILITIES = {
             r"(missing\s+security\s+header|security\s+header|csp\s+header|hsts)",
         ],
         "keywords": ["missing security headers", "csp", "hsts", "x-frame-options",
-                     "content security policy"],
+                     "content security policy", "security headers", "missing headers",
+                     "http headers", "csp header"],
     },
     "clickjacking": {
         "name": "Clickjacking",
@@ -253,7 +262,7 @@ VULNERABILITIES = {
             r"(clickjack|click\s+jack|iframe\s+attack|ui\s+redress)",
         ],
         "keywords": ["clickjacking", "click jacking", "iframe attack",
-                     "ui redressing"],
+                     "ui redressing", "frame attack"],
     },
     "exposed_comments": {
         "name": "Exposed Comments / Sensitive Information in Source",
@@ -271,7 +280,79 @@ VULNERABILITIES = {
             r"html\s+comment\s+leak)",
         ],
         "keywords": ["exposed comments", "sensitive comments",
-                     "information disclosure", "source code comments"],
+                     "information disclosure", "source code comments",
+                     "html comments", "code comments", "developer comments",
+                     "exposed comment"],
+    },
+    "sensitive_files": {
+        "name": "Sensitive Files Exposure",
+        "explanation": (
+            "Sensitive files like .env, .git/config, wp-config.php, backup files, and database dumps "
+            "being publicly accessible on a web server can expose credentials, API keys, database passwords, "
+            "and internal configuration details to attackers."
+        ),
+        "severity": "High",
+        "fix": (
+            "Block access to sensitive files via web server configuration using .htaccess or nginx rules. "
+            "Remove unnecessary files from production environments. "
+            "Add sensitive files and directories to .gitignore. "
+            "Regularly audit publicly accessible files on your server."
+        ),
+        "patterns": [
+            r"(sensitive\s+file|\.env\s+(file|exposed)|wp[-\s]config|database\s+dump|"
+            r"backup\s+file|config\s+file\s+exposed|\.git[/\\]config|file\s+exposure)",
+        ],
+        "keywords": ["sensitive files", "sensitive data files", "sensitive data",
+                     "exposed files", "backup files", ".env file", ".env exposed",
+                     "config file exposed", "git exposed", ".git/config",
+                     "wp-config", "database dump", "file exposure",
+                     "sensitive file exposure"],
+    },
+    "debug_pages": {
+        "name": "Debug Pages / Debug Mode Exposure",
+        "explanation": (
+            "Debug pages and debug mode left enabled in production can reveal stack traces, "
+            "environment variables, database queries, internal paths, and other sensitive information "
+            "that gives attackers significant advantages."
+        ),
+        "severity": "Medium",
+        "fix": (
+            "Disable debug mode in all production environments. "
+            "Configure custom error pages that don't reveal internal details. "
+            "Remove or restrict access to debug endpoints. "
+            "Use environment-specific configuration to ensure debug settings are never enabled in production."
+        ),
+        "patterns": [
+            r"(debug\s+(page|mode|endpoint|enabled|info|information)|stack\s+trace|"
+            r"verbose\s+error|development\s+mode|error\s+page\s+leak)",
+        ],
+        "keywords": ["debug page", "debug pages", "debug mode", "debug endpoint",
+                     "debug enabled", "stack trace", "error page", "verbose error",
+                     "debug information", "debug info", "development mode"],
+    },
+    "csp_issues": {
+        "name": "Content Security Policy (CSP) Issues",
+        "explanation": (
+            "Missing or misconfigured Content Security Policy (CSP) headers allow XSS attacks, "
+            "data injection attacks, and unauthorized resource loading. "
+            "A properly configured CSP restricts which sources are allowed to serve content to the page, "
+            "significantly reducing the attack surface."
+        ),
+        "severity": "Medium",
+        "fix": (
+            "Implement a strict Content-Security-Policy header on all responses. "
+            "Use nonces or hashes for inline scripts instead of 'unsafe-inline'. "
+            "Avoid 'unsafe-eval' in CSP directives. "
+            "Enable CSP reporting to detect and fix violations. "
+            "Regularly review and tighten your CSP policy."
+        ),
+        "patterns": [
+            r"(csp\s+(issue|misconfiguration|bypass|violation|header|policy)|"
+            r"content\s+security\s+policy\s+issue|weak\s+csp)",
+        ],
+        "keywords": ["csp issue", "csp issues", "csp misconfiguration", "csp bypass",
+                     "content security policy issue", "csp violation",
+                     "csp header missing", "weak csp", "csp policy"],
     },
 }
 
@@ -284,6 +365,14 @@ for _k, _v in VULNERABILITIES.items():
     for _kw in _v["keywords"]:
         _ALL_KEYWORDS.append(_kw)
         _KEYWORD_TO_KEY[_kw] = _k
+
+# Stop words stripped during fuzzy matching to reduce noise
+_FUZZY_STOP_WORDS = frozenset({
+    "what", "about", "is", "are", "the", "tell", "me", "how", "to",
+    "fix", "do", "you", "have", "can", "explain", "describe", "a", "an",
+    "i", "want", "know", "learn", "please", "show", "give", "information",
+    "on", "regarding", "for", "with", "there",
+})
 
 
 # ---------------------------------------------------------------------------
@@ -311,15 +400,33 @@ def fuzzy_match(user_input: str, threshold: int = 75) -> tuple:
         return None, 0
 
     text = user_input.lower()
+
+    # Token extraction: strip common noise words to improve matching accuracy
+    tokens = [w for w in re.split(r'\W+', text) if w and w not in _FUZZY_STOP_WORDS]
+    cleaned = " ".join(tokens)
+
+    # Direct keyword match on cleaned text
+    if cleaned and cleaned in _KEYWORD_TO_KEY:
+        return _KEYWORD_TO_KEY[cleaned], 100
+
+    # Check if any keyword is contained within the cleaned text
+    if cleaned:
+        for kw in _ALL_KEYWORDS:
+            if kw in cleaned:
+                return _KEYWORD_TO_KEY[kw], 95
+
     best_key = None
     best_score = 0
 
-    for key, vuln in VULNERABILITIES.items():
-        for kw in vuln["keywords"]:
-            score = fuzz.partial_ratio(text, kw)
-            if score > best_score:
-                best_score = score
-                best_key = key
+    # Try fuzzy matching on cleaned text first, then fall back to original
+    search_texts = [cleaned, text] if cleaned and cleaned != text else [text]
+    for search_text in search_texts:
+        for key, vuln in VULNERABILITIES.items():
+            for kw in vuln["keywords"]:
+                score = fuzz.partial_ratio(search_text, kw)
+                if score > best_score:
+                    best_score = score
+                    best_key = key
 
     if best_score >= threshold:
         return best_key, best_score
@@ -625,7 +732,20 @@ def _handle_meta(text: str) -> Optional[dict]:
             )
 
     # List all vulnerabilities
-    if re.search(r"\b(list|show all|all vulner)\b", t) or re.match(r"^vulnerabilit", t):
+    if re.search(
+        r"\b(list|show all)\b"
+        r"|\b(all|every)\s+vulner"
+        r"|\b(what|which)\s+(all\s+(the\s+)?)?vulner"
+        r"|\bwhat\s+vulns?\b"
+        r"|\bhow\s+many\s+vulner"
+        r"|\byour\s+vulner"
+        r"|\bdo\s+you\s+(have|know).*vulner"
+        r"|\bwhat\s+do\s+you\s+(know|support)([!?,.\s]*$|.*vulner)"
+        r"|\bwhat\s+can\s+you\s+(detect|scan)([!?,.\s]*$|.*vulner)"
+        r"|\bshow\s+me\s+vulner"
+        r"|\btell\s+me\s+(all\s+)?vulner",
+        t,
+    ) or re.match(r"^vulnerabilit", t):
         vuln_list = "\n".join(
             f"- {v['name']} ({v['severity']})"
             for v in VULNERABILITIES.values()
