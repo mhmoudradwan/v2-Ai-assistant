@@ -25,7 +25,8 @@ VULNERABILITIES = {
             r"(union\s+select|drop\s+table|or\s+1=1)",
         ],
         "keywords": ["sql injection", "sqli", "sql-injection", "sqlinjection",
-                     "union select", "drop table", "sql attack", "database injection"],
+                     "union select", "drop table", "sql attack", "database injection",
+                     "injection"],
     },
     "xss": {
         "name": "Cross-Site Scripting (XSS)",
@@ -149,7 +150,8 @@ VULNERABILITIES = {
             r"(directory\s+travers|path\s+travers|\.\./|dot\s*dot\s*slash)",
         ],
         "keywords": ["directory traversal", "path traversal", "../",
-                     "dot dot slash", "file traversal", "folder traversal"],
+                     "dot dot slash", "file traversal", "folder traversal",
+                     "traversal"],
     },
     "open_redirect": {
         "name": "Open Redirect",
@@ -167,7 +169,8 @@ VULNERABILITIES = {
             r"(open\s+redirect|unvalidated\s+redirect)",
         ],
         "keywords": ["open redirect", "unvalidated redirect",
-                     "url redirect", "redirect vulnerability", "open redirection"],
+                     "url redirect", "redirect vulnerability", "open redirection",
+                     "redirect"],
     },
     "auth_bypass": {
         "name": "Authentication Bypass",
@@ -207,7 +210,7 @@ VULNERABILITIES = {
                      "hard-coded credentials", "api keys", "exposed api", "api key",
                      "exposed keys", "leaked credentials", "hardcoded credentials",
                      "hardcoded secrets", "secret leak", "token leak", "exposed token",
-                     "exposed credential"],
+                     "exposed credential", "exposed"],
     },
     "insecure_cookies": {
         "name": "Insecure Cookies",
@@ -225,7 +228,7 @@ VULNERABILITIES = {
         ],
         "keywords": ["insecure cookie", "cookie security", "httponly flag",
                      "secure flag", "samesite", "insecure cookies", "cookie flags",
-                     "cookie vulnerability"],
+                     "cookie vulnerability", "cookie", "cookies"],
     },
     "missing_security_headers": {
         "name": "Missing Security Headers",
@@ -244,7 +247,7 @@ VULNERABILITIES = {
         ],
         "keywords": ["missing security headers", "csp", "hsts", "x-frame-options",
                      "content security policy", "security headers", "missing headers",
-                     "http headers", "csp header"],
+                     "http headers", "csp header", "headers"],
     },
     "clickjacking": {
         "name": "Clickjacking",
@@ -306,7 +309,7 @@ VULNERABILITIES = {
                      "exposed files", "backup files", ".env file", ".env exposed",
                      "config file exposed", "git exposed", ".git/config",
                      "wp-config", "database dump", "file exposure",
-                     "sensitive file exposure"],
+                     "sensitive file exposure", "sensitive"],
     },
     "debug_pages": {
         "name": "Debug Pages / Debug Mode Exposure",
@@ -328,7 +331,7 @@ VULNERABILITIES = {
         ],
         "keywords": ["debug page", "debug pages", "debug mode", "debug endpoint",
                      "debug enabled", "stack trace", "error page", "verbose error",
-                     "debug information", "debug info", "development mode"],
+                     "debug information", "debug info", "development mode", "debug"],
     },
     "csp_issues": {
         "name": "Content Security Policy (CSP) Issues",
@@ -736,6 +739,9 @@ def _handle_meta(text: str) -> Optional[dict]:
         r"\b(list|show all)\b"
         r"|\b(all|every)\s+vulner"
         r"|\b(what|which)\s+(all\s+(the\s+)?)?vulner"
+        r"|\bwhat\s+are\s+(the\s+)?vulner"
+        r"|\bwhat\s+are\s+your\s+vulner"
+        r"|\bwhat\s+(types?\s+of\s+)?vulner"
         r"|\bwhat\s+vulns?\b"
         r"|\bhow\s+many\s+vulner"
         r"|\byour\s+vulner"

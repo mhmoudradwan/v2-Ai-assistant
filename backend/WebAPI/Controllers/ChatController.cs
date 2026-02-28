@@ -391,6 +391,33 @@ public class ChatController : ControllerBase
             ["csp policy"] = ("Content Security Policy (CSP) Issues", "Medium",
                 "Missing or weak CSP policies allow XSS attacks and unauthorized resource loading.",
                 "Implement a strict Content-Security-Policy header. Use nonces or hashes for inline scripts."),
+            ["injection"] = ("SQL Injection", "Critical",
+                "SQL Injection occurs when an attacker inserts or manipulates SQL queries via user-supplied input, allowing them to read, modify, or delete database data.",
+                "Use parameterized queries / prepared statements. Apply input validation and least-privilege DB accounts."),
+            ["exposed"] = ("Exposed API Keys / Secrets", "Critical",
+                "Hard-coded or exposed API keys/secrets allow attackers to access third-party services, databases, or internal systems.",
+                "Store secrets in environment variables or a secrets manager. Rotate any exposed credentials immediately."),
+            ["sensitive"] = ("Sensitive Files Exposure", "High",
+                "Sensitive files like .env, .git/config, and backup files being publicly accessible can expose credentials, API keys, and internal configuration.",
+                "Block access to sensitive files via web server configuration. Remove unnecessary files from production."),
+            ["cookie"] = ("Insecure Cookies", "Medium",
+                "Cookies without Secure, HttpOnly, or SameSite flags can be stolen via XSS, network sniffing, or CSRF attacks.",
+                "Set Secure, HttpOnly, and SameSite=Strict flags on all sensitive cookies."),
+            ["cookies"] = ("Insecure Cookies", "Medium",
+                "Cookies without Secure, HttpOnly, or SameSite flags can be stolen via XSS, network sniffing, or CSRF attacks.",
+                "Set Secure, HttpOnly, and SameSite=Strict flags on all sensitive cookies."),
+            ["redirect"] = ("Open Redirect", "Medium",
+                "Open redirect occurs when an application accepts an untrusted URL as a redirect target, enabling phishing and credential-theft attacks.",
+                "Whitelist redirect destinations. Use relative paths or server-side token validation."),
+            ["traversal"] = ("Directory Traversal", "High",
+                "Directory traversal lets attackers access files and directories outside the intended web root by manipulating file paths.",
+                "Sanitize all user-supplied file paths. Use canonical path checks. Restrict the application to a defined base directory."),
+            ["headers"] = ("Missing Security Headers", "Medium",
+                "Missing HTTP security headers leave applications vulnerable to various client-side attacks.",
+                "Add Content-Security-Policy, X-Frame-Options, Strict-Transport-Security, X-Content-Type-Options, and Referrer-Policy headers to all responses."),
+            ["debug"] = ("Debug Pages / Debug Mode Exposure", "Medium",
+                "Debug mode or debug pages left enabled in production can reveal stack traces, environment variables, and sensitive internal information.",
+                "Disable debug mode in all production environments. Configure custom error pages. Remove debug endpoints."),
         };
 
         if (System.Text.RegularExpressions.Regex.IsMatch(lower,
@@ -480,6 +507,9 @@ public class ChatController : ControllerBase
             @"\b(list|show all)\b"
             + @"|\b(all|every)\s+vulner"
             + @"|\b(what|which)\s+(all\s+(the\s+)?)?vulner"
+            + @"|\bwhat\s+are\s+(the\s+)?vulner"
+            + @"|\bwhat\s+are\s+your\s+vulner"
+            + @"|\bwhat\s+(types?\s+of\s+)?vulner"
             + @"|\bwhat\s+vulns?\b"
             + @"|\bhow\s+many\s+vulner"
             + @"|\byour\s+vulner"
@@ -538,14 +568,7 @@ public class ChatController : ControllerBase
 
         if (bestMatchName != null)
         {
-            return ConversationalResponse(
-                $"Hmm, I'm not sure about that. Did you mean **{bestMatchName}**? " +
-                "Reply 'Yes' to learn about it, or ask me about a specific vulnerability.\n\n" +
-                "You can ask things like:\n" +
-                "• 'What is SQL Injection?'\n" +
-                "• 'How to fix XSS?'\n" +
-                "• 'Tell me about CSRF'",
-                $"suggestion:{bestMatch}");
+            return SuggestionResponse(bestMatchName, bestMatch!);
         }
 
         return new
@@ -562,6 +585,25 @@ public class ChatController : ControllerBase
             fix = (string?)null,
             report = (string?)null,
             matched_by = (string?)null
+        };
+    }
+
+    private static object SuggestionResponse(string matchName, string matchKey)
+    {
+        return new
+        {
+            vulnerability = (string?)null,
+            explanation = $"Hmm, I'm not sure about that. Did you mean **{matchName}**? " +
+                "Reply 'Yes' to learn about it, or ask me about a specific vulnerability.\n\n" +
+                "You can ask things like:\n" +
+                "• 'What is SQL Injection?'\n" +
+                "• 'How to fix XSS?'\n" +
+                "• 'Tell me about CSRF'",
+            severity = (string?)null,
+            fix = (string?)null,
+            report = (string?)null,
+            matched_by = $"suggestion:{matchKey}",
+            suggested_vuln = matchKey
         };
     }
 
