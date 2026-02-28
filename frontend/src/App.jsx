@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import './App.css'
 
 import Navbar from './components/Navbar'
@@ -24,6 +24,14 @@ import VerifyEmail from './pages/VerifyEmail';
 import AIChatbot from './pages/AIChatbot';
 
 
+function HomeRedirect() {
+  const token = localStorage.getItem("authToken");
+  if (token) {
+    return <Navigate to="/landing" replace />;
+  }
+  return <Home />;
+}
+
 function AppContent() {
   const location = useLocation();
 
@@ -35,7 +43,7 @@ function AppContent() {
     <>
     
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<HomeRedirect />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
