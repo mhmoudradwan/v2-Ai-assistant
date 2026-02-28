@@ -113,8 +113,30 @@ export default function AIChatbot() {
     setEditingId(null);
   };
 
-  const exportChatAsHTML = () => {
+  const exportChatAsHTML = async () => {
     if (!activeConv || messages.length === 0) return;
+
+    // Convert logo to base64 data URI for embedding in standalone HTML
+    let logoDataUri = null;
+    try {
+      const resp = await fetch(baseeraLogo);
+      const blob = await resp.blob();
+      logoDataUri = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      // fall back to "B" text if image conversion fails
+    }
+
+    const logoHtml = logoDataUri
+      ? `<img src="${logoDataUri}" alt="Baseera" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+      : 'B';
+    const faviconHtml = logoDataUri
+      ? `<link rel="icon" href="${logoDataUri}" />`
+      : '';
 
     const msgHTML = messages.map((msg) => {
       const isUser = msg.role === 'user';
@@ -141,18 +163,19 @@ export default function AIChatbot() {
     }).join('');
 
     const html = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>${activeConv.title} - Baseera Chat Export</title>
+<html><head><meta charset="UTF-8">${faviconHtml}<title>${activeConv.title} - Baseera Chat Export</title>
 <style>
   body { background: #0f1724; font-family: 'Inter', 'Segoe UI', sans-serif; padding: 40px 20px; max-width: 800px; margin: 0 auto; }
   .export-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-  .export-logo { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #00bc7d, #00b8db); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
+  .export-logo { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #00bc7d, #00b8db); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; overflow: hidden; }
+  .export-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
   h1 { color: #f1f5f9; font-size: 1.3rem; margin: 0; }
   .export-meta { color: #64748b; font-size: 0.82rem; margin-bottom: 30px; margin-left: 48px; }
   .divider { border: none; border-top: 1px solid #1e2d3d; margin: 0 0 24px 0; }
 </style>
 </head><body>
 <div class="export-header">
-  <div class="export-logo">B</div>
+  <div class="export-logo">${logoHtml}</div>
   <h1>${activeConv.title}</h1>
 </div>
 <div class="export-meta">Exported from Baseera Assistant · ${new Date().toLocaleString()}</div>
@@ -177,6 +200,16 @@ ${msgHTML}
     setInput('');
     if (inputRef.current) {
       inputRef.current.style.height = 'auto';
+    }
+
+    // Rewrite API message if user is confirming a "Did you mean?" suggestion
+    const affirmativePattern = /^(yes|yep|yeah|yea|sure|ok|okay|right|correct|absolutely|definitely|of course|go ahead|tell me|yes please)[!.,?]?\s*$/i;
+    let apiMessage = trimmed;
+    if (affirmativePattern.test(trimmed)) {
+      const lastBotMsg = [...messages].reverse().find((m) => m.role === 'bot');
+      if (lastBotMsg?.rawData?.suggested_vuln) {
+        apiMessage = `What is ${lastBotMsg.rawData.suggested_vuln}?`;
+      }
     }
 
     const userMsg = {
@@ -219,7 +252,7 @@ ${msgHTML}
 
     try {
       const data = await apiClient.post('/chat', {
-        message: trimmed,
+        message: apiMessage,
         conversationId: convId,
       });
 
