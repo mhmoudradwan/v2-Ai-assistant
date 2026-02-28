@@ -118,6 +118,7 @@ export default function AIChatbot() {
 
     const msgHTML = messages.map((msg) => {
       const role = msg.role === 'user' ? 'You' : 'Baseera Assistant';
+      const roleIcon = msg.role === 'user' ? '👤' : '🔮';
       const bgColor = msg.role === 'user' ? '#6366f1' : '#1e293b';
       const textColor = '#e2e8f0';
       const align = msg.role === 'user' ? 'flex-end' : 'flex-start';
@@ -128,7 +129,7 @@ export default function AIChatbot() {
       return `
       <div style="display:flex;justify-content:${align};margin-bottom:16px;">
         <div style="max-width:70%;background:${bgColor};color:${textColor};padding:12px 16px;border-radius:12px;">
-          <div style="font-weight:600;margin-bottom:4px;font-size:0.8rem;color:#94a3b8;">${role} · ${time}</div>
+          <div style="font-weight:600;margin-bottom:4px;font-size:0.8rem;color:#94a3b8;">${roleIcon} ${role} · ${time}</div>
           <div style="white-space:pre-wrap;">${escapedContent}</div>
         </div>
       </div>`;
@@ -138,19 +139,7 @@ export default function AIChatbot() {
 <html><head><meta charset="UTF-8"><title>${activeConv.title} - Baseera Chat Export</title>
 <style>body{background:#0f1724;font-family:'Inter','Segoe UI',sans-serif;padding:40px;max-width:800px;margin:0 auto;}
 h1{color:#f1f5f9;font-size:1.4rem;}h2{color:#64748b;font-size:0.85rem;font-weight:400;margin-bottom:30px;}</style>
-</head><body><h1><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32" style="vertical-align:middle;margin-right:8px;">
-  <circle cx="50" cy="50" r="48" fill="#111827" stroke="#22c55e" stroke-width="3"/>
-  <circle cx="50" cy="50" r="20" fill="#22c55e" opacity="0.3"/>
-  <circle cx="50" cy="50" r="8" fill="#22c55e"/>
-  <line x1="50" y1="30" x2="50" y2="10" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
-  <line x1="67" y1="37" x2="82" y2="22" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
-  <line x1="70" y1="50" x2="90" y2="50" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
-  <line x1="67" y1="63" x2="82" y2="78" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
-  <line x1="50" y1="70" x2="50" y2="90" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
-  <line x1="33" y1="63" x2="18" y2="78" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
-  <line x1="30" y1="50" x2="10" y2="50" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
-  <line x1="33" y1="37" x2="18" y2="22" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
-</svg> ${activeConv.title}</h1><h2>Exported on ${new Date().toLocaleString()}</h2>${msgHTML}</body></html>`;
+</head><body><h1><span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#111827;border:2px solid #22c55e;vertical-align:middle;margin-right:8px;font-size:16px;">👁️</span> ${activeConv.title}</h1><h2>Exported on ${new Date().toLocaleString()}</h2>${msgHTML}</body></html>`;
 
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
@@ -402,7 +391,9 @@ h1{color:#f1f5f9;font-size:1.4rem;}h2{color:#64748b;font-size:0.85rem;font-weigh
           <div className="chat-messages">
             {messages.length === 0 && !isTyping && (
               <div className="chat-empty">
-                <div className="chat-empty-icon">🛡️</div>
+                <div className="chat-empty-icon">
+                  <img src={baseeraIcon} alt="Baseera" />
+                </div>
                 <p>Ask Baseera about web vulnerabilities, fixes, and security best practices.</p>
               </div>
             )}
