@@ -237,19 +237,55 @@ public class ChatController : ControllerBase
             }
         }
 
-        // Show vulnerabilities by severity
+        // Show vulnerabilities by severity – supports multiple severities
+        var severityMap = new Dictionary<string, string[]>
+        {
+            ["critical"] = new[] { "SQL Injection", "RCE", "RFI", "Authentication Bypass", "Exposed API Keys" },
+            ["high"] = new[] { "XSS", "LFI", "SSRF", "Directory Traversal" },
+            ["medium"] = new[] { "CSRF", "Open Redirect", "Insecure Cookies", "Missing Security Headers", "Clickjacking" },
+            ["low"] = new[] { "Exposed Comments" },
+        };
+
+        bool asksAboutVulns = System.Text.RegularExpressions.Regex.IsMatch(lower,
+            @"\b(show|list|display|get|what\s+are|tell\s+me\s+about|give\s+me)\b.*vulnerabilit") ||
+            System.Text.RegularExpressions.Regex.IsMatch(lower,
+            @"vulnerabilit.*\b(critical|high|medium|low)\b");
+
+        if (asksAboutVulns)
+        {
+            var foundSeverities = new List<string>();
+            foreach (var sev in new[] { "critical", "high", "medium", "low" })
+            {
+                if (lower.Contains(sev))
+                    foundSeverities.Add(sev);
+            }
+
+            if (foundSeverities.Count > 0)
+            {
+                var parts = new List<string>();
+                var labels = new List<string>();
+                foreach (var sev in foundSeverities)
+                {
+                    labels.Add(char.ToUpper(sev[0]) + sev.Substring(1));
+                    if (severityMap.ContainsKey(sev))
+                    {
+                        foreach (var v in severityMap[sev])
+                            parts.Add($"- {v}");
+                    }
+                }
+                var labelStr = string.Join(" & ", labels);
+                return ConversationalResponse(
+                    $"{labelStr} severity vulnerabilities:\n{string.Join("\n", parts)}",
+                    $"meta:list:{string.Join("+", foundSeverities)}");
+            }
+        }
+
+        // Show vulnerabilities by severity (simple pattern)
         var severityMatch = System.Text.RegularExpressions.Regex.Match(lower,
             @"\b(show|list|display|get)\s+(critical|high|medium|low)\b");
         if (severityMatch.Success)
         {
             var targetSeverity = severityMatch.Groups[2].Value;
-            var severityMap = new Dictionary<string, string[]>
-            {
-                ["critical"] = new[] { "SQL Injection", "RCE", "RFI", "Authentication Bypass", "Exposed API Keys" },
-                ["high"] = new[] { "XSS", "LFI", "SSRF", "Directory Traversal" },
-                ["medium"] = new[] { "CSRF", "Open Redirect", "Insecure Cookies", "Missing Security Headers", "Clickjacking" },
-                ["low"] = new[] { "Exposed Comments" },
-            };
             if (severityMap.ContainsKey(targetSeverity))
             {
                 var list = string.Join("\n", severityMap[targetSeverity].Select(v => $"- {v}"));
@@ -291,6 +327,34 @@ public class ChatController : ControllerBase
             }
         }
 
+        // Before the default "I'm not sure" response, check for close matches
+        string? bestMatch = null;
+        string? bestMatchName = null;
+        int bestDistance = int.MaxValue;
+
+        foreach (var kv in keywords)
+        {
+            int distance = LevenshteinDistance(lower, kv.Key);
+            if (distance < bestDistance && distance <= 3)
+            {
+                bestDistance = distance;
+                bestMatch = kv.Key;
+                bestMatchName = kv.Value.name;
+            }
+        }
+
+        if (bestMatchName != null)
+        {
+            return ConversationalResponse(
+                $"Hmm, I'm not sure about that. Did you mean **{bestMatchName}**? " +
+                "Reply 'Yes' to learn about it, or ask me about a specific vulnerability.\n\n" +
+                "You can ask things like:\n" +
+                "• 'What is SQL Injection?'\n" +
+                "• 'How to fix XSS?'\n" +
+                "• 'Tell me about CSRF'",
+                $"suggestion:{bestMatch}");
+        }
+
         return new
         {
             vulnerability = (string?)null,
@@ -319,6 +383,26 @@ public class ChatController : ControllerBase
             report = (string?)null,
             matched_by = matchedBy
         };
+    }
+
+    private static int LevenshteinDistance(string s, string t)
+    {
+        if (string.IsNullOrEmpty(s)) return t?.Length ?? 0;
+        if (string.IsNullOrEmpty(t)) return s.Length;
+
+        var d = new int[s.Length + 1, t.Length + 1];
+        for (int i = 0; i <= s.Length; i++) d[i, 0] = i;
+        for (int j = 0; j <= t.Length; j++) d[0, j] = j;
+
+        for (int i = 1; i <= s.Length; i++)
+        {
+            for (int j = 1; j <= t.Length; j++)
+            {
+                int cost = s[i - 1] == t[j - 1] ? 0 : 1;
+                d[i, j] = Math.Min(Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1), d[i - 1, j - 1] + cost);
+            }
+        }
+        return d[s.Length, t.Length];
     }
 }
 
