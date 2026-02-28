@@ -5,6 +5,8 @@ import apiClient from '../api/axios.config';
 import baseeraIcon from '../assets/baseera-icon.svg';
 import './AIChatbot.css';
 
+const MAX_INPUT_HEIGHT = 120;
+
 const SUGGESTED_PROMPTS = [
   'Show critical vulnerabilities',
   'How to fix SQL Injection?',
@@ -164,6 +166,9 @@ h1{color:#f1f5f9;font-size:1.4rem;}h2{color:#64748b;font-size:0.85rem;font-weigh
     const trimmed = (text || input).trim();
     if (!trimmed) return;
     setInput('');
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+    }
 
     const userMsg = {
       id: generateId(),
@@ -441,7 +446,11 @@ h1{color:#f1f5f9;font-size:1.4rem;}h2{color:#64748b;font-size:0.85rem;font-weigh
                 className="chat-input"
                 placeholder="Ask Baseera..."
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = Math.min(e.target.scrollHeight, MAX_INPUT_HEIGHT) + 'px';
+                }}
                 onKeyDown={handleKeyDown}
                 rows={1}
                 disabled={isTyping}

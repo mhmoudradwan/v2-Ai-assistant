@@ -30,10 +30,10 @@
   display: flex;
   flex-direction: column;
   padding: 16px 12px;
-  overflow-y: auto;
   gap: 16px;
   height: calc(100vh - 70px);
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .sidebar-header {
@@ -112,6 +112,15 @@
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+}
+
+.recent-conversations::-webkit-scrollbar {
+  width: 4px;
+}
+
+.recent-conversations::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
 }
 
 .empty-hint {
@@ -461,9 +470,11 @@
   color: #e2e8f0;
   font-size: 0.88rem;
   resize: none;
+  min-height: 20px;
   max-height: 120px;
   line-height: 1.5;
   font-family: inherit;
+  overflow-y: auto;
 }
 
 .chat-input::placeholder {
