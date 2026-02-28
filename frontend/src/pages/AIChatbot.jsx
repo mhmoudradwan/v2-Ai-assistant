@@ -136,7 +136,19 @@ export default function AIChatbot() {
 <html><head><meta charset="UTF-8"><title>${activeConv.title} - Baseera Chat Export</title>
 <style>body{background:#0f1724;font-family:'Inter','Segoe UI',sans-serif;padding:40px;max-width:800px;margin:0 auto;}
 h1{color:#f1f5f9;font-size:1.4rem;}h2{color:#64748b;font-size:0.85rem;font-weight:400;margin-bottom:30px;}</style>
-</head><body><h1>🛡️ ${activeConv.title}</h1><h2>Exported on ${new Date().toLocaleString()}</h2>${msgHTML}</body></html>`;
+</head><body><h1><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32" style="vertical-align:middle;margin-right:8px;">
+  <circle cx="50" cy="50" r="48" fill="#111827" stroke="#22c55e" stroke-width="3"/>
+  <circle cx="50" cy="50" r="20" fill="#22c55e" opacity="0.3"/>
+  <circle cx="50" cy="50" r="8" fill="#22c55e"/>
+  <line x1="50" y1="30" x2="50" y2="10" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
+  <line x1="67" y1="37" x2="82" y2="22" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
+  <line x1="70" y1="50" x2="90" y2="50" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
+  <line x1="67" y1="63" x2="82" y2="78" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
+  <line x1="50" y1="70" x2="50" y2="90" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
+  <line x1="33" y1="63" x2="18" y2="78" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
+  <line x1="30" y1="50" x2="10" y2="50" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
+  <line x1="33" y1="37" x2="18" y2="22" stroke="#06b6d4" stroke-width="1.5" opacity="0.6"/>
+</svg> ${activeConv.title}</h1><h2>Exported on ${new Date().toLocaleString()}</h2>${msgHTML}</body></html>`;
 
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
@@ -148,6 +160,7 @@ h1{color:#f1f5f9;font-size:1.4rem;}h2{color:#64748b;font-size:0.85rem;font-weigh
   };
 
   const sendMessage = async (text) => {
+    if (isTyping) return; // Don't allow sending while bot is responding
     const trimmed = (text || input).trim();
     if (!trimmed) return;
     setInput('');
@@ -242,7 +255,7 @@ h1{color:#f1f5f9;font-size:1.4rem;}h2{color:#64748b;font-size:0.85rem;font-weigh
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      if (!isTyping) sendMessage();
     }
   };
 
@@ -431,11 +444,12 @@ h1{color:#f1f5f9;font-size:1.4rem;}h2{color:#64748b;font-size:0.85rem;font-weigh
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 rows={1}
+                disabled={isTyping}
               />
               <button
                 className="send-btn"
                 onClick={() => sendMessage()}
-                disabled={!input.trim()}
+                disabled={!input.trim() || isTyping}
               >
                 <i className="fa-solid fa-arrow-right" />
               </button>

@@ -32,8 +32,6 @@
   padding: 16px 12px;
   overflow-y: auto;
   gap: 16px;
-  position: sticky;
-  top: 0;
   height: calc(100vh - 70px);
   flex-shrink: 0;
 }
@@ -112,6 +110,8 @@
   flex-direction: column;
   gap: 4px;
   flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .empty-hint {
@@ -468,6 +468,11 @@
 
 .chat-input::placeholder {
   color: #475569;
+}
+
+.chat-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .send-btn {

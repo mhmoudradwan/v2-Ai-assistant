@@ -302,21 +302,18 @@ def regex_match(user_input: str) -> Optional[str]:
 # ---------------------------------------------------------------------------
 # Algorithm 3: Fuzzy String Matching
 # ---------------------------------------------------------------------------
-def fuzzy_match(user_input: str, threshold: int = 75) -> Optional[str]:
+def fuzzy_match(user_input: str, threshold: int = 75) -> tuple:
     """
-    Try fuzz.partial_ratio against each vulnerability's keyword list.
-    Also use difflib.get_close_matches as a secondary pass.
-    Returns the vulnerability key with the best score above threshold.
+    Returns (vuln_key, score). vuln_key is None if nothing scores above threshold.
+    Score is always returned for "did you mean" suggestions.
     """
-    # Skip fuzzy matching for very short inputs (almost always conversational)
     if len(user_input.strip()) < 3:
-        return None
+        return None, 0
 
     text = user_input.lower()
     best_key = None
     best_score = 0
 
-    # Pass 1 – fuzzywuzzy partial_ratio
     for key, vuln in VULNERABILITIES.items():
         for kw in vuln["keywords"]:
             score = fuzz.partial_ratio(text, kw)
@@ -325,14 +322,13 @@ def fuzzy_match(user_input: str, threshold: int = 75) -> Optional[str]:
                 best_key = key
 
     if best_score >= threshold:
-        return best_key
+        return best_key, best_score
 
-    # Pass 2 – difflib close matches against cached keyword list
     matches = difflib.get_close_matches(text, _ALL_KEYWORDS, n=1, cutoff=0.75)
     if matches:
-        return _KEYWORD_TO_KEY[matches[0]]
+        return _KEYWORD_TO_KEY[matches[0]], 75
 
-    return None
+    return best_key, best_score
 
 
 # ---------------------------------------------------------------------------
@@ -356,11 +352,31 @@ def analyze(user_input: str) -> dict:
     if vuln_key:
         matched_by = "regex"
 
-    # Algorithm 3 – Fuzzy (fallback)
+    # Algorithm 3 – Fuzzy
     if not vuln_key:
-        vuln_key = fuzzy_match(user_input)
-        if vuln_key:
+        fuzzy_key, fuzzy_score = fuzzy_match(user_input)
+        if fuzzy_key and fuzzy_score >= 75:
+            vuln_key = fuzzy_key
             matched_by = "fuzzy"
+        elif fuzzy_key and fuzzy_score >= 55:
+            # Close enough to suggest
+            suggested_name = VULNERABILITIES[fuzzy_key]["name"]
+            return {
+                "vulnerability": None,
+                "explanation": (
+                    f"Hmm, I'm not sure about that. Did you mean **{suggested_name}**? "
+                    f"Reply 'Yes' to learn about it, or ask me about a specific vulnerability.\n\n"
+                    "You can ask things like:\n"
+                    "• 'What is SQL Injection?'\n"
+                    "• 'How to fix XSS?'\n"
+                    "• 'Tell me about CSRF'"
+                ),
+                "severity": None,
+                "fix": None,
+                "report": None,
+                "matched_by": "suggestion",
+                "suggested_vuln": fuzzy_key,
+            }
 
     # Algorithm 1 – Rule-Based lookup
     if vuln_key and vuln_key in VULNERABILITIES:
@@ -563,7 +579,29 @@ def _handle_meta(text: str) -> Optional[dict]:
                 "meta:help",
             )
 
-    # Show vulnerabilities by severity
+    # Show vulnerabilities by severity (supports multiple: "show low and medium vulnerabilities")
+    severity_levels = {"critical", "high", "medium", "low"}
+    # Check if the message is asking about vulnerabilities by severity
+    if re.search(r"\b(show|list|display|get|what\s+are|tell\s+me\s+about|give\s+me)\b.*vulnerabilit", t) or \
+       re.search(r"vulnerabilit.*\b(critical|high|medium|low)\b", t):
+        found_severities = [s for s in severity_levels if s in t]
+        if found_severities:
+            filtered = []
+            labels = []
+            for sev in ["critical", "high", "medium", "low"]:  # fixed order
+                if sev in found_severities:
+                    labels.append(sev.capitalize())
+                    for v in VULNERABILITIES.values():
+                        if v["severity"].lower() == sev:
+                            filtered.append(f"- {v['name']} ({v['severity']})")
+            if filtered:
+                label_str = " & ".join(labels)
+                return _meta_response(
+                    f"{label_str} severity vulnerabilities:\n" + "\n".join(filtered),
+                    f"meta:list:{'+'.join(s.lower() for s in labels)}",
+                )
+
+    # Show vulnerabilities by severity (simple pattern)
     severity_match = re.search(r"\b(show|list|display|get)\s+(critical|high|medium|low)\b", t)
     if severity_match:
         target_severity = severity_match.group(2).capitalize()
