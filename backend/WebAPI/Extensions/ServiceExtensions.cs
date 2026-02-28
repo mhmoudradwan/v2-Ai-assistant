@@ -46,6 +46,10 @@ public static class ServiceExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IEmailSender, SmtpEmailSender>();
 
+        // Profile & Cloudinary
+        services.AddScoped<ICloudinaryService, CloudinaryService>();
+        services.AddScoped<IProfileService, ProfileService>();
+
         return services;
     }
 

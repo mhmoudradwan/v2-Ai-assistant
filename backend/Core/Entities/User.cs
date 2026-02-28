@@ -22,4 +22,5 @@ public class User
     
     // Navigation Properties
     public ICollection<Scan> Scans { get; set; } = new List<Scan>();
+    public Profile? Profile { get; set; }
 }
