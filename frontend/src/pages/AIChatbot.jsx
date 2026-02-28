@@ -207,8 +207,13 @@ ${msgHTML}
     let apiMessage = trimmed;
     if (affirmativePattern.test(trimmed)) {
       const lastBotMsg = [...messages].reverse().find((m) => m.role === 'bot');
-      if (lastBotMsg?.rawData?.suggested_vuln) {
-        apiMessage = `What is ${lastBotMsg.rawData.suggested_vuln}?`;
+      const suggestedVuln = lastBotMsg?.rawData?.suggested_vuln
+        || lastBotMsg?.rawData?.suggestedVuln
+        || (typeof lastBotMsg?.rawData?.matched_by === 'string' && lastBotMsg.rawData.matched_by.startsWith('suggestion:')
+            ? lastBotMsg.rawData.matched_by.replace('suggestion:', '')
+            : null);
+      if (suggestedVuln) {
+        apiMessage = `What is ${suggestedVuln}?`;
       }
     }
 
